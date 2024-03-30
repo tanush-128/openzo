@@ -46,8 +46,10 @@ class NotificationByte {
   static Future<List<NotificationByte>> fetchMany(String pincode) async {
     List<NotificationByte> notifications = [];
     // fetch notifications from the server
-    http.Request req = http.Request('GET',
-        Uri.parse('${GlobalConsts.backend_url}/notification?pincode=$pincode'));
+    http.Request req = http.Request(
+        'GET',
+        Uri.parse(
+            '${GlobalConsts.backend_url}/notification/?pincode=$pincode'));
     http.StreamedResponse res = await req.send();
 
     if (res.statusCode == 200) {

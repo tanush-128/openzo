@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:openzo_frontend/constants/constants.dart';
+import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/src/home_page/store_category.dart';
 
 class CategoriesPage extends StatefulWidget {
@@ -20,53 +22,16 @@ class _CategoriesPageState extends State<CategoriesPage> {
           padding: const EdgeInsets.all(8.0),
           child: Center(
             child: GridView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
+                childAspectRatio: 0.95,
                 // crossAxisSpacing: 10,
                 // mainAxisSpacing: 10,
               ),
-              children: [
-                StoreCategory(
-                  imageName: "Grocery stores.png",
-                  categoryName: "Grocery",
-                ),
-                StoreCategory(
-                  imageName: "All in one stores.png",
-                  categoryName: "All in one",
-                ),
-                StoreCategory(
-                  imageName: "Electronic stores.png",
-                  categoryName: "Electronics",
-                ),
-                StoreCategory(
-                  imageName: "Fashion stores.png",
-                  categoryName: "Fashion",
-                ),
-                StoreCategory(
-                  imageName: "Accessory store.png",
-                  categoryName: "Accessories",
-                ),
-                StoreCategory(
-                  imageName: "Fashion stores.png",
-                  categoryName: "Fashion",
-                ),
-                StoreCategory(
-                  imageName: "Foods and snacks.png",
-                  categoryName: "Food & Snacks",
-                ),
-                StoreCategory(
-                  imageName: "Internet and technology stores.png",
-                  categoryName: "Internet & Technology",
-                ),
-                StoreCategory(
-                  imageName: "Rental stores.png",
-                  categoryName: "Rental",
-                ),
-                StoreCategory(
-                  imageName: "Stationary store.png",
-                  categoryName: "Stationary",
-                ),
-              ],
+              children: GlobalConsts.StoreCategories.map(
+                  (e) => StoreCategoryTile(storeCategory: e)).toList(),
             ),
           ),
         ));

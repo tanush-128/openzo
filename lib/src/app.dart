@@ -1,33 +1,166 @@
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'package:openzo_frontend/constants/styles.dart';
-import 'package:openzo_frontend/main.dart';
 import 'package:openzo_frontend/models/user_data.dart';
 import 'package:openzo_frontend/src/bottomNavigationBar.dart';
+import 'package:openzo_frontend/src/cart/cart_page.dart';
+import 'package:openzo_frontend/src/store_page/store_page.dart';
+import 'package:openzo_frontend/src/stores_of_category/product_category_page.dart';
+import 'package:openzo_frontend/src/stores_of_category/stores_of_category.dart';
+import 'package:openzo_frontend/src/web_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'settings/settings_controller.dart';
-import 'settings/settings_view.dart';
+class NoTransitionsOnWeb extends PageTransitionsTheme {
+  @override
+  Widget buildTransitions<T>(
+    route,
+    context,
+    animation,
+    secondaryAnimation,
+    child,
+  ) {
+    if (kIsWeb) {
+      return child;
+    }
+    return super.buildTransitions(
+      route,
+      context,
+      animation,
+      secondaryAnimation,
+      child,
+    );
+  }
+}
 
 /// The Widget that configures your application.
-class MyApp extends StatefulWidget {
-  String? token;
-  MyApp({
+class MyApp extends StatelessWidget {
+  const MyApp({
     super.key,
-    required this.settingsController,
-    required this.token,
   });
 
-  final SettingsController settingsController;
-
   @override
-  State<MyApp> createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+
+      restorationScopeId: 'app',
+
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', ''), // English, no country code
+      ],
+
+      // Use AppLocalizations to configure the correct application title
+      // depending on the user's locale.
+      //
+      // The appTitle is defined in .arb files found in the localization
+      // directory.
+      onGenerateTitle: (BuildContext context) =>
+          AppLocalizations.of(context)!.appTitle,
+
+      // Define a light and dark color theme. Then, read the user's
+      // preferred ThemeMode (light, dark, or system default) from the
+      // SettingsController to display the correct theme.
+      theme: ThemeData(
+        useMaterial3: true,
+        scaffoldBackgroundColor: Colors.white,
+        dividerColor: Colors.grey.shade100,
+        iconButtonTheme: const IconButtonThemeData(),
+        dividerTheme: DividerThemeData(
+          space: 0,
+          thickness: 0.7,
+          color: Colors.grey.shade300,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: GlobalStyle.primaryColor,
+          elevation: 0,
+          iconTheme: IconThemeData(color: Colors.white),
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+              color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
+        ),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: GlobalStyle.primaryColor,
+            secondary: GlobalStyle.primaryColor,
+            brightness: Brightness.light),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            // backgroundColor: GlobalStyle.primaryColor,
+            backgroundColor: GlobalStyle.secondaryColor,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            textStyle:
+                const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+          ),
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: GlobalStyle.primaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(100),
+          ),
+          foregroundColor: Colors.white,
+        ),
+        pageTransitionsTheme: NoTransitionsOnWeb(),
+        textTheme: GoogleFonts.poppinsTextTheme(
+          Theme.of(context).textTheme,
+        ),
+      ),
+
+      // Define a function to handle named routes in order to support
+      // Flutter web url navigation and deep linking.
+      routerConfig: GoRouter(initialLocation: '/', routes: <RouteBase>[
+        GoRoute(
+            path: '/',
+            builder: (context, state) {
+              // return const BottomNavBar();
+              return const WebViewC();
+            },
+            routes: [
+              GoRoute(
+                path: 'cart/:storeID',
+                builder: (context, state) =>
+                    CartPage(id: int.parse(state.pathParameters['storeID']!)),
+              ),
+              GoRoute(
+                  path: 'store/:storeID',
+                  builder: (context, state) {
+                    return StorePage(
+                        storeId: int.parse(state.pathParameters['storeID']!));
+                  }),
+              GoRoute(
+                path: 'store',
+                builder: (context, state) {
+                  return StoresOfCategory(
+                      categoryName: state.uri.queryParameters['category']!);
+                },
+              ),
+              GoRoute(
+                path: 'product',
+                builder: (context, state) {
+                  return ProductCategoryPage(
+                      productCategoryName:
+                          state.uri.queryParameters['category']!);
+                },
+              )
+            ]),
+      ]),
+    );
+  }
 }
 
 getLocation() async {
@@ -73,144 +206,11 @@ handleUserData(String fcmToken) async {
     );
     UserData.createUserData(userData);
   } else {
+    UserData userData = await UserData.getUserData(userDataId);
+    if (userData.notificationToken != fcmToken) {
+      userData.notificationToken = fcmToken;
+      UserData.UpdateUserData(userData);
+    }
     log('User data already exists');
-  }
-}
-
-class _MyAppState extends State<MyApp> {
-  String _lastMessage = "";
-  _MyAppState() {
-    messageStreamController.listen((message) {
-      setState(() {
-        if (message.notification != null) {
-          _lastMessage = 'Received a notification message:'
-              '\nTitle=${message.notification?.title},'
-              '\nBody=${message.notification?.body},'
-              '\nData=${message.data}';
-        } else {
-          _lastMessage = 'Received a data message: ${message.data}';
-        }
-      });
-    });
-  }
-  @override
-  void initState() {
-    // TODO: implement initState
-    handleUserData(widget.token!);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Glue the SettingsController to the MaterialApp.
-    //
-    // The ListenableBuilder Widget listens to the SettingsController for changes.
-    // Whenever the user updates their settings, the MaterialApp is rebuilt.
-    return ListenableBuilder(
-      listenable: widget.settingsController,
-      builder: (BuildContext context, Widget? child) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          // Providing a restorationScopeId allows the Navigator built by the
-          // MaterialApp to restore the navigation stack when a user leaves and
-          // returns to the app after it has been killed while running in the
-          // background.
-          restorationScopeId: 'app',
-
-          // Provide the generated AppLocalizations to the MaterialApp. This
-          // allows descendant Widgets to display the correct translations
-          // depending on the user's locale.
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('en', ''), // English, no country code
-          ],
-
-          // Use AppLocalizations to configure the correct application title
-          // depending on the user's locale.
-          //
-          // The appTitle is defined in .arb files found in the localization
-          // directory.
-          onGenerateTitle: (BuildContext context) =>
-              AppLocalizations.of(context)!.appTitle,
-
-          // Define a light and dark color theme. Then, read the user's
-          // preferred ThemeMode (light, dark, or system default) from the
-          // SettingsController to display the correct theme.
-          theme: ThemeData(
-            useMaterial3: true,
-            scaffoldBackgroundColor: Colors.grey.shade50,
-            dividerColor: Colors.grey.shade100,
-            iconButtonTheme: const IconButtonThemeData(),
-            dividerTheme: DividerThemeData(
-              space: 0,
-              thickness: 0.7,
-              color: Colors.grey.shade300,
-            ),
-            appBarTheme: const AppBarTheme(
-              backgroundColor: GlobalStyle.primaryColor,
-              elevation: 0,
-              iconTheme: IconThemeData(color: Colors.white),
-              centerTitle: true,
-              titleTextStyle: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500),
-            ),
-            colorScheme: ColorScheme.fromSeed(
-                seedColor: GlobalStyle.primaryColor,
-                secondary: GlobalStyle.primaryColor,
-                brightness: Brightness.light),
-            elevatedButtonTheme: ElevatedButtonThemeData(
-              style: ElevatedButton.styleFrom(
-                // backgroundColor: GlobalStyle.primaryColor,
-                backgroundColor: GlobalStyle.secondaryColor,
-                foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                textStyle:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-              ),
-            ),
-            floatingActionButtonTheme: FloatingActionButtonThemeData(
-              backgroundColor: GlobalStyle.primaryColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(100),
-              ),
-              foregroundColor: Colors.white,
-            ),
-            textTheme: GoogleFonts.poppinsTextTheme(
-              Theme.of(context).textTheme,
-            ),
-          ),
-
-          // darkTheme: ThemeData.dark(),
-          themeMode: widget.settingsController.themeMode,
-
-          // Define a function to handle named routes in order to support
-          // Flutter web url navigation and deep linking.
-          onGenerateRoute: (RouteSettings routeSettings) {
-            return MaterialPageRoute<void>(
-              settings: routeSettings,
-              builder: (BuildContext context) {
-                switch (routeSettings.name) {
-                  case SettingsView.routeName:
-                    return SettingsView(controller: widget.settingsController);
-
-                  default:
-                    return const BottomNavBar();
-                }
-              },
-            );
-          },
-        );
-      },
-    );
   }
 }

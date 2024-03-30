@@ -1,11 +1,3 @@
-// type Ad struct {
-// 	gorm.Model
-// 	StoreID int    `json:"store_id"`
-// 	Name  string `json:"name"`
-// 	URL   string `json:"url"`
-// 	Image string `json:"image"`
-// 	ExpiresAt time.Time `json:"expires_at"`
-// }
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -43,7 +35,7 @@ class Ad {
     List<Ad> ads = [];
     // fetch ads from the server
     http.Request req = http.Request(
-        'GET', Uri.parse('${GlobalConsts.backend_url}/ad?pincode=$pincode'));
+        'GET', Uri.parse('${GlobalConsts.backend_url}/ad/?pincode=$pincode'));
     http.StreamedResponse res = await req.send();
 
     if (res.statusCode == 200) {

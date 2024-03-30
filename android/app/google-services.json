@@ -7,9 +7,47 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:53179141705:android:c50f26fc0694fc03fc3998",
+        "android_client_info": {
+          "package_name": "com.example.openzoforbusiness"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWG50Z4mdMTpqOyGYyOUjjVIYzSQEFFfo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:53179141705:android:294fcb5b751497c1fc3998",
         "android_client_info": {
           "package_name": "com.openzo.openzo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWG50Z4mdMTpqOyGYyOUjjVIYzSQEFFfo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:53179141705:android:de78060c2afb754afc3998",
+        "android_client_info": {
+          "package_name": "in.openzo.openzoforbusiness"
         }
       },
       "oauth_client": [],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/src/bytes/bytes_page.dart';
+import 'package:openzo_frontend/src/cart/carts_page.dart';
 import 'package:openzo_frontend/src/categories_page.dart';
 import 'package:openzo_frontend/src/home_page/home_page.dart';
 
@@ -17,6 +18,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
     const HomePage(),
     const CategoriesPage(),
     const BytesPage(),
+    const CartsPage(),
     const Center(
       child: Text('School'),
     ),
@@ -49,6 +51,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications_active_rounded),
             label: 'Bytes',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Carts',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

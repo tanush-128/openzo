@@ -50,6 +50,7 @@ class User {
 
       return;
     }
+    
 
     http.get(Uri.parse('${GlobalConsts.backend_url}/user/with_token/'),
         headers: <String, String>{

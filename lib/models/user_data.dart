@@ -17,16 +17,16 @@ import 'package:openzo_frontend/constants/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserData {
-  final int id;
-  final int userId;
-  final String latitude;
-  final String longitude;
-  final String address;
-  final String pincode;
-  final String city;
-  final String state;
-  final String country;
-  final String notificationToken;
+  int id;
+  int userId;
+  String latitude;
+  String longitude;
+  String address;
+  String pincode;
+  String city;
+  String state;
+  String country;
+  String notificationToken;
 
   UserData({
     required this.id,
@@ -80,7 +80,49 @@ class UserData {
       return null;
     }
   }
+
+  static Future<UserData> getUserData(
+    int userDataId,
+  ) async {
+    final res = await http.get(
+      Uri.parse('${GlobalConsts.backend_url}/userData/$userDataId'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (res.statusCode == 200) {
+      return UserData.fromJson(jsonDecode(res.body));
+    } else {
+      throw Exception('Failed to load user data');
+    }
+  }
+
+  static Future<UserData> UpdateUserData(UserData userData) async {
+    final res = await http.put(
+      Uri.parse('${GlobalConsts.backend_url}/userData/${userData.id}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({
+        'user_id': userData.userId,
+        'latitude': userData.latitude,
+        'longitude': userData.longitude,
+        'address': userData.address,
+        'pincode': userData.pincode,
+        'notification_token': userData.notificationToken,
+      }),
+    );
+
+    if (res.statusCode == 200) {
+      return UserData.fromJson(jsonDecode(res.body));
+    } else {
+      throw Exception('Failed to update user data');
+    }
+  }
 }
+
+
 
 // func (router *UserDataServiceRouter) CreateUserData(c *gin.Context) {
 

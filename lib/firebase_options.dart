@@ -25,7 +25,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -68,14 +71,5 @@ class DefaultFirebaseOptions {
     projectId: 'openzo-rt',
     storageBucket: 'openzo-rt.appspot.com',
     iosBundleId: 'com.example.openzoFrontend',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAZSLPcgdo6B2vGpzaC76kjCo0WRa2xoA8',
-    appId: '1:53179141705:ios:b35be5373c30c3b4fc3998',
-    messagingSenderId: '53179141705',
-    projectId: 'openzo-rt',
-    storageBucket: 'openzo-rt.appspot.com',
-    iosBundleId: 'com.example.openzoFrontend.RunnerTests',
   );
 }

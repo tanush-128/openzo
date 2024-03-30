@@ -1,29 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:openzo_frontend/constants/constants.dart';
 
-class StoreCategory extends StatelessWidget {
-  String imageName;
-  String categoryName;
-  StoreCategory({
+class StoreCategoryTile extends StatelessWidget {
+  StoreCategory storeCategory;
+  StoreCategoryTile({
     super.key,
-    required this.imageName,
-    required this.categoryName,
+    required this.storeCategory,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2.0),
+    return InkWell(
+      onTap: () {
+       
+        context.go('/store?category=${storeCategory.categoryName}');
+      },
       child: SizedBox(
-        height: 120,
+        height: 130,
         width: 100,
         child: Column(
           children: [
             Container(
-              width: 80,
-              height: 80,
+              width: 70,
+              height: 70,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                    image: AssetImage("assets/images/$imageName"), scale: 2),
+                    image:
+                        AssetImage("assets/images/${storeCategory.imageName}"),
+                    scale: 2),
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10.0),
                 boxShadow: [
@@ -44,12 +49,13 @@ class StoreCategory extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              categoryName,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                // fontSize: 16,
+              storeCategory.categoryName,
+              textAlign: TextAlign.center,
+              // overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
                 fontWeight: FontWeight.w400,
-                color: Colors.grey,
+                color: Colors.grey.shade700,
               ),
             ),
           ],

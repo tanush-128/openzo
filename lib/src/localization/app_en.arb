@@ -1,6 +1,6 @@
 {
-  "appTitle": "openzo_frontend",
+  "appTitle": "openzo",
   "@appTitle": {
-    "description": "The title of the application"
+    "description": "Open marketplace for Locality"
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/models/store.dart';
-import 'package:openzo_frontend/src/store_page/store_page.dart';
 
 class StoreCard extends StatefulWidget {
   Store store;
@@ -17,12 +17,8 @@ class _StoreCardState extends State<StoreCard> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => StorePage(
-                      store: widget.store,
-                    )));
+
+        context.go('/store/${widget.store.id}');
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8.0),

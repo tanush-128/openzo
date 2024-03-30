@@ -10,10 +10,8 @@ environment:
   sdk: '>=3.1.1 <4.0.0'
 
 dependencies:
-  accordion: ^2.6.0
   carousel_slider: ^4.2.1
-  firebase_core: ^2.24.2
-  firebase_messaging: ^14.7.10
+
   flutter:
     sdk: flutter
   flutter_localizations:
@@ -21,11 +19,14 @@ dependencies:
   flutter_otp_text_field: ^1.1.1
   geolocator: ^11.0.0
   google_fonts: 6.1.0
-
+  go_router: 
   provider: ^6.1.2
   rxdart: ^0.27.7
   shared_preferences: ^2.2.2
+  accordion: ^2.6.0
   url_launcher: ^6.2.4
+  firebase_core: 
+  webview_flutter: ^4.7.0
 
 dev_dependencies:
   flutter_test:
@@ -42,4 +43,10 @@ flutter:
   assets:
     # Add assets from the images directory to the application.
     - assets/images/
+    - assets/images/General Stores/
+    - assets/images/Electronic Stores/
+    - assets/images/top/
+    - assets/images/Stationary Stores/
+    - assets/images/Fashion Stores/
+    - assets/images/Footwear Stores/
     - lib/icons/
