@@ -13,12 +13,8 @@ class CartsPage extends StatefulWidget {
 }
 
 class _CartsPageState extends State<CartsPage> {
-
-
   @override
   Widget build(BuildContext context) {
-    
-
     return Consumer<CartsProvider>(
       builder: (context, value, child) {
         return Scaffold(

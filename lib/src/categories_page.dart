@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/constants/constants.dart';
-import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/src/home_page/store_category.dart';
 
 class CategoriesPage extends StatefulWidget {

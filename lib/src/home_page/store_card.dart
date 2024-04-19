@@ -17,7 +17,6 @@ class _StoreCardState extends State<StoreCard> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-
         context.go('/store/${widget.store.id}');
       },
       child: Container(
@@ -104,17 +103,16 @@ class _StoreCardState extends State<StoreCard> {
             ),
             // const SizedBox(height: 10),
             SizedBox(
-              width: double.infinity,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
-                          width: 280,
+                          width: 200,
                           child: Text(
                             widget.store.name,
                             style: GoogleFonts.poppins(
@@ -127,9 +125,7 @@ class _StoreCardState extends State<StoreCard> {
                             ),
                           ),
                         ),
-                        const Spacer(),
                         Container(
-                          width: 55,
                           padding: const EdgeInsets.symmetric(
                               vertical: 1, horizontal: 4),
                           decoration: BoxDecoration(

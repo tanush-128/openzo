@@ -16,6 +16,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
   List<Widget> pages = <Widget>[
     const HomePage(),
+    // const WebViewC(),
     const CategoriesPage(),
     const BytesPage(),
     const CartsPage(),

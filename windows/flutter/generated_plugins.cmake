@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  booking_and_publish_slots
   firebase_core
   geolocator_windows
   url_launcher_windows

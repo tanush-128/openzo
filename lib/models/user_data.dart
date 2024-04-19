@@ -85,7 +85,7 @@ class UserData {
     int userDataId,
   ) async {
     final res = await http.get(
-      Uri.parse('${GlobalConsts.backend_url}/userData/$userDataId'),
+      Uri.parse('${GlobalConsts.backend_url}/userData/$userDataId/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

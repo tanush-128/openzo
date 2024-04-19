@@ -75,6 +75,9 @@ class CartsProvider extends ChangeNotifier {
           )
         ],
       );
+
+      cart.total = product.discountPrice * quantity;
+
       _cartsWithProducts[cart] = [product];
     }
     notifyListeners();

@@ -1,5 +1,6 @@
 import 'package:accordion/accordion.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/cart.dart';
@@ -8,6 +9,7 @@ import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/providers/carts_provider.dart';
 import 'package:openzo_frontend/src/store_page/custom_search_delegate.dart';
 import 'package:openzo_frontend/src/store_page/product_card.dart';
+import 'package:openzo_frontend/src/stores_of_category/vertical_product_card.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -38,8 +40,6 @@ class _StorePageState extends State<StorePage> {
   }
 
   @override
-
-
   @override
   Widget build(BuildContext context) {
     // Store store
@@ -65,35 +65,35 @@ class _StorePageState extends State<StorePage> {
           categories = categorizeProducts(products);
           return Scaffold(
             backgroundColor: Colors.white,
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-              iconTheme: const IconThemeData(color: Colors.black),
-              actions: [
-                IconButton(
-                    onPressed: () {
-                      showSearch(
-                          context: context,
-                          delegate: CustomSearchDelegate(products));
-                    },
-                    icon: const Icon(Icons.search)),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.favorite,
-                    color: Colors.red,
-                  ),
-                ),
-                IconButton(
-                    onPressed: () {
-                      launchUrl(
-                          Uri.parse(
-                              "https://maps.app.goo.gl/Wa1EP6fwMdep2vYn7"),
-                          mode: LaunchMode.externalApplication);
-                    },
-                    icon: const Icon(Icons.location_on_sharp)),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
-              ],
-            ),
+            // appBar: AppBar(
+            //   backgroundColor: Colors.white,
+            //   iconTheme: const IconThemeData(color: Colors.black),
+            //   actions: [
+            //     IconButton(
+            //         onPressed: () {
+            //           showSearch(
+            //               context: context,
+            //               delegate: CustomSearchDelegate(products));
+            //         },
+            //         icon: const Icon(Icons.search)),
+            //     IconButton(
+            //       onPressed: () {},
+            //       icon: const Icon(
+            //         Icons.favorite,
+            //         color: Colors.red,
+            //       ),
+            //     ),
+            //     IconButton(
+            //         onPressed: () {
+            //           launchUrl(
+            //               Uri.parse(
+            //                   "https://maps.app.goo.gl/Wa1EP6fwMdep2vYn7"),
+            //               mode: LaunchMode.externalApplication);
+            //         },
+            //         icon: const Icon(Icons.location_on_sharp)),
+            //     IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+            //   ],
+            // ),
             bottomNavigationBar: SizedBox(
                 width: double.infinity,
                 child: Column(
@@ -172,6 +172,196 @@ class _StorePageState extends State<StorePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
+                              Container(
+                                height: MediaQuery.of(context).size.width,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: NetworkImage(store.image),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                child: Stack(
+                                  children: [
+                                    AppBar(
+                                      backgroundColor:
+                                          Colors.black.withOpacity(0.5),
+                                      iconTheme: const IconThemeData(
+                                          color: Colors.white),
+                                      actions: [
+                                        IconButton(
+                                            onPressed: () {
+                                              showSearch(
+                                                  context: context,
+                                                  delegate:
+                                                      CustomSearchDelegate(
+                                                          products));
+                                            },
+                                            icon: const Icon(Icons.search)),
+                                        IconButton(
+                                          onPressed: () {},
+                                          icon: const Icon(
+                                            Icons.favorite,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                        IconButton(
+                                            onPressed: () {
+                                              launchUrl(
+                                                  Uri.parse(
+                                                      "https://maps.app.goo.gl/Wa1EP6fwMdep2vYn7"),
+                                                  mode: LaunchMode
+                                                      .externalApplication);
+                                            },
+                                            icon: const Icon(
+                                                Icons.location_on_sharp)),
+                                        IconButton(
+                                            onPressed: () {},
+                                            icon: const Icon(Icons.more_vert)),
+                                      ],
+                                    ),
+                                    Positioned(
+                                        bottom: 12,
+                                        right: 12,
+                                        child: SizedBox(
+                                          width: 175,
+                                          // height: 100,
+                                          child: Container(
+                                            decoration: const BoxDecoration(
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.grey,
+                                                    spreadRadius: 0.1,
+                                                    blurRadius: 2,
+                                                    offset: Offset(0, 1),
+                                                  ),
+                                                ],
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(20),
+                                                ),
+                                                color: Colors.white),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          vertical: 1,
+                                                          horizontal: 4,
+                                                        ),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors
+                                                              .amber.shade100,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      5.0),
+                                                        ),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            const Icon(
+                                                              Icons.star,
+                                                              color:
+                                                                  Colors.amber,
+                                                              size: 16,
+                                                            ),
+                                                            const SizedBox(
+                                                                width: 5),
+                                                            Text(
+                                                              '4.5',
+                                                              style: GoogleFonts
+                                                                  .poppins(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                                color:
+                                                                    Colors.grey,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                        '(100 Reviews)',
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  
+                                                  Container(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                      vertical: 4,
+                                                      horizontal: 12,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          Colors.grey.shade100,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              50.0),
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Container(
+                                                          child: Image.asset(
+                                                              'lib/icons/schedule.png',
+                                                              width: 20,
+                                                              height: 20),
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 5),
+                                                        Text(
+                                                          '${store.openingTime} - ${store.closingTime}',
+                                                          style: GoogleFonts
+                                                              .poppins(
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: Colors.black,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        )),
+                                  ],
+                                ),
+                              ),
                               Text(
                                 store.name,
                                 textAlign: TextAlign.center,
@@ -193,84 +383,7 @@ class _StorePageState extends State<StorePage> {
                                 ),
                               ),
                               const SizedBox(height: 5),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 1,
-                                      horizontal: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.amber.shade100,
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                          size: 16,
-                                        ),
-                                        const SizedBox(width: 5),
-                                        Text(
-                                          '4.5',
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    '(100 Reviews)',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 4,
-                                  horizontal: 12,
-                                ),
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(50.0),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      child: Image.asset(
-                                          'lib/icons/schedule.png',
-                                          width: 20,
-                                          height: 20),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      '${store.openingTime} - ${store.closingTime}',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Container(
@@ -337,20 +450,22 @@ class _StorePageState extends State<StorePage> {
                                       color: Colors.black,
                                     ),
                                   ),
-                                  content: Container(
-                                    // padding: const EdgeInsets.all(8.0),
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemCount: categories[e]!.length,
-                                      itemBuilder: (context, index) {
-                                        return ProductCard(
-                                          product: categories[e]![index],
-                                          cart: cart!,
-                                        );
-                                      },
+                                  content: GridView.builder(
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      childAspectRatio: 0.5,
                                     ),
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: categories[e]!.length,
+                                    itemBuilder: (context, index) {
+                                      return VerticalProductCard(
+                                        product: categories[e]![index],
+                                        cart: cart!,
+                                      );
+                                    },
                                   ),
                                 ),
                               )

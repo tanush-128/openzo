@@ -8,8 +8,9 @@ class GlobalConsts {
       // "http://3.108.228.116";
       // "http://13.201.50.235:80";
       // "http://ec2-13-201-50-235.ap-south-1.compute.amazonaws.com";
-      // "http://13.201.50.235:8080";
-      'https://backend.openzo.in';
+      // "http://10.145.36.93:8080";
+      // 'https://backend.openzo.in';
+      "http://10.145.124.113:8080";
   // "https://backendbalancer-1669335346.ap-south-1.elb.amazonaws.com/";
   // 'https://backendbalancer-1669335346.ap-south-1.elb.amazonaws.com';
 

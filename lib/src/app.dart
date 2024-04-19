@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -8,42 +7,104 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/constants/styles.dart';
+import 'package:openzo_frontend/main.dart';
 import 'package:openzo_frontend/models/user_data.dart';
+import 'package:openzo_frontend/src/booking/bookingPage.dart';
 import 'package:openzo_frontend/src/bottomNavigationBar.dart';
 import 'package:openzo_frontend/src/cart/cart_page.dart';
 import 'package:openzo_frontend/src/store_page/store_page.dart';
 import 'package:openzo_frontend/src/stores_of_category/product_category_page.dart';
 import 'package:openzo_frontend/src/stores_of_category/stores_of_category.dart';
-import 'package:openzo_frontend/src/web_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class NoTransitionsOnWeb extends PageTransitionsTheme {
+/// The Widget that configures your application.
+class MyApp extends StatefulWidget {
+  String? token;
+  MyApp({
+    super.key,
+    required this.token,
+  });
+
   @override
-  Widget buildTransitions<T>(
-    route,
-    context,
-    animation,
-    secondaryAnimation,
-    child,
-  ) {
-    if (kIsWeb) {
-      return child;
-    }
-    return super.buildTransitions(
-      route,
-      context,
-      animation,
-      secondaryAnimation,
-      child,
-    );
+  State<MyApp> createState() => _MyAppState();
+}
+
+getLocation() async {
+  LocationPermission permission = await _requestLocationPermission();
+  if (permission == LocationPermission.always ||
+      permission == LocationPermission.whileInUse) {
+    // Permission granted, proceed with getting location
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    log('Location: $position');
+
+    return position;
+  } else {
+    // Handle permission denied case (e.g., display a message)
+    print('Location permission denied');
   }
 }
 
-/// The Widget that configures your application.
-class MyApp extends StatelessWidget {
-  const MyApp({
-    super.key,
-  });
+Future<LocationPermission> _requestLocationPermission() async {
+  LocationPermission permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+  }
+  return permission;
+}
+
+handleUserData(String fcmToken) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  int? userDataId = prefs.getInt('user_data_id');
+  print(userDataId);
+  if (userDataId == null) {
+    Position position = await getLocation();
+    UserData userData = UserData(
+      id: 0,
+      userId: 0,
+      latitude: position.latitude.toString(),
+      longitude: position.longitude.toString(),
+      address: '0',
+      pincode: '0',
+      city: '0',
+      state: '0',
+      country: '0',
+      notificationToken: fcmToken,
+    );
+    UserData.createUserData(userData);
+  } else {
+    UserData userData = await UserData.getUserData(userDataId);
+    print(userData.notificationToken);
+    if (userData.notificationToken != fcmToken) {
+      userData.notificationToken = fcmToken;
+      UserData.UpdateUserData(userData);
+    }
+
+    log('User data already exists');
+  }
+}
+
+class _MyAppState extends State<MyApp> {
+  String _lastMessage = "";
+  _MyAppState() {
+    messageStreamController.listen((message) {
+      setState(() {
+        if (message.notification != null) {
+          _lastMessage = 'Received a notification message:'
+              '\nTitle=${message.notification?.title},'
+              '\nBody=${message.notification?.body},'
+              '\nData=${message.data}';
+        } else {
+          _lastMessage = 'Received a data message: ${message.data}';
+        }
+      });
+    });
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    handleUserData(widget.token!);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +176,6 @@ class MyApp extends StatelessWidget {
           ),
           foregroundColor: Colors.white,
         ),
-        pageTransitionsTheme: NoTransitionsOnWeb(),
         textTheme: GoogleFonts.poppinsTextTheme(
           Theme.of(context).textTheme,
         ),
@@ -123,12 +183,12 @@ class MyApp extends StatelessWidget {
 
       // Define a function to handle named routes in order to support
       // Flutter web url navigation and deep linking.
-      routerConfig: GoRouter(initialLocation: '/', routes: <RouteBase>[
+      routerConfig: GoRouter(initialLocation: '/store/1', routes: <RouteBase>[
         GoRoute(
             path: '/',
             builder: (context, state) {
-              // return const BottomNavBar();
-              return const WebViewC();
+              return const BottomNavBar();
+              // return const WebViewC();
             },
             routes: [
               GoRoute(
@@ -156,61 +216,15 @@ class MyApp extends StatelessWidget {
                       productCategoryName:
                           state.uri.queryParameters['category']!);
                 },
-              )
+              ),
+              GoRoute(
+                  path: 'booking',
+                  builder: (context, state) {
+                    return const BookingPage();
+                  }),
             ]),
       ]),
     );
   }
 }
-
-getLocation() async {
-  LocationPermission permission = await _requestLocationPermission();
-  if (permission == LocationPermission.always ||
-      permission == LocationPermission.whileInUse) {
-    // Permission granted, proceed with getting location
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    log('Location: $position');
-
-    return position;
-  } else {
-    // Handle permission denied case (e.g., display a message)
-    print('Location permission denied');
-  }
-}
-
-Future<LocationPermission> _requestLocationPermission() async {
-  LocationPermission permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-  }
-  return permission;
-}
-
-handleUserData(String fcmToken) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  int? userDataId = prefs.getInt('user_data_id');
-  if (userDataId == null) {
-    Position position = await getLocation();
-    UserData userData = UserData(
-      id: 0,
-      userId: 0,
-      latitude: position.latitude.toString(),
-      longitude: position.longitude.toString(),
-      address: '0',
-      pincode: '0',
-      city: '0',
-      state: '0',
-      country: '0',
-      notificationToken: fcmToken,
-    );
-    UserData.createUserData(userData);
-  } else {
-    UserData userData = await UserData.getUserData(userDataId);
-    if (userData.notificationToken != fcmToken) {
-      userData.notificationToken = fcmToken;
-      UserData.UpdateUserData(userData);
-    }
-    log('User data already exists');
-  }
-}
+// Remove the incomplete code block

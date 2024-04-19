@@ -66,6 +66,11 @@ class _CartPageState extends State<CartPage> {
                   // Navigator.pop(context);
                   showModalBottomSheet(
                       context: context,
+                      // constraints: const BoxConstraints(
+                      //   maxHeight: 400,
+                      // ),
+                      // isScrollControlled: true,
+                      useSafeArea: true,
                       builder: (context) {
                         TextEditingController phoneController =
                             TextEditingController();
@@ -81,13 +86,14 @@ class _CartPageState extends State<CartPage> {
                               address: addressController.text,
                               userDataId: 1,
                               saleId: 0),
-                         orderStatus: OrderStatus.placed,
+                          orderStatus: OrderStatus.placed,
                           totalAmount: cart!.total.toDouble(),
                           orderTime: DateTime.now(),
                           orderItems: cart!.orderItems,
                         );
                         return Container(
                           padding: const EdgeInsets.all(20),
+                          // padding: MediaQuery.of(context).viewInsets,
                           child: Column(
                             children: [
                               const Text('Enter your phone number and address'),
@@ -102,13 +108,15 @@ class _CartPageState extends State<CartPage> {
                                 ),
                               ),
                               ElevatedButton(
-                                onPressed: () {
-                                  SharedPreferences.getInstance().then((prefs) {
-                                    onlineOrder.customer.userDataId =
-                                        prefs.getInt('user_data_id')!;
-                                  });
-                                  OnlineOrder.createOnlineOrder(onlineOrder)
-                                      .then((value) => print('Order created'));
+                                onPressed: () async {
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  int userDataId =
+                                      prefs.getInt('user_data_id')!;
+                                  onlineOrder.customer.userDataId = userDataId;
+                                  await OnlineOrder.createOnlineOrder(
+                                      onlineOrder);
+
                                   // Navigator.pop(context);
                                 },
                                 child: const Text('Order Now'),

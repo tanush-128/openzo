@@ -90,7 +90,6 @@ class OnlineOrder {
   }
 
   static Future<OnlineOrder> createOnlineOrder(OnlineOrder onlineOrder) async {
-    print(jsonEncode(onlineOrder.toJson()));
     final response = await http.post(
       Uri.parse('${GlobalConsts.backend_url}/online_order/'),
       headers: <String, String>{
@@ -100,8 +99,10 @@ class OnlineOrder {
     );
 
     if (response.statusCode == 200) {
+      print(response.body);
       return OnlineOrder.fromJson(jsonDecode(response.body));
     } else {
+      print("Error: ${response.body}");
       throw Exception('Failed to create order');
     }
   }
