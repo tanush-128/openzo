@@ -183,7 +183,7 @@ class _MyAppState extends State<MyApp> {
 
       // Define a function to handle named routes in order to support
       // Flutter web url navigation and deep linking.
-      routerConfig: GoRouter(initialLocation: '/store/1', routes: <RouteBase>[
+      routerConfig: GoRouter(initialLocation: '/', routes: <RouteBase>[
         GoRoute(
             path: '/',
             builder: (context, state) {

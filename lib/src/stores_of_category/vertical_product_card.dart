@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_fade/image_fade.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/cart.dart';
 import 'package:openzo_frontend/models/product.dart';
@@ -52,10 +53,11 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 decoration: BoxDecoration(
-                  border: Border.all(color: GlobalStyle.secondaryColor),
-                  color: GlobalStyle.secondaryColor.withOpacity(0.3),
+                  border: Border.all(color: Colors.grey.shade300),
+                  color: Colors.blueGrey.shade900,
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: quantity != 0
@@ -71,7 +73,7 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                           },
                           child: const Icon(
                             Icons.remove,
-                            color: GlobalStyle.primaryColor,
+                            color: Colors.white,
                           ),
                         ),
                         const SizedBox(
@@ -79,7 +81,7 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                         ),
                         Text('$quantity',
                             style: const TextStyle(
-                                color: GlobalStyle.primaryColor,
+                                color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold)),
                         const SizedBox(
@@ -94,8 +96,10 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                                       widget.product, quantity);
                             });
                           },
-                          child: const Icon(Icons.add,
-                              color: GlobalStyle.primaryColor),
+                          child: const Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
                         ),
                       ])
                     : InkWell(
@@ -110,7 +114,7 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                         child: const Text(
                           'ADD',
                           style: TextStyle(
-                            color: GlobalStyle.primaryColor,
+                            color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -119,7 +123,8 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
             ],
           )
         : const SizedBox();
-    return SizedBox(
+    return Container(
+      color: Colors.white,
       // height: 205,
       // width: 320,
       child: Column(
@@ -245,28 +250,43 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                   });
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+              padding: const EdgeInsets.all(0),
+              // padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
               child: Column(
                 //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
+                  SizedBox(
                     // height: MediaQuery.of(context).size.width * 0.25,
                     // width: MediaQuery.of(context).size.width * 0.25,
-                    height: 200,
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        // borderRadius: BorderRadius.circular(10.0),
-                        image: widget.product.images.isNotEmpty
-                            ? DecorationImage(
-                                // image: AssetImage('assets/images/watch.webp'),
-                                image: NetworkImage(
-                                    widget.product.images[0].image),
-                                fit: BoxFit.cover,
-                              )
-                            : const DecorationImage(
-                                image: AssetImage('assets/images/watch.webp'))),
+                    height: MediaQuery.of(context).size.width * 0.5 * 1.33 - 16,
+                    width: MediaQuery.of(context).size.width * 0.5 - 16,
+                    child: ImageFade(
+                      image: NetworkImage(widget.product.images[0].image),
+                      fit: BoxFit.cover,
+                      placeholder: Container(
+                        decoration: BoxDecoration(
+                          // color: Colors.white,
+                          color: const Color(0xFFCFCDCA),
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(Icons.photo,
+                            color: Colors.grey.shade300, size: 32),
+                      ),
+                    ),
+                    // decoration: BoxDecoration(
+                    //     color: Colors.white,
+                    //     // borderRadius: BorderRadius.circular(10.0),
+                    //     image: widget.product.images.isNotEmpty
+                    //         ? DecorationImage(
+                    //             // image: AssetImage('assets/images/watch.webp'),
+                    //             image: NetworkImage(
+                    //                 widget.product.images[0].image),
+                    //             fit: BoxFit.cover,
+                    //           )
+                    //         : const DecorationImage(
+                    //             image: AssetImage('assets/images/watch.webp'))),
                   ),
                   const SizedBox(
                     height: 8,
