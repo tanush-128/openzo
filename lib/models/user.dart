@@ -17,28 +17,25 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
-  final String userName;
-  final String email;
-  final String password;
-  final String phone;
-
-  final int id;
+  String name;
+  String email;
+  String phone;
+  String id;
 
   User({
     required this.id,
-    required this.userName,
-    required this.email,
-    required this.password,
     required this.phone,
+    this.name = "",
+    this.email = "",
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['ID'],
-      userName: json['username'],
-      email: json['email'],
-      password: json['password'],
-      phone: json['phone'],
+      name: json['Name'],
+      email: json['Email'],
+      // password: json['password'],
+      phone: json['Phone'],
     );
   }
 
@@ -50,7 +47,6 @@ class User {
 
       return;
     }
-    
 
     http.get(Uri.parse('${GlobalConsts.backend_url}/user/with_token/'),
         headers: <String, String>{
@@ -94,17 +90,17 @@ class User {
     }
   }
 
-  static addUser(User user) {
-    http.post(Uri.parse('${GlobalConsts.backend_url}/user/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          // 'Authorization': GlobalConsts.token,
-        },
-        body: jsonEncode({
-          'username': user.userName,
-          'email': user.email,
-          'password': user.password,
-          'phone': user.phone,
-        }));
-  }
+  // static addUser(User user) {
+  //   http.post(Uri.parse('${GlobalConsts.backend_url}/user/'),
+  //       headers: <String, String>{
+  //         'Content-Type': 'application/json; charset=UTF-8',
+  //         // 'Authorization': GlobalConsts.token,
+  //       },
+  //       body: jsonEncode({
+
+  //         'email': user.email,
+  //
+  //         'phone': user.phone,
+  //       }));
+  // }
 }

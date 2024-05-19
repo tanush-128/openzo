@@ -38,7 +38,7 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                       productId: widget.product.id,
                       // quantity: 0,
                       id: 0,
-                      orderId: 0,
+                      orderId: "",
                     ))
             .quantity
         : 0;
@@ -261,20 +261,31 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                     // width: MediaQuery.of(context).size.width * 0.25,
                     height: MediaQuery.of(context).size.width * 0.5 * 1.33 - 16,
                     width: MediaQuery.of(context).size.width * 0.5 - 16,
-                    child: ImageFade(
-                      image: NetworkImage(widget.product.images[0].image),
-                      fit: BoxFit.cover,
-                      placeholder: Container(
-                        decoration: BoxDecoration(
-                          // color: Colors.white,
-                          color: const Color(0xFFCFCDCA),
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(Icons.photo,
-                            color: Colors.grey.shade300, size: 32),
-                      ),
-                    ),
+                    child: widget.product.images.isNotEmpty
+                        ? ImageFade(
+                            image: NetworkImage(widget.product.images[0].image),
+                            fit: BoxFit.cover,
+                            placeholder: Container(
+                              decoration: BoxDecoration(
+                                // color: Colors.white,
+                                color: const Color(0xFFCFCDCA),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              alignment: Alignment.center,
+                              child: Icon(Icons.photo,
+                                  color: Colors.grey.shade300, size: 32),
+                            ),
+                          )
+                        : Container(
+                            decoration: BoxDecoration(
+                              // color: Colors.white,
+                              color: const Color(0xFFCFCDCA),
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            alignment: Alignment.center,
+                            child: Icon(Icons.photo,
+                                color: Colors.grey.shade300, size: 32),
+                          ),
                     // decoration: BoxDecoration(
                     //     color: Colors.white,
                     //     // borderRadius: BorderRadius.circular(10.0),

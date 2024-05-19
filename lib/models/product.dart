@@ -28,26 +28,110 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:openzo_frontend/constants/constants.dart';
 
-class Product {
+class SizeVariant {
+  int id;
+  String productID;
+  String size;
+  int price;
+  int quantity;
+
+  SizeVariant({
+    required this.id,
+    required this.productID,
+    required this.size,
+    required this.price,
+    required this.quantity,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'product_id': productID,
+      'size': size,
+      'price': price,
+      'quantity': quantity,
+    };
+  }
+
+  factory SizeVariant.fromJson(Map<String, dynamic> json) {
+    return SizeVariant(
+      id: json['id'],
+      productID: json['product_id'],
+      size: json['size'],
+      price: json['price'],
+      quantity: json['quantity'],
+    );
+  }
+}
+
+class ColorVariant {
   final int id;
-  final String name;
-  final String description;
-  final int mrp;
-  int msrp = 0;
-  int discountPrice = 0;
+  final String productID;
+  final String color;
+  final int price;
   final int quantity;
-  final List<ProductImage> images;
-  final String category;
-  final int storeID;
-  final String barcode;
+
+  ColorVariant({
+    required this.id,
+    required this.productID,
+    required this.color,
+    required this.price,
+    required this.quantity,
+  });
+
+  factory ColorVariant.fromJson(Map<String, dynamic> json) {
+    return ColorVariant(
+      id: json['id'],
+      productID: json['product_id'],
+      color: json['color'],
+      price: json['price'],
+      quantity: json['quantity'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'product_id': productID,
+      'color': color,
+      'price': price,
+      'quantity': quantity,
+    };
+  }
+}
+
+class Product {
+  String id;
+  String name;
+  String description;
+  int mrp;
+  String quantityUnit;
+  int msrp;
+  int discountPrice = 0;
+  int quantity;
+  List<ProductImage> images;
+  List<SizeVariant> sizeVariants = [];
+  List<ColorVariant> colorVariants = [];
+  String brand;
+  int criticalQuantity;
+  String customCode;
+  String category;
+  String storeID;
+  String barcode;
 
   Product({
     required this.id,
     required this.name,
     required this.description,
+    required this.quantityUnit,
     required this.mrp,
     required this.msrp,
-    required this.discountPrice,
+    this.discountPrice = 0,
+    this.brand = '',
+    this.criticalQuantity = 0,
+    this.customCode = '',
+    required this.sizeVariants,
+    required this.colorVariants,
     required this.quantity,
     required this.images,
     required this.category,
@@ -55,11 +139,11 @@ class Product {
     required this.barcode,
   });
 
-  static Future<List<Product>> fetchMany(int storeID) async {
+  static Future<List<Product>> fetchMany(String storeID) async {
     List<Product> products = [];
     // fetch products from the server
     http.Request req = http.Request('GET',
-        Uri.parse('${GlobalConsts.backend_url}/product/?store_id=$storeID'));
+        Uri.parse('${GlobalConsts.backend_url}/products/store/$storeID'));
     http.StreamedResponse res = await req.send();
 
     String body = await res.stream.bytesToString();
@@ -72,6 +156,7 @@ class Product {
 
     return products;
   }
+
 
   static Future<Product> fetchOne(int productID) async {
     // fetch products from the server
@@ -133,6 +218,7 @@ class Product {
       id: json['id'],
       name: json['name'],
       description: json['description'],
+      quantityUnit: json['quantity_unit'],
       mrp: json['mrp'],
       msrp: json['msrp'],
       discountPrice: json['discount_price'],
@@ -143,10 +229,19 @@ class Product {
           .toList(),
       category: json['category'],
       storeID: json['store_id'],
+      brand: json['brand'],
+      criticalQuantity: json['critical_quantity'],
+      customCode: json['custom_code'],
+      sizeVariants: (json['size_variants'] as List)
+          .map((sizeVariant) => SizeVariant.fromJson(sizeVariant))
+          .toList(),
+      colorVariants: (json['color_variants'] as List)
+          .map((colorVariant) => ColorVariant.fromJson(colorVariant))
+          .toList(),
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic>  toJson() {
     Product product = this;
     return {
       'id': product.id,
@@ -167,7 +262,7 @@ class Product {
 
 class ProductImage {
   final int id;
-  final int productID;
+  final String productID;
   final String image;
 
   ProductImage({

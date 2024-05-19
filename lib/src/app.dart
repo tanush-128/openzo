@@ -194,13 +194,13 @@ class _MyAppState extends State<MyApp> {
               GoRoute(
                 path: 'cart/:storeID',
                 builder: (context, state) =>
-                    CartPage(id: int.parse(state.pathParameters['storeID']!)),
+                    CartPage(id: state.pathParameters['storeID'] ?? ''),
               ),
               GoRoute(
                   path: 'store/:storeID',
                   builder: (context, state) {
                     return StorePage(
-                        storeId: int.parse(state.pathParameters['storeID']!));
+                        storeId: state.pathParameters['storeID'] ?? '');
                   }),
               GoRoute(
                 path: 'store',

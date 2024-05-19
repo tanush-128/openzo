@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CartPage extends StatefulWidget {
   static const String routeName = '/cart';
   // static const String routeNameWithArgs = '/cart/:id';
-  int id = 0;
+  String id;
   CartPage({super.key, required this.id});
   @override
   State<CartPage> createState() => _CartPageState();
@@ -78,14 +78,14 @@ class _CartPageState extends State<CartPage> {
                             TextEditingController();
 
                         OnlineOrder onlineOrder = OnlineOrder(
-                          id: 0,
+                          id: "",
                           storeId: cart!.storeId,
                           customer: Customer(
                               id: 0,
                               phone: phoneController.text,
                               address: addressController.text,
                               userDataId: 1,
-                              saleId: 0),
+                              saleId: ""),
                           orderStatus: OrderStatus.placed,
                           totalAmount: cart!.total.toDouble(),
                           orderTime: DateTime.now(),

@@ -13,7 +13,7 @@ class Cart {
   final int id;
   List<OrderItem> orderItems;
   final int userDataId;
-  final int storeId;
+  final String storeId;
   int total;
 
   Cart({

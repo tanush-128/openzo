@@ -48,7 +48,7 @@ class CartsProvider extends ChangeNotifier {
           products.add(product);
           cart.orderItems.add(OrderItem(
             id: 0,
-            orderId: 0,
+            orderId: "",
             productId: product.id,
             quantity: quantity,
           ));
@@ -69,7 +69,7 @@ class CartsProvider extends ChangeNotifier {
         orderItems: [
           OrderItem(
             id: 0,
-            orderId: 0,
+            orderId: "",
             productId: product.id,
             quantity: quantity,
           )

@@ -91,7 +91,6 @@ class MyApp extends StatelessWidget {
           ),
           foregroundColor: Colors.white,
         ),
-       
         textTheme: GoogleFonts.poppinsTextTheme(
           Theme.of(context).textTheme,
         ),
@@ -107,17 +106,17 @@ class MyApp extends StatelessWidget {
               // return const WebViewC();
             },
             routes: [
-              GoRoute(
-                path: 'cart/:storeID',
-                builder: (context, state) =>
-                    CartPage(id: int.parse(state.pathParameters['storeID']!)),
-              ),
-              GoRoute(
-                  path: 'store/:storeID',
-                  builder: (context, state) {
-                    return StorePage(
-                        storeId: int.parse(state.pathParameters['storeID']!));
-                  }),
+              // GoRoute(
+              //   path: 'cart/:storeID',
+              //   builder: (context, state) =>
+              //       CartPage(id: int.parse(state.pathParameters['storeID']!)),
+              // ),
+              // GoRoute(
+              //     path: 'store/:storeID',
+              //     builder: (context, state) {
+              //       return StorePage(
+              //           storeId: int.parse(state.pathParameters['storeID']!));
+              //     }),
               GoRoute(
                 path: 'store',
                 builder: (context, state) {

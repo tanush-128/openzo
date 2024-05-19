@@ -40,8 +40,7 @@ class _AdSpaceState extends State<AdSpace> {
                 child: Center(
                   child: Icon(
                     Icons.image,
-                    size: 50
-                    .0,
+                    size: 50,
                     color: Colors.grey.shade500,
                   ),
                 )),

@@ -32,14 +32,14 @@ enum OrderStatus {
 }
 
 class OnlineOrder {
-  final int id;
+  final String id;
   final List<OrderItem> orderItems;
-  final Customer customer;
+  Customer customer;
   final DateTime orderTime;
 
   final OrderStatus orderStatus;
   final double totalAmount;
-  final int storeId;
+  final String storeId;
 
   OnlineOrder({
     required this.id,
@@ -57,13 +57,13 @@ class OnlineOrder {
       'order_items': orderItems.map((e) => e.toJson()).toList(),
       'customer': customer.toJson(),
       'order_time': orderTime.toIso8601String(),
-      'order_status': orderStatus.name,
+      'order_status': orderStatus,
       'total_amount': totalAmount,
       'store_id': storeId,
     };
   }
 
-  static Future<List<OnlineOrder>> getOrders(int storeId) async {
+  static Future<List<OnlineOrder>> getOrders(String storeId) async {
     final response = await http.get(
       Uri.parse('${GlobalConsts.backend_url}/online_orders?store_id=$storeId'),
     );

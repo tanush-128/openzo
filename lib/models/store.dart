@@ -290,7 +290,7 @@ class Store {
   final String address;
   final String openingTime;
   final String closingTime;
-  final int id;
+  final String id;
   final StoreType storeType;
 
   Store({
@@ -325,14 +325,15 @@ class Store {
     }
   }
 
-  static Future<Store> fetchStore(int storeId) async {
+  static Future<Store> fetchStore(String storeId) async {
     var response = await http.get(
-        Uri.parse('${GlobalConsts.backend_url}/store/$storeId'),
+        Uri.parse('${GlobalConsts.backend_url}/stores/$storeId'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           // 'Authorization': GlobalConsts.token,
         });
     if (response.statusCode == 200) {
+      print(Store.fromJson(jsonDecode(response.body)).name);
       return Store.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Failed to load store');
@@ -341,7 +342,7 @@ class Store {
 
   static Future<List<Store>> getStoresWithPincode(String pincode) async {
     var response = await http.get(
-        Uri.parse('${GlobalConsts.backend_url}/store/?pincode=$pincode'),
+        Uri.parse('${GlobalConsts.backend_url}/stores/pincode/123456'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         });
@@ -429,7 +430,7 @@ class Store {
 
   factory Store.fromJson(Map<String, dynamic> json) {
     return Store(
-      id: json['ID'],
+      id: json['id'],
       address: json['address'],
       phone: json['phone'],
       pincode: json['pincode'],

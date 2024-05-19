@@ -21,7 +21,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class StorePage extends StatefulWidget {
   //
-  final int storeId;
+  final String storeId;
   const StorePage({super.key, required this.storeId});
 
   @override

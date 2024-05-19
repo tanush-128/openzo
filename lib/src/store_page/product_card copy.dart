@@ -35,7 +35,7 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                       productId: widget.product.id,
                       // quantity: 0,
                       id: 0,
-                      orderId: 0,
+                      orderId: "",
                     ))
             .quantity
         : 0;
