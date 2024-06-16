@@ -1,0 +1,175 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
+import 'package:openzo_frontend/models/user_data.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class PhoneAuthPage extends StatefulWidget {
+  @override
+  _PhoneAuthPageState createState() => _PhoneAuthPageState();
+}
+
+getLocation() async {
+  LocationPermission permission = await _requestLocationPermission();
+  if (permission == LocationPermission.always ||
+      permission == LocationPermission.whileInUse) {
+    // Permission granted, proceed with getting location
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    log('Location: $position');
+
+    return position;
+  } else {
+    // Handle permission denied case (e.g., display a message)
+    print('Location permission denied');
+  }
+}
+
+Future<LocationPermission> _requestLocationPermission() async {
+  LocationPermission permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+  }
+  return permission;
+}
+
+handleUserData() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? fcmToken = prefs.getString('fcmToken');
+
+  if (fcmToken == null) {
+    return;
+  }
+
+  String? userDataId = prefs.getString('user_data_id');
+  print(userDataId);
+
+  if (userDataId == null) {
+    Position position = await getLocation();
+    UserData userData = UserData(
+      latitude: position.latitude.toString(),
+      longitude: position.longitude.toString(),
+      notificationToken: fcmToken,
+    );
+    UserData.createUserData(userData);
+  } else {
+    UserData userData = await UserData.getUserData(userDataId);
+    print(userData.notificationToken);
+    if (userData.notificationToken != fcmToken) {
+      userData.notificationToken = fcmToken;
+      UserData.updateUserData(userData);
+    }
+
+    log('User data already exists');
+  }
+}
+
+class _PhoneAuthPageState extends State<PhoneAuthPage> {
+  final _phoneController = TextEditingController();
+  final _codeController = TextEditingController();
+  String? _verificationId;
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    _codeController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _verifyPhoneNumber() async {
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: "+91${_phoneController.text}",
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        await FirebaseAuth.instance.signInWithCredential(credential);
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        if (e.code == 'invalid-phone-number') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('The provided phone number is not valid.')),
+          );
+        }
+      },
+      codeSent: (String verificationId, int? resendToken) {
+        setState(() {
+          _verificationId = verificationId;
+        });
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        setState(() {
+          _verificationId = verificationId;
+        });
+      },
+    );
+  }
+
+  Future<void> _signInWithPhoneNumber() async {
+    try {
+      final credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId!,
+        smsCode: _codeController.text,
+      );
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Successfully signed in!')),
+      );
+      // handleUserData();
+      // context.go('/');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to sign in: ${e.toString()}')),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user != null) {
+        handleUserData();
+        context.go('/');
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Phone Authentication'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: _phoneController,
+              decoration: const InputDecoration(
+                  labelText: 'Phone Number', prefixText: '+91'),
+            ),
+            ElevatedButton(
+              onPressed: _verifyPhoneNumber,
+              child: const Text('Verify Phone Number'),
+            ),
+            if (_verificationId != null) ...[
+              TextField(
+                controller: _codeController,
+                decoration: const InputDecoration(
+                    labelText: 'Verification Code', prefixText: 'OTP: '),
+              ),
+              ElevatedButton(
+                onPressed: _signInWithPhoneNumber,
+                child: const Text('Sign In'),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}

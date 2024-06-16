@@ -1,32 +1,59 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:openzo_frontend/models/cart.dart';
-import 'package:openzo_frontend/providers/carts_provider.dart';
-import 'package:openzo_frontend/src/cart/cart_list_tile.dart';
+import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:provider/provider.dart';
 
-class CartsPage extends StatefulWidget {
-  const CartsPage({super.key});
+class CartsPage extends StatelessWidget {
+  const CartsPage({Key? key}) : super(key: key);
 
-  @override
-  State<CartsPage> createState() => _CartsPageState();
-}
-
-class _CartsPageState extends State<CartsPage> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<CartsProvider>(
-      builder: (context, value, child) {
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Carts'),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Carts'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'unplaced'),
+              Tab(text: 'placed'),
+              Tab(text: 'delivered'),
+            ],
           ),
-          body: Center(
-              child: ListView.builder(
-                  itemCount: value.carts.length,
-                  itemBuilder: (context, index) {
-                    return CartListTile(cart: value.carts[index]);
-                  })),
+        ),
+        body: const TabBarView(
+          children: [
+            CartList(status: 'unplaced'),
+            CartList(status: 'placed'),
+            CartList(status: 'delivered'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CartList extends StatelessWidget {
+  final String status;
+
+  const CartList({Key? key, required this.status}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final salesProvider = Provider.of<SalesProvider>(context);
+    final carts = salesProvider.onlineOrders;
+    // .where((sale) => sale.status == status)
+    // .toList();
+
+    return ListView.builder(
+      itemCount: carts.length,
+      itemBuilder: (context, index) {
+        final cart = carts[index];
+        return ListTile(
+          title: const Text("store name"),
+          subtitle: Text('Total: \$${cart.totalAmount.toStringAsFixed(2)}'),
+          onTap: () {
+            // Navigate to cart details page
+          },
         );
       },
     );

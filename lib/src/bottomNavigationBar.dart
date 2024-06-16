@@ -4,6 +4,7 @@ import 'package:openzo_frontend/src/bytes/bytes_page.dart';
 import 'package:openzo_frontend/src/cart/carts_page.dart';
 import 'package:openzo_frontend/src/categories_page.dart';
 import 'package:openzo_frontend/src/home_page/home_page.dart';
+import 'package:openzo_frontend/src/marketplace/marketplacePage.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
@@ -16,13 +17,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
   List<Widget> pages = <Widget>[
     const HomePage(),
-    // const WebViewC(),
     const CategoriesPage(),
     const BytesPage(),
     const CartsPage(),
-    const Center(
-      child: Text('School'),
-    ),
+    MarketplacePage(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -35,30 +33,26 @@ class _BottomNavBarState extends State<BottomNavBar> {
             _selectedIndex = index;
           });
         },
-        unselectedIconTheme: const IconThemeData(color: Colors.grey),
-        unselectedFontSize: 12,
-        unselectedLabelStyle: const TextStyle(color: Colors.grey),
-        selectedItemColor: GlobalStyle.primaryColor,
-        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            // icon: Icon(Icons.home),
+            icon: ImageIcon(AssetImage('assets/icons/Home.png')),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.category_outlined),
+            icon: ImageIcon(AssetImage('assets/icons/Categories.png')),
             label: 'Categories',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications_active_rounded),
+            icon: ImageIcon(AssetImage('assets/icons/Bytes.png')),
             label: 'Bytes',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
+            icon: ImageIcon(AssetImage('assets/icons/Bags.png')),
             label: 'Carts',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: ImageIcon(AssetImage('assets/icons/Local marketplace.png')),
             label: 'profile',
           ),
         ],

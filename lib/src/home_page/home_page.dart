@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/store.dart';
@@ -15,65 +17,12 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(50),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    spreadRadius: 0.1,
-                    blurRadius: 2,
-                    offset: const Offset(0, 1),
-                  ),
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    spreadRadius: 0.1,
-                    blurRadius: 2,
-                    offset: const Offset(-2, -1),
-                  )
-                ],
-              ),
-              child: TextField(
-                onTap: () {
-                  showSearch(context: context, delegate: LocalSearchDelegate());
-                },
-                style: const TextStyle(color: Colors.black),
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.zero,
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide.none,
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.search,
-                    color: GlobalStyle.primaryColor,
-                  ),
-                  suffixIcon: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      VerticalDivider(
-                        color: Color.fromARGB(255, 0, 0, 0),
-                        width: 1,
-                        thickness: 1,
-                      ),
-                      Icon(
-                        Icons.mic,
-                        color: GlobalStyle.primaryColor,
-                      )
-                    ],
-                  ),
-                  hintText: 'Search',
-                ),
-              ),
-            ),
-          ),
-        ),
+        bottom: const PreferredSize(
+            preferredSize: Size.fromHeight(50),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: GlobalSearchBar(),
+            )),
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -82,43 +31,42 @@ class HomePage extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              const AdSpace(),
-              const SizedBox(height: 20),
-              const MainCategories(),
               const SizedBox(height: 20),
               const Separator(title: "EXPLORE"),
-              const SizedBox(height: 10),
-            
-              SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: GlobalConsts.StoreCategories.sublist(0, 5)
-                              .map((e) => StoreCategoryTile(storeCategory: e))
-                              .toList(),
-                        ),
-                        Row(
-                          children: GlobalConsts.StoreCategories.sublist(5, 10)
-                              .map((e) => StoreCategoryTile(storeCategory: e))
-                              .toList(),
-                        ),
-                      ])),
+              const MainCategories(),
               const SizedBox(height: 20),
-              const Separator(title: "RECOMMENDED CATEGORIES"),
+              const AdSpace(),
               const SizedBox(height: 10),
-              const SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [],
-                      ),
-                    ],
-                  )),
-              const SizedBox(height: 20),
+              // SingleChildScrollView(
+              //     scrollDirection: Axis.horizontal,
+              //     child: Column(
+              //         crossAxisAlignment: CrossAxisAlignment.start,
+              //         children: [
+              //           Row(
+              //             mainAxisAlignment: MainAxisAlignment.start,
+              //             children: GlobalConsts.StoreCategories.sublist(0, 5)
+              //                 .map((e) => StoreCategoryTile(storeCategory: e))
+              //                 .toList(),
+              //           ),
+              //           Row(
+              //             children: GlobalConsts.StoreCategories.sublist(5, 10)
+              //                 .map((e) => StoreCategoryTile(storeCategory: e))
+              //                 .toList(),
+              //           ),
+              //         ])),
+              // const SizedBox(height: 20),
+              // const Separator(title: "RECOMMENDED CATEGORIES"),
+              // const SizedBox(height: 10),
+              // const SingleChildScrollView(
+              //     scrollDirection: Axis.horizontal,
+              //     child: Column(
+              //       children: [
+              //         Row(
+              //           children: [],
+              //         ),
+              //       ],
+              //     )),
+              // const SizedBox(height: 20),
               const Separator(title: "RECOMMENDED STORES"),
               const SizedBox(height: 20),
               FutureBuilder(
@@ -163,36 +111,40 @@ class MainCategories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: GridView(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          mainAxisSpacing: 15,
+    return GridView(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4, mainAxisSpacing: 15),
+      children: [
+        MainCategoryTile(title: 'Food delivery'),
+        MainCategoryTile(title: 'Services'),
+        MainCategoryTile(title: 'Stores'),
+        MainCategoryTile(title: 'Grocery delivery'),
+        MainCategoryTile(title: 'Service stores'),
+        MainCategoryTile(title: 'Hotel rooms'),
+        MainCategoryTile(title: 'Ride hire'),
+        InkWell(
+          onTap: () {
+            context.go('/categories');
+          },
+          child: Column(
+            children: [
+              Container(
+                width: 70,
+                height: 70,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100.0),
+                  color: Colors.white,
+                ),
+                child: const Icon(Icons.arrow_right_alt_rounded),
+              ),
+              const Text("More", style: TextStyle(fontSize: 12)),
+            ],
+          ),
         ),
-        children: [
-          MainCategoryTile(
-            title: "Order food",
-          ),
-          MainCategoryTile(title: "Ride Hail"),
-          MainCategoryTile(
-            title: "Services",
-          ),
-          MainCategoryTile(
-            title: "Stores",
-          ),
-          MainCategoryTile(
-            title: "Rentals",
-          ),
-          MainCategoryTile(
-            title: "Products",
-          ),
-          MainCategoryTile(title: "Resell"),
-          MainCategoryTile(title: "Local events"),
-          MainCategoryTile(title: "Hot deals"),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -235,40 +187,24 @@ class MainCategoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 80,
-      width: 100,
+    return Container(
       child: Column(
         children: [
           Container(
-            width: 70,
-            height: 70,
+            width: 64,
+            height: 64,
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              // image: DecorationImage(
-              //   image: AssetImage('assets/images/top/$title.png'),
-              //   fit: BoxFit.cover,
-              // ),
               borderRadius: BorderRadius.circular(100.0),
               color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 0.1,
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                ),
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 0.1,
-                  blurRadius: 2,
-                  offset: const Offset(-2, -1),
-                ),
-              ],
             ),
-            child: Image.asset('assets/images/top/$title.png'),
+            child: Image.asset('assets/images/home page icons/${title}.png'),
           ),
-          Text(title, style: const TextStyle(fontSize: 12)),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 12),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );

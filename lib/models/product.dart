@@ -1,30 +1,4 @@
-// type Product struct {
-// 	ID          int            `json:"id"`
-// 	Name        string         `json:"name"`
-// 	Description string         `json:"description"`
-// 	Price       int            `json:"price"`
-// 	Quantity    int            `json:"quantity"`
-// 	Images      []ProductImage `json:"images"`
-// 	Category    string         `json:"category"`
-// Barcode     string         `json:"barcode"`
-
-// 	StoreID     int            `json:"store_id"`
-// }
-
-// type ProductImage struct {
-// 	ID        int    `json:"id"`
-// 	ProductID int    `json:"product_id"`
-// 	Image     string `json:"image" gorm:"type:text"`
-// }
-
-// type Category struct {
-// 	ID      int    `json:"id"`
-// 	Name    string `json:"name"`
-// 	StoreID int    `json:"store_id"`
-// }
-
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:openzo_frontend/constants/constants.dart';
 
@@ -108,40 +82,50 @@ class Product {
   String quantityUnit;
   int msrp;
   int discountPrice = 0;
-  int quantity;
+// int quantity;
   List<ProductImage> images;
   List<SizeVariant> sizeVariants = [];
   List<ColorVariant> colorVariants = [];
   String brand;
-  int criticalQuantity;
+  int? criticalQuantity;
   String customCode;
   String category;
   String storeID;
   String barcode;
 
-  Product({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.quantityUnit,
-    required this.mrp,
-    required this.msrp,
-    this.discountPrice = 0,
-    this.brand = '',
-    this.criticalQuantity = 0,
-    this.customCode = '',
-    required this.sizeVariants,
-    required this.colorVariants,
-    required this.quantity,
-    required this.images,
-    required this.category,
-    required this.storeID,
-    required this.barcode,
-  });
+//
+  String? type;
+  String? vegType;
+  int? servers;
+  String? storeName;
+
+  Product(
+      {required this.id,
+      required this.name,
+      required this.description,
+      required this.quantityUnit,
+      required this.mrp,
+      required this.msrp,
+      this.discountPrice = 0,
+      this.brand = '',
+      this.criticalQuantity,
+      this.customCode = "",
+      required this.sizeVariants,
+      required this.colorVariants,
+// required this.quantity,
+      required this.images,
+      required this.category,
+      required this.storeID,
+      required this.barcode,
+//
+      this.type,
+      this.vegType,
+      this.servers,
+      this.storeName});
 
   static Future<List<Product>> fetchMany(String storeID) async {
     List<Product> products = [];
-    // fetch products from the server
+// fetch products from the server
     http.Request req = http.Request('GET',
         Uri.parse('${GlobalConsts.backend_url}/products/store/$storeID'));
     http.StreamedResponse res = await req.send();
@@ -149,7 +133,7 @@ class Product {
     String body = await res.stream.bytesToString();
 
     var products0 = json.decode(body);
-    // print(_products);
+// print(_products);
     products0.forEach((product) {
       products = [...products, Product.fromJson(product)];
     });
@@ -157,11 +141,10 @@ class Product {
     return products;
   }
 
-
-  static Future<Product> fetchOne(int productID) async {
-    // fetch products from the server
+  static Future<Product> fetchOne(String productID) async {
+// fetch products from the server
     http.Request req = http.Request(
-        'GET', Uri.parse('${GlobalConsts.backend_url}/product/$productID'));
+        'GET', Uri.parse('${GlobalConsts.backend_url}/products/$productID'));
     http.StreamedResponse res = await req.send();
 
     String body = await res.stream.bytesToString();
@@ -196,7 +179,7 @@ class Product {
     List<Product> products = [];
     http.Response res = await http.get(
       Uri.parse(
-          '${GlobalConsts.backend_url}/product/?pincode=$pincode&name_contains=$nameContains'),
+          '${GlobalConsts.backend_url}/search/products/$pincode?term=$nameContains'),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Authorization': GlobalConsts.token,
@@ -222,26 +205,36 @@ class Product {
       mrp: json['mrp'],
       msrp: json['msrp'],
       discountPrice: json['discount_price'],
-      quantity: json['quantity'],
+// quantity: json['quantity'] ?? 0,
       barcode: json['barcode'],
-      images: (json['images'] as List)
-          .map((image) => ProductImage.fromJson(image))
-          .toList(),
+      images: json['images'] != null
+          ? (json['images'] as List)
+              .map((image) => ProductImage.fromJson(image))
+              .toList()
+          : [],
       category: json['category'],
       storeID: json['store_id'],
       brand: json['brand'],
       criticalQuantity: json['critical_quantity'],
-      customCode: json['custom_code'],
-      sizeVariants: (json['size_variants'] as List)
-          .map((sizeVariant) => SizeVariant.fromJson(sizeVariant))
-          .toList(),
-      colorVariants: (json['color_variants'] as List)
-          .map((colorVariant) => ColorVariant.fromJson(colorVariant))
-          .toList(),
+      customCode: json['custom_code'] ?? '',
+      sizeVariants: json['size_variants'] == null
+          ? []
+          : (json['size_variants'] as List)
+              .map((sizeVariant) => SizeVariant.fromJson(sizeVariant))
+              .toList(),
+      colorVariants: json['color_variants'] == null
+          ? []
+          : (json['color_variants'] as List)
+              .map((colorVariant) => ColorVariant.fromJson(colorVariant))
+              .toList(),
+      type: json['type'],
+      vegType: json['veg_type'],
+      servers: json['servers'],
+      storeName: json['store_name'],
     );
   }
 
-  Map<String, dynamic>  toJson() {
+  Map<String, dynamic> toJson() {
     Product product = this;
     return {
       'id': product.id,
@@ -250,7 +243,7 @@ class Product {
       'mrp': product.mrp,
       'msrp': product.msrp,
       'discount_price': product.discountPrice,
-      'quantity': product.quantity,
+// 'quantity': product.quantity,
       'barcode': product.barcode,
       'images':
           product.images.map((e) => {'id': e.id, 'image': e.image}).toList(),

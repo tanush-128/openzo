@@ -1,12 +1,3 @@
-// type User struct {
-// 	gorm.Model
-// 	UserName string `json:"username"`
-// 	Email    string `json:"email"`
-// 	Password string `json:"password"`
-// Phone    string `json:"phone"`
-
-// }
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -39,32 +30,32 @@ class User {
     );
   }
 
-  static getUserWithJWT(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    if (token == null) {
-      Navigator.popAndPushNamed(context, '/login');
+  // static getUserWithJWT(BuildContext context) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? token = prefs.getString('token');
+  //   if (token == null) {
+  //     Navigator.popAndPushNamed(context, '/login');
 
-      return;
-    }
+  //     return;
+  //   }
 
-    http.get(Uri.parse('${GlobalConsts.backend_url}/user/with_token/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': token,
-        }).then((response) {
-      if (response.statusCode == 200) {
-        User user = User.fromJson(jsonDecode(response.body));
+  //   http.get(Uri.parse('${GlobalConsts.backend_url}/user/with_token/'),
+  //       headers: <String, String>{
+  //         'Content-Type': 'application/json; charset=UTF-8',
+  //         'Authorization': token,
+  //       }).then((response) {
+  //     if (response.statusCode == 200) {
+  //       User user = User.fromJson(jsonDecode(response.body));
 
-        print(response.body);
+  //       print(response.body);
 
-        Provider.of<UserProvider>(context, listen: false).setUser(user);
-        Navigator.popAndPushNamed(context, '/home');
-      } else {
-        Navigator.popAndPushNamed(context, '/login');
-      }
-    });
-  }
+  //       Provider.of<UserProvider>(context, listen: false).setUser(user);
+  //       Navigator.popAndPushNamed(context, '/home');
+  //     } else {
+  //       Navigator.popAndPushNamed(context, '/login');
+  //     }
+  //   });
+  // }
 
   static SignIn(
     String email,

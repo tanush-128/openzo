@@ -1,32 +1,10 @@
-// import 'package:flutter/material.dart';
-// // import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:openzo_frontend/providers/carts_provider.dart';
-// import 'package:openzo_frontend/providers/user_provider.dart';
-// import 'package:provider/provider.dart';
-
-// import 'src/app.dart';
-
-// Future<void> main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-
-//   runApp(
-//     MultiProvider(
-//       providers: [
-//         ChangeNotifierProvider(create: (context) => UserProvider()),
-//         ChangeNotifierProvider(create: (context) => CartsProvider()),
-//       ],
-//       child: const MyApp(),
-//     ),
-//   );
-//   // runApp(const ProviderScope(child: MyApp()));
-// }
-
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:openzo_frontend/providers/carts_provider.dart';
+import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'src/app.dart';
 import 'src/settings/settings_controller.dart';
@@ -60,7 +38,6 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // TODO: Request permission
   final messaging = FirebaseMessaging.instance;
 
   final settings = await messaging.requestPermission(
@@ -79,7 +56,8 @@ Future<void> main() async {
 
   String? token = await messaging.getToken();
   log('Token: $token');
-
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString('fcmToken', token!);
   if (kDebugMode) {
     print('Registration Token=$token');
   }
@@ -102,8 +80,8 @@ Future<void> main() async {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => UserProvider()),
-      ChangeNotifierProvider(create: (context) => CartsProvider()),
+      ChangeNotifierProvider(create: (context) => SalesProvider()),
     ],
-    child: MyApp(token: token!),
+    child: const MyApp(),
   ));
 }

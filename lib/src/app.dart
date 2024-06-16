@@ -1,87 +1,22 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/main.dart';
 import 'package:openzo_frontend/models/user_data.dart';
-import 'package:openzo_frontend/src/booking/bookingPage.dart';
-import 'package:openzo_frontend/src/bottomNavigationBar.dart';
-import 'package:openzo_frontend/src/cart/cart_page.dart';
-import 'package:openzo_frontend/src/store_page/store_page.dart';
-import 'package:openzo_frontend/src/stores_of_category/product_category_page.dart';
-import 'package:openzo_frontend/src/stores_of_category/stores_of_category.dart';
+import 'package:openzo_frontend/src/router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatefulWidget {
-  String? token;
-  MyApp({
+  const MyApp({
     super.key,
-    required this.token,
   });
 
   @override
   State<MyApp> createState() => _MyAppState();
-}
-
-getLocation() async {
-  LocationPermission permission = await _requestLocationPermission();
-  if (permission == LocationPermission.always ||
-      permission == LocationPermission.whileInUse) {
-    // Permission granted, proceed with getting location
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    log('Location: $position');
-
-    return position;
-  } else {
-    // Handle permission denied case (e.g., display a message)
-    print('Location permission denied');
-  }
-}
-
-Future<LocationPermission> _requestLocationPermission() async {
-  LocationPermission permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-  }
-  return permission;
-}
-
-handleUserData(String fcmToken) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  int? userDataId = prefs.getInt('user_data_id');
-  print(userDataId);
-  if (userDataId == null) {
-    Position position = await getLocation();
-    UserData userData = UserData(
-      id: 0,
-      userId: 0,
-      latitude: position.latitude.toString(),
-      longitude: position.longitude.toString(),
-      address: '0',
-      pincode: '0',
-      city: '0',
-      state: '0',
-      country: '0',
-      notificationToken: fcmToken,
-    );
-    UserData.createUserData(userData);
-  } else {
-    UserData userData = await UserData.getUserData(userDataId);
-    print(userData.notificationToken);
-    if (userData.notificationToken != fcmToken) {
-      userData.notificationToken = fcmToken;
-      UserData.UpdateUserData(userData);
-    }
-
-    log('User data already exists');
-  }
 }
 
 class _MyAppState extends State<MyApp> {
@@ -103,8 +38,11 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     // TODO: implement initState
-    handleUserData(widget.token!);
+    // handleUserData(widget.token!);
   }
+
+  // Initialize the router
+  final AppRouter _appRouter = AppRouter();
 
   @override
   Widget build(BuildContext context) {
@@ -113,44 +51,38 @@ class _MyAppState extends State<MyApp> {
 
       restorationScopeId: 'app',
 
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en', ''), // English, no country code
-      ],
-
-      // Use AppLocalizations to configure the correct application title
-      // depending on the user's locale.
-      //
-      // The appTitle is defined in .arb files found in the localization
-      // directory.
-      onGenerateTitle: (BuildContext context) =>
-          AppLocalizations.of(context)!.appTitle,
-
-      // Define a light and dark color theme. Then, read the user's
-      // preferred ThemeMode (light, dark, or system default) from the
-      // SettingsController to display the correct theme.
       theme: ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.white,
         dividerColor: Colors.grey.shade100,
         iconButtonTheme: const IconButtonThemeData(),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Colors.white,
+          selectedItemColor: GlobalStyle.primaryColor,
+          unselectedItemColor: Colors.black87,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          type: BottomNavigationBarType.fixed,
+          selectedIconTheme: IconThemeData(size: 24),
+          unselectedIconTheme: IconThemeData(size: 24),
+          elevation: 10,
+          selectedLabelStyle:
+              TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+        ),
         dividerTheme: DividerThemeData(
           space: 0,
           thickness: 0.7,
           color: Colors.grey.shade300,
         ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: GlobalStyle.primaryColor,
-          elevation: 0,
-          iconTheme: IconThemeData(color: Colors.white),
+        appBarTheme: AppBarTheme(
+          // backgroundColor: GlobalStyle.primaryColor,
+          elevation: 1,
+          surfaceTintColor: Colors.white,
+          shadowColor: Colors.grey.shade200,
+          // iconTheme: IconThemeData(color: Colors.white),
           centerTitle: true,
-          titleTextStyle: TextStyle(
-              color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
+          titleTextStyle: const TextStyle(
+              color: Colors.black87, fontSize: 20, fontWeight: FontWeight.w500),
         ),
         colorScheme: ColorScheme.fromSeed(
             seedColor: GlobalStyle.primaryColor,
@@ -183,47 +115,9 @@ class _MyAppState extends State<MyApp> {
 
       // Define a function to handle named routes in order to support
       // Flutter web url navigation and deep linking.
-      routerConfig: GoRouter(initialLocation: '/', routes: <RouteBase>[
-        GoRoute(
-            path: '/',
-            builder: (context, state) {
-              return const BottomNavBar();
-              // return const WebViewC();
-            },
-            routes: [
-              GoRoute(
-                path: 'cart/:storeID',
-                builder: (context, state) =>
-                    CartPage(id: state.pathParameters['storeID'] ?? ''),
-              ),
-              GoRoute(
-                  path: 'store/:storeID',
-                  builder: (context, state) {
-                    return StorePage(
-                        storeId: state.pathParameters['storeID'] ?? '');
-                  }),
-              GoRoute(
-                path: 'store',
-                builder: (context, state) {
-                  return StoresOfCategory(
-                      categoryName: state.uri.queryParameters['category']!);
-                },
-              ),
-              GoRoute(
-                path: 'product',
-                builder: (context, state) {
-                  return ProductCategoryPage(
-                      productCategoryName:
-                          state.uri.queryParameters['category']!);
-                },
-              ),
-              GoRoute(
-                  path: 'booking',
-                  builder: (context, state) {
-                    return const BookingPage();
-                  }),
-            ]),
-      ]),
+      routeInformationParser: _appRouter.router.routeInformationParser,
+      routerDelegate: _appRouter.router.routerDelegate,
+      routeInformationProvider: _appRouter.router.routeInformationProvider,
     );
   }
 }
