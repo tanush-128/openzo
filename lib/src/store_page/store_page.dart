@@ -2,13 +2,14 @@ import 'package:accordion/accordion.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/components/skeleton.dart';
+import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/src/store_page/Reviews.dart';
 import 'package:openzo_frontend/src/store_page/custom_search_delegate.dart';
-import 'package:openzo_frontend/src/store_page/product_card.dart';
-import 'package:openzo_frontend/src/store_page/verticalProductCard.dart';
+import 'package:openzo_frontend/src/product/product_card.dart';
+import 'package:openzo_frontend/src/product/verticalProductCard.dart';
 import 'package:openzo_frontend/src/store_page/storeDetails.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -90,7 +91,8 @@ class _StorePageState extends State<StorePage>
                     140.0, // Adjust according to your UI design
                 floating: false,
                 pinned: true,
-
+                shadowColor: Colors.transparent,
+                elevation: 0,
                 flexibleSpace: FlexibleSpaceBar(
                   // title: Text(
                   //     widget.storeName),
@@ -193,56 +195,56 @@ class _StorePageState extends State<StorePage>
                                       width: 100,
                                       height: 20,
                                     ),
-                                    content: ListView(
-                                      shrinkWrap: true,
-                                      children: [
-                                        ...products
-                                            .map((e) => ProductCard(product: e))
-                                      ],
-                                    ),
-                                    // content: GridView.builder(
-                                    //   gridDelegate:
-                                    //       const SliverGridDelegateWithFixedCrossAxisCount(
-                                    //     crossAxisCount: 2,
-                                    //     childAspectRatio: 0.5,
-                                    //   ),
+                                    // content:  ListView(
                                     //   shrinkWrap: true,
-                                    //   physics:
-                                    //       const NeverScrollableScrollPhysics(),
-                                    //   itemCount: 2,
-                                    //   itemBuilder: (context, index) {
-                                    //     // return VerticalProductCard(
-                                    //     //   product: categories[e]![index],
-                                    //     //   cart: cart!,
-                                    //     // );
-                                    //     return Padding(
-                                    //       padding: const EdgeInsets.all(8.0),
-                                    //       child: Column(
-                                    //         crossAxisAlignment: CrossAxisAlignment
-                                    //             .start, // mainAxisAlignment: MainAxisAlignment.start,
-                                    //         children: [
-                                    //           Skeleton(
-                                    //               height: 200,
-                                    //               width: (MediaQuery.of(context)
-                                    //                           .size
-                                    //                           .width *
-                                    //                       0.5)
-                                    //                   .toInt()),
-                                    //           const SizedBox(height: 5),
-                                    //           Skeleton(
-                                    //             width: 100,
-                                    //             height: 20,
-                                    //           ),
-                                    //           const SizedBox(height: 5),
-                                    //           Skeleton(
-                                    //             width: 100,
-                                    //             height: 20,
-                                    //           ),
-                                    //         ],
-                                    //       ),
-                                    //     );
-                                    //   },
+                                    //   children: [
+                                    //     ...products
+                                    //         .map((e) => ProductCard(product: e))
+                                    //   ],
                                     // ),
+                                    content: GridView.builder(
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        childAspectRatio: 0.5,
+                                      ),
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: 2,
+                                      itemBuilder: (context, index) {
+                                        // return VerticalProductCard(
+                                        //   product: categories[e]![index],
+                                        //   cart: cart!,
+                                        // );
+                                        return Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment
+                                                .start, // mainAxisAlignment: MainAxisAlignment.start,
+                                            children: [
+                                              Skeleton(
+                                                  height: 200,
+                                                  width: (MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.5)
+                                                      .toInt()),
+                                              const SizedBox(height: 5),
+                                              Skeleton(
+                                                width: 100,
+                                                height: 20,
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Skeleton(
+                                                width: 100,
+                                                height: 20,
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   ),
                                 )
                                 .toList(),
@@ -260,10 +262,22 @@ class _StorePageState extends State<StorePage>
                       final Map<String, List<Product>> categorizedProducts =
                           categorizeProducts(fetchedProducts);
                       if (pageIndex == 0) {
-                        return ProductsList(
-                          categories: categorizedProducts,
-                          cart: null,
-                          // cart: cart,
+                        return FutureBuilder(
+                          future: storeData,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return ProductsList(
+                                categories: categorizedProducts,
+                                storeType: GlobalConsts.categories
+                                    .firstWhere((element) =>
+                                        element.name == snapshot.data!.category)
+                                    .type,
+                                cart: null,
+                              );
+                            } else {
+                              return Container();
+                            }
+                          },
                         );
                       } else {
                         return Container(
@@ -318,10 +332,12 @@ class ProductsList extends StatelessWidget {
     super.key,
     required this.categories,
     required this.cart,
+    this.storeType,
   });
 
   final Map<String, List<Product>> categories;
   final Sale? cart;
+  final StoreType? storeType;
 
   @override
   Widget build(BuildContext context) {
@@ -359,37 +375,38 @@ class ProductsList extends StatelessWidget {
                       // color: Colors.red,
                       padding: EdgeInsets.zero,
                       // color: Colors.black,
-                      child: ListView(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.zero,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: [
-                          ...categories[e]!.map((e) => Padding(
-                                padding: const EdgeInsets.all(1.5),
-                                child: ProductCard(product: e),
-                              ))
-                        ],
-                      ),
-                      // GridView.builder(
-                      //   padding: const EdgeInsets.all(0.0),
-                      //   gridDelegate:
-                      //       const SliverGridDelegateWithFixedCrossAxisCount(
-                      //     crossAxisCount: 2,
-                      //     childAspectRatio: 0.5,
-                      //   ),
-                      //   shrinkWrap: true,
-                      //   physics: const NeverScrollableScrollPhysics(),
-                      //   itemCount: categories[e]!.length,
-                      //   itemBuilder: (context, index) {
-                      //     return Padding(
-                      //       padding: const EdgeInsets.all(8.0),
-                      //       child: VerticalProductCard(
-                      //         product: categories[e]![index],
-                      //         // cart: cart!,
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
+                      child: storeType != StoreType.store
+                          ? ListView(
+                              shrinkWrap: true,
+                              padding: EdgeInsets.zero,
+                              physics: const NeverScrollableScrollPhysics(),
+                              children: [
+                                ...categories[e]!.map((e) => Padding(
+                                      padding: const EdgeInsets.all(1.5),
+                                      child: ProductCard(product: e),
+                                    ))
+                              ],
+                            )
+                          : GridView.builder(
+                              padding: const EdgeInsets.all(0.0),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 0.56,
+                              ),
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: categories[e]!.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(1.5),
+                                  child: VerticalProductCard(
+                                    product: categories[e]![index],
+                                    // cart: cart!,
+                                  ),
+                                );
+                              },
+                            ),
                     ),
                   ),
                 )

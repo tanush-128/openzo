@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/models/user_data.dart';
+import 'package:openzo_frontend/providers/sales_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PhoneAuthPage extends StatefulWidget {
@@ -131,6 +133,7 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
         handleUserData();
+        Provider.of<SalesProvider>(context, listen: false).getOrders();
         context.go('/');
       }
     });

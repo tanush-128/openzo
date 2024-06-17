@@ -1,13 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/main.dart';
-import 'package:openzo_frontend/models/user_data.dart';
 import 'package:openzo_frontend/src/router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatefulWidget {
@@ -90,12 +85,12 @@ class _MyAppState extends State<MyApp> {
             brightness: Brightness.light),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            // backgroundColor: GlobalStyle.primaryColor,
-            backgroundColor: GlobalStyle.secondaryColor,
+            backgroundColor: GlobalStyle.primaryColor,
+            // backgroundColor: GlobalStyle.secondaryColor,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
             ),
             textStyle:
                 const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),

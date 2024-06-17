@@ -14,7 +14,7 @@ import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/src/home_page/store_card.dart';
-import 'package:openzo_frontend/src/store_page/product_card.dart';
+import 'package:openzo_frontend/src/product/product_card.dart';
 
 class GlobalSearchDelegate extends SearchDelegate {
   String intinialValue;

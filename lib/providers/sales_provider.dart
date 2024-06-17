@@ -18,8 +18,10 @@ class SalesProvider extends ChangeNotifier {
       _onlineOrders.where((element) => element.status == "delivered").toList();
   bool _fetching = true;
   bool get fetching => _fetching;
+
   Future<void> getOrders() async {
     _onlineOrders = await Sale.getSalesByUserDataID();
+    print("Orders: $_onlineOrders");
     _fetching = false;
     notifyListeners();
   }

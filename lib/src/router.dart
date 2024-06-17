@@ -3,6 +3,7 @@ import 'package:openzo_frontend/src/booking/bookingPage.dart';
 import 'package:openzo_frontend/src/bottomNavigationBar.dart';
 import 'package:openzo_frontend/src/cart/cart_page.dart';
 import 'package:openzo_frontend/src/login/loginPage.dart';
+import 'package:openzo_frontend/src/product/productPage/productPage.dart';
 import 'package:openzo_frontend/src/store_page/store_page.dart';
 
 class AppRouter {
@@ -22,10 +23,18 @@ class AppRouter {
                       CartPage(id: state.pathParameters['storeID'] ?? ''),
                 ),
                 GoRoute(
-                  path: 'store/:storeID',
-                  builder: (context, state) =>
-                      StorePage(storeId: state.pathParameters['storeID'] ?? ''),
-                ),
+                    path: 'store/:storeID',
+                    builder: (context, state) => StorePage(
+                        storeId: state.pathParameters['storeID'] ?? ''),
+                    routes: [
+                      GoRoute(
+                        path: 'product/:productID',
+                        builder: (context, state) {
+                          final productId = state.pathParameters['productID']!;
+                          return ProductPage(productId: productId);
+                        },
+                      )
+                    ]),
                 GoRoute(
                   path: 'login',
                   builder: (context, state) => PhoneAuthPage(),

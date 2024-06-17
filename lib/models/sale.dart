@@ -84,6 +84,14 @@ class Sale {
   }
 
   static Future<Sale> createSale(Sale sale) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userDataId = prefs.getString('user_data_id');
+    sale.customer = Customer(
+      userDataId: userDataId ?? "",
+      phone: "",
+      address: "",
+      saleId: "",
+    );
     final response = await http.post(
       Uri.parse('${GlobalConsts.backend_url}/sales/'),
       headers: <String, String>{
@@ -135,7 +143,7 @@ class Sale {
   static Future<List<Sale>> getSalesByUserDataID() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userDataId = prefs.getString('user_data_id');
-
+    print("Fetching orders for User data id: $userDataId");
     final response = await http.get(
       Uri.parse('${GlobalConsts.backend_url}/sales/user/$userDataId'),
       headers: <String, String>{
@@ -144,6 +152,7 @@ class Sale {
     );
 
     if (response.statusCode == 200) {
+      // print(response.body);
       List<dynamic> body = jsonDecode(response.body);
       List<Sale> sales =
           body.map((dynamic item) => Sale.fromJson(item)).toList();
