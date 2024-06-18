@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/models/store.dart';
@@ -11,92 +13,85 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        bottom: const PreferredSize(
-            preferredSize: Size.fromHeight(50),
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: GlobalSearchBar(),
-            )),
-      ),
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // const SizedBox(height: 20),
-              // const SizedBox(height: 20),
-              const Separator(title: "EXPLORE"),
-              const MainCategories(),
-              const SizedBox(height: 20),
-              const Separator(title: "ADS"),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+              leadingWidth: 0,
+              expandedHeight: 200,
+              pinned: true,
+              centerTitle: true,
+              collapsedHeight: 80,
+              flexibleSpace: FlexibleSpaceBar(
+                title: const GlobalSearchBar(),
+                centerTitle: true,
+                titlePadding: const EdgeInsets.all(12),
+                expandedTitleScale: 1,
+                background: Container(
+                  decoration: const BoxDecoration(
+                    // gradient: LinearGradient(
+                    //   begin: Alignment.topLeft,
+                    //   end: Alignment.bottomRight,
+                    //   colors: const [Colors.orange, Colors.red],
+                    // ),
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20)),
+                    image: DecorationImage(
+                        image: AssetImage("assets/images/openzo1.png"),
+                        fit: BoxFit.cover),
+                  ),
+                ),
+              )),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  // const SizedBox(height: 20),
+                  // const SizedBox(height: 20),
+                  const Separator(title: "EXPLORE"),
+                  const MainCategories(),
+                  const SizedBox(height: 20),
+                  const Separator(title: "ADS"),
 
-              const AdSpace(),
-              const SizedBox(height: 10),
-              // SingleChildScrollView(
-              //     scrollDirection: Axis.horizontal,
-              //     child: Column(
-              //         crossAxisAlignment: CrossAxisAlignment.start,
-              //         children: [
-              //           Row(
-              //             mainAxisAlignment: MainAxisAlignment.start,
-              //             children: GlobalConsts.StoreCategories.sublist(0, 5)
-              //                 .map((e) => StoreCategoryTile(storeCategory: e))
-              //                 .toList(),
-              //           ),
-              //           Row(
-              //             children: GlobalConsts.StoreCategories.sublist(5, 10)
-              //                 .map((e) => StoreCategoryTile(storeCategory: e))
-              //                 .toList(),
-              //           ),
-              //         ])),
-              // const SizedBox(height: 20),
-              // const Separator(title: "RECOMMENDED CATEGORIES"),
-              // const SizedBox(height: 10),
-              // const SingleChildScrollView(
-              //     scrollDirection: Axis.horizontal,
-              //     child: Column(
-              //       children: [
-              //         Row(
-              //           children: [],
-              //         ),
-              //       ],
-              //     )),
-              // const SizedBox(height: 20),
-              const Separator(title: "RECOMMENDED STORES"),
-              const SizedBox(height: 20),
-              FutureBuilder(
-                  future: Store.getStoresWithPincode("123456"),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text(snapshot.error.toString(),
-                            style: const TextStyle(color: Colors.red)),
-                      );
-                    }
-                    if (snapshot.data!.isEmpty) {
-                      return const Center(
-                        child: Text('No stores found'),
-                      );
-                    }
-                    return Column(
-                      children: snapshot.data!
-                          .map((store) => StoreCard(store: store))
-                          .toList(),
-                    );
-                  }),
-              const SizedBox(height: 20),
-              const Separator(title: "END OF HOME"),
-            ],
+                  const AdSpace(),
+                  const SizedBox(height: 10),
+
+                  const Separator(title: "RECOMMENDED STORES"),
+                  const SizedBox(height: 20),
+                  FutureBuilder(
+                      future: Store.getStoresWithPincode("123456"),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text(snapshot.error.toString(),
+                                style: const TextStyle(color: Colors.red)),
+                          );
+                        }
+                        if (snapshot.data!.isEmpty) {
+                          return const Center(
+                            child: Text('No stores found'),
+                          );
+                        }
+                        return Column(
+                          children: snapshot.data!
+                              .map((store) => StoreCard(store: store))
+                              .toList(),
+                        );
+                      }),
+                  const SizedBox(height: 20),
+                  const Separator(title: "END OF HOME"),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
