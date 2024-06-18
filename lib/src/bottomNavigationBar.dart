@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/src/bytes/bytes_page.dart';
 import 'package:openzo_frontend/src/cart/carts_page.dart';
 import 'package:openzo_frontend/src/categories_page.dart';

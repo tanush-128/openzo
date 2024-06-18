@@ -46,12 +46,7 @@ class _CartListTileState extends State<CartListTile> {
             }
             return InkWell(
               onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (context) => CartPage(store: snapshot.data!),
-                //   ),
-                // );
+    
                 context.go('/cart/${widget.cart.id}');
               },
               child: Row(

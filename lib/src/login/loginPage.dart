@@ -5,11 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/models/user_data.dart';
+import 'package:openzo_frontend/models/user.dart' as backend_user;
 import 'package:openzo_frontend/providers/sales_provider.dart';
+import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PhoneAuthPage extends StatefulWidget {
+  const PhoneAuthPage({super.key});
+
   @override
   _PhoneAuthPageState createState() => _PhoneAuthPageState();
 }
@@ -38,15 +42,12 @@ Future<LocationPermission> _requestLocationPermission() async {
   return permission;
 }
 
-handleUserData() async {
+Future<void> handleUserData(String mobileNo, BuildContext context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? fcmToken = prefs.getString('fcmToken');
-
-  if (fcmToken == null) {
-    return;
-  }
+  String fcmToken = prefs.getString('fcmToken')!;
 
   String? userDataId = prefs.getString('user_data_id');
+  backend_user.User user = await handleUserLogin(mobileNo, context);
   print(userDataId);
 
   if (userDataId == null) {
@@ -55,17 +56,37 @@ handleUserData() async {
       latitude: position.latitude.toString(),
       longitude: position.longitude.toString(),
       notificationToken: fcmToken,
+      userId: user.id,
     );
-    UserData.createUserData(userData);
+    await UserData.createUserData(userData);
   } else {
     UserData userData = await UserData.getUserData(userDataId);
-    print(userData.notificationToken);
-    if (userData.notificationToken != fcmToken) {
+    // print(userData.notificationToken);
+    log('User data: $userData');
+    if (userData.notificationToken != fcmToken || userData.userId != user.id) {
       userData.notificationToken = fcmToken;
+      userData.userId = user.id;
       UserData.updateUserData(userData);
     }
 
     log('User data already exists');
+  }
+}
+
+Future<backend_user.User> handleUserLogin(
+    String mobileNo, BuildContext context) async {
+  try {
+    bool isSignedIn = await backend_user.User.signIn(mobileNo);
+    if (isSignedIn) {
+      backend_user.User user = await backend_user.User.getUserWithJWT();
+      Provider.of<UserProvider>(context, listen: false).setUser(user);
+
+      return user;
+    }
+    throw Exception('Failed to sign in');
+  } catch (e) {
+    print(e.toString());
+    throw Exception(e.toString());
   }
 }
 
@@ -132,9 +153,10 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
     super.initState();
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
-        handleUserData();
-        Provider.of<SalesProvider>(context, listen: false).getOrders();
-        context.go('/');
+        handleUserData(user.phoneNumber!, context).then((value) {
+          Provider.of<SalesProvider>(context, listen: false).getOrders();
+          context.go('/');
+        });
       }
     });
   }
@@ -150,10 +172,35 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: _phoneController,
-              decoration: const InputDecoration(
-                  labelText: 'Phone Number', prefixText: '+91'),
+            Container(
+              decoration: BoxDecoration(
+                // border: Border.all(),
+                borderRadius: BorderRadius.circular(16),
+                color: Colors.white,
+
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 1,
+                    blurRadius: 2,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+                // boxShadow: const BoxShadow(
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+              child: TextField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  labelText: 'Phone Number',
+                  prefixText: '+91',
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 16,
             ),
             ElevatedButton(
               onPressed: _verifyPhoneNumber,

@@ -1,10 +1,13 @@
 import 'package:go_router/go_router.dart';
+import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/src/booking/bookingPage.dart';
 import 'package:openzo_frontend/src/bottomNavigationBar.dart';
 import 'package:openzo_frontend/src/cart/cart_page.dart';
+import 'package:openzo_frontend/src/categories_page.dart';
 import 'package:openzo_frontend/src/login/loginPage.dart';
 import 'package:openzo_frontend/src/product/productPage/productPage.dart';
 import 'package:openzo_frontend/src/store_page/store_page.dart';
+import 'package:openzo_frontend/src/stores_of_category/storesByCategory.dart';
 
 class AppRouter {
   final GoRouter router;
@@ -22,6 +25,30 @@ class AppRouter {
                   builder: (context, state) =>
                       CartPage(id: state.pathParameters['storeID'] ?? ''),
                 ),
+                GoRoute(
+                  path: 'category',
+                  builder: (context, state) => const CategoriesPage(),
+                ),
+                GoRoute(
+                    path: 'category/:categoryID',
+                    builder: (context, state) {
+                      final categoryID = state.pathParameters['categoryID']!;
+                      // '/category/${category.name}?subCategory=${e.name}');
+                      final category = GlobalConsts.categories.firstWhere(
+                          (element) => element.name == categoryID,
+                          orElse: () => GlobalConsts.categories.first);
+                      final subCategory =
+                          state.uri.queryParameters['subCategory'];
+
+                      return StoresByCategory(
+                        category: category,
+                        subCategory: subCategory != null
+                            ? category.subCategories.firstWhere(
+                                (element) => element.name == subCategory,
+                                orElse: () => category.subCategories.first)
+                            : null,
+                      );
+                    }),
                 GoRoute(
                     path: 'store/:storeID',
                     builder: (context, state) => StorePage(

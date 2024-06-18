@@ -5,6 +5,7 @@ class UserProvider with ChangeNotifier {
   User _user = User(
     id: "",
     phone: "",
+    
   );
 
   User get user => _user;

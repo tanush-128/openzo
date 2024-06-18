@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
-import 'package:provider/provider.dart';
 
 class SalesProvider extends ChangeNotifier {
   SalesProvider();
 
   List<Sale> _onlineOrders = [];
   List<Sale> get onlineOrders => _onlineOrders;
+
   List<Sale> get placedOrders => _onlineOrders
       .where((element) =>
           (element.status != "not_placed" && element.status != "delivered"))
       .toList();
+
   List<Sale> get unplacedOrders =>
       _onlineOrders.where((element) => element.status == "not_placed").toList();
+
   List<Sale> get deliveredOrders =>
       _onlineOrders.where((element) => element.status == "delivered").toList();
+
   bool _fetching = true;
   bool get fetching => _fetching;
 
@@ -31,7 +34,7 @@ class SalesProvider extends ChangeNotifier {
 // notifyListeners();
   }
 
-  Future<void> UpdateOrderStatus(String id, String orderStatus) async {
+  Future<void> updateOrderStatus(String id, String orderStatus) async {
 // OrderStatus status = orderStatus == "placed" ? OrderStatus.placed : orderStatus == "accepted" ? OrderStatus.accepted : orderStatus == "out_for_delivery" ? OrderStatus.out_for_delivery : orderStatus == "delivered" ? OrderStatus.delivered : orderStatus == "rejected" ? OrderStatus.rejected : OrderStatus.cancelled;
     int index = _onlineOrders.indexWhere((element) => element.id == id);
     if (index == -1) {
@@ -56,12 +59,6 @@ class SalesProvider extends ChangeNotifier {
         .indexWhere((element) => element.id == onlineOrder.id)] = _onlineOrder;
     notifyListeners();
   }
-
-// Future<void> deleteSale(String id) async {
-// await Sale.deleteSale(id);
-// _onlineOrders.removeWhere((element) => element.id == id);
-// notifyListeners();
-// }
 
   Future<void> updateSaleOrderItems(Product product, SizeVariant? sizeVariant,
       ColorVariant? colorVariant, int quantity) async {
@@ -90,10 +87,15 @@ class SalesProvider extends ChangeNotifier {
 
     if (_onlineOrder.orderItems
         .any((element) => element.productId == product.id)) {
-      _onlineOrder
-          .orderItems[_onlineOrder.orderItems
-              .indexWhere((element) => element.productId == product.id)]
-          .quantity = quantity;
+      if (quantity == 0) {
+        _onlineOrder.orderItems
+            .removeWhere((element) => element.productId == product.id);
+      } else {
+        _onlineOrder
+            .orderItems[_onlineOrder.orderItems
+                .indexWhere((element) => element.productId == product.id)]
+            .quantity = quantity;
+      }
     } else {
       _onlineOrder.orderItems
           .add(OrderItem(productId: product.id, quantity: quantity));
@@ -106,6 +108,13 @@ class SalesProvider extends ChangeNotifier {
     await updateSale(_onlineOrder);
 
     notifyListeners();
+  }
+
+  Sale getSaleByStoreId(String storeId) {
+    return _onlineOrders.firstWhere(
+        (element) =>
+            (element.storeId == storeId && element.status != "delivered"),
+        orElse: () => Sale(storeId: storeId));
   }
 
   bool isInCart(String p) {

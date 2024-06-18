@@ -90,12 +90,6 @@ class _AdSpaceState extends State<AdSpace> {
                             image: NetworkImage(ad.image), fit: BoxFit.cover),
                         borderRadius:
                             const BorderRadius.all(Radius.circular(16))),
-                    child: Center(
-                      child: Text(
-                        ad.name,
-                        style: const TextStyle(fontSize: 16.0),
-                      ),
-                    ),
                   ),
                 );
               },

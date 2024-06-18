@@ -1,10 +1,8 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:openzo_frontend/constants/constants.dart';
-import 'package:openzo_frontend/providers/user_provider.dart';
-
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
@@ -25,73 +23,74 @@ class User {
       id: json['ID'],
       name: json['Name'],
       email: json['Email'],
-      // password: json['password'],
       phone: json['Phone'],
     );
   }
 
-  static getUserWithJWT(BuildContext context) async {
+  static Future<User> getUserWithJWT() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     if (token == null) {
-      Navigator.popAndPushNamed(context, '/login');
-
-      return;
+      throw Exception('Token not found');
     }
 
-    http.get(Uri.parse('${GlobalConsts.backend_url}/user/with_token/'),
+    var response = await http.get(
+        Uri.parse('${GlobalConsts.backend_url}/users/jwt'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': token,
-        }).then((response) {
-      if (response.statusCode == 200) {
-        User user = User.fromJson(jsonDecode(response.body));
-
-        print(response.body);
-
-        Provider.of<UserProvider>(context, listen: false).setUser(user);
-        Navigator.popAndPushNamed(context, '/home');
-      } else {
-        Navigator.popAndPushNamed(context, '/login');
-      }
-    });
+        });
+    if (response.statusCode == 200) {
+      User user = User.fromJson(jsonDecode(response.body));
+      return user;
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.remove('token');
+      throw Exception('Failed to load user');
+    }
   }
 
-  static SignIn(
-    String email,
-    String password,
-  ) async {
+  static Future<bool> signIn(String mobile) async {
     http.Response res =
-        await http.post(Uri.parse('${GlobalConsts.backend_url}/user/sign_in'),
+        await http.post(Uri.parse('${GlobalConsts.backend_url}/users/signin'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
-              // 'Authorization
             },
             body: jsonEncode({
-              'email': email,
-              'password': password,
+              'mobile': mobile,
+              'otp': '',
             }));
     if (res.statusCode == 200) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('token', jsonDecode(res.body)['token']);
-      print(jsonDecode(res.body)['token']);
+      print('JWT Token: ${jsonDecode(res.body)['token']}');
+
       return true;
     } else {
-      return false;
+      try {
+        await User.addUser(User(id: '', phone: mobile));
+
+        return signIn(mobile);
+      } catch (e) {
+        throw Exception(jsonDecode(res.body)['error']);
+      }
     }
   }
 
-  // static addUser(User user) {
-  //   http.post(Uri.parse('${GlobalConsts.backend_url}/user/'),
-  //       headers: <String, String>{
-  //         'Content-Type': 'application/json; charset=UTF-8',
-  //         // 'Authorization': GlobalConsts.token,
-  //       },
-  //       body: jsonEncode({
+  static Future<User> addUser(User user) async {
+    var res = await http.post(Uri.parse('${GlobalConsts.backend_url}/users/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'name': user.name,
+          'email': user.email,
+          'phone': user.phone,
+        }));
+    if (res.statusCode == 201) {
+      return User.fromJson(jsonDecode(res.body));
+    }
 
-  //         'email': user.email,
-  //
-  //         'phone': user.phone,
-  //       }));
-  // }
+    throw Exception(jsonDecode(res.body)['error']);
+  }
 }

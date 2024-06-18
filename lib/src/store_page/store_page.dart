@@ -1,16 +1,19 @@
 import 'package:accordion/accordion.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/components/skeleton.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/store.dart';
+import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/src/store_page/Reviews.dart';
 import 'package:openzo_frontend/src/store_page/custom_search_delegate.dart';
 import 'package:openzo_frontend/src/product/product_card.dart';
 import 'package:openzo_frontend/src/product/verticalProductCard.dart';
 import 'package:openzo_frontend/src/store_page/storeDetails.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class StorePage extends StatefulWidget {
@@ -75,33 +78,48 @@ class _StorePageState extends State<StorePage>
 
   @override
   Widget build(BuildContext context) {
+    Sale cart =
+        Provider.of<SalesProvider>(context).getSaleByStoreId(widget.storeId);
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        bottomNavigationBar: Container(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: cart.id != ""
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Total: ${cart.totalAmount}'),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.go('/cart/${cart.id}');
+                      },
+                      child: const Text('View Cart'),
+                    ),
+                  ],
+                )
+              : Container(
+                  height: 0,
+                ),
+        ),
         body: NestedScrollView(
           controller: _scrollController,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
               SliverAppBar(
                 backgroundColor: Colors.white,
-                // shadowColor: Colors.grey.shade100,
                 surfaceTintColor: Colors.white,
                 iconTheme: const IconThemeData(color: Colors.black),
-                expandedHeight: MediaQuery.of(context).size.width +
-                    140.0, // Adjust according to your UI design
+                expandedHeight: MediaQuery.of(context).size.width + 140.0,
                 floating: false,
                 pinned: true,
                 shadowColor: Colors.transparent,
                 elevation: 0,
                 flexibleSpace: FlexibleSpaceBar(
-                  // title: Text(
-                  //     widget.storeName),
-                  // Adjust according to your UI design
                   background: StoreDetails(
                       storeData: storeData, widget: widget, products: products),
-                  // according to your UI design
                 ),
-                // flexibleSpace: StoreDetails(widget: widget, products: products),
                 actions: [
                   IconButton(
                     onPressed: () {
@@ -113,13 +131,6 @@ class _StorePageState extends State<StorePage>
                     icon: const Icon(Icons.search),
                   ),
                   IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.favorite,
-                      color: Colors.red,
-                    ),
-                  ),
-                  IconButton(
                     onPressed: () {
                       launchUrl(
                         Uri.parse("https://maps.app.goo.gl/Wa1EP6fwMdep2vYn7"),
@@ -128,14 +139,8 @@ class _StorePageState extends State<StorePage>
                     },
                     icon: const Icon(Icons.location_on_sharp),
                   ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.more_vert),
-                  ),
                 ],
               ),
-
-              // StoreDetails(widget: widget, products: products),
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _SliverAppBarDelegate(

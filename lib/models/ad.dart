@@ -1,11 +1,10 @@
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:openzo_frontend/constants/constants.dart';
 
 class Ad {
-  final int id;
-  final int storeID;
+  final String id;
+  final String storeID;
   final String name;
   final String url;
   final String image;
@@ -22,7 +21,7 @@ class Ad {
 
   factory Ad.fromJson(Map<String, dynamic> json) {
     return Ad(
-      id: json['ID'],
+      id: json['id'],
       storeID: json['store_id'],
       name: json['name'],
       url: json['url'],
@@ -35,7 +34,7 @@ class Ad {
     List<Ad> ads = [];
     // fetch ads from the server
     http.Request req = http.Request(
-        'GET', Uri.parse('${GlobalConsts.backend_url}/ad/?pincode=$pincode'));
+        'GET', Uri.parse('${GlobalConsts.backend_url}/ads/pincode/$pincode'));
     http.StreamedResponse res = await req.send();
 
     if (res.statusCode == 200) {

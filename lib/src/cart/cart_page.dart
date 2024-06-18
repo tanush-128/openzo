@@ -47,29 +47,34 @@ class _CartPageState extends State<CartPage> {
       appBar: AppBar(
         title: const Text('Cart'),
       ),
-      bottomNavigationBar: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            TextButton(
-              onPressed: () {},
-              child: const Text('Cancel Order'),
-            ),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Row(
+      bottomNavigationBar: cart.status == "not_placed"
+          ? Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Place Order'),
-                  SizedBox(width: 10),
-                  Icon(Icons.arrow_forward),
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text('Cancel Order'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      cart.status = 'placed';
+                      Provider.of<SalesProvider>(context, listen: false)
+                          .updateSale(cart);
+                    },
+                    child: const Row(
+                      children: [
+                        Text('Place Order'),
+                        SizedBox(width: 10),
+                        Icon(Icons.arrow_forward),
+                      ],
+                    ),
+                  ),
                 ],
-              ),
-            ),
-          ],
-        ),
-      ),
+              ))
+          : null,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -224,7 +229,7 @@ class _OrderStatusState extends State<OrderStatus> {
   final List<String> statuses = [
     "Order has been received by the store",
     "Order has been accepted",
-    "Order is being prepared",
+    // "Order is being prepared",
     "Order is out for delivery",
     "Order has been delivered",
   ];
@@ -233,6 +238,10 @@ class _OrderStatusState extends State<OrderStatus> {
   Widget build(BuildContext context) {
     if (widget.cart.status == 'placed') {
       currentStatusIndex = 1;
+    } else if (widget.cart.status == 'accepted') {
+      currentStatusIndex = 2;
+    } else if (widget.cart.status == 'out_for_delivery') {
+      currentStatusIndex = 3;
     } else if (widget.cart.status == 'delivered') {
       currentStatusIndex = 4;
     }

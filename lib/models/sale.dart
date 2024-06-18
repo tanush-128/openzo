@@ -27,7 +27,7 @@ class Sale {
 
   Sale({
     this.id = "",
-    required this.orderItems,
+    this.orderItems = const [],
     this.customer,
     this.orderTime,
     this.totalAmount = 0.0,

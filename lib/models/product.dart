@@ -80,15 +80,14 @@ class Product {
   String description;
   int mrp;
   String quantityUnit;
-  int msrp;
+
   int discountPrice = 0;
 // int quantity;
   List<ProductImage> images;
   List<SizeVariant> sizeVariants = [];
   List<ColorVariant> colorVariants = [];
   String brand;
-  int? criticalQuantity;
-  String customCode;
+
   String category;
   String storeID;
   String barcode;
@@ -105,11 +104,8 @@ class Product {
       required this.description,
       required this.quantityUnit,
       required this.mrp,
-      required this.msrp,
       this.discountPrice = 0,
       this.brand = '',
-      this.criticalQuantity,
-      this.customCode = "",
       required this.sizeVariants,
       required this.colorVariants,
 // required this.quantity,
@@ -201,10 +197,10 @@ class Product {
       id: json['id'],
       name: json['name'],
       description: json['description'],
-      quantityUnit: json['quantity_unit'],
+      quantityUnit: json['quantity_unit'] ?? '',
       mrp: json['mrp'],
-      msrp: json['msrp'],
-      discountPrice: json['discount_price'],
+
+      discountPrice: json['discount_price'] ?? json['mrp'],
 // quantity: json['quantity'] ?? 0,
       barcode: json['barcode'],
       images: json['images'] != null
@@ -215,8 +211,7 @@ class Product {
       category: json['category'],
       storeID: json['store_id'],
       brand: json['brand'],
-      criticalQuantity: json['critical_quantity'],
-      customCode: json['custom_code'] ?? '',
+
       sizeVariants: json['size_variants'] == null
           ? []
           : (json['size_variants'] as List)
@@ -241,7 +236,7 @@ class Product {
       'name': product.name,
       'description': product.description,
       'mrp': product.mrp,
-      'msrp': product.msrp,
+
       'discount_price': product.discountPrice,
 // 'quantity': product.quantity,
       'barcode': product.barcode,

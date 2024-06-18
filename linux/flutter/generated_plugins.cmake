@@ -3,6 +3,8 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  awesome_notifications
+  awesome_notifications_core
   booking_and_publish_slots
   url_launcher_linux
 )

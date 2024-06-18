@@ -44,19 +44,19 @@ class UserData {
   }
 
   static createUserData(UserData userData) async {
-    final res = await http.post(
-        Uri.parse('${GlobalConsts.backend_url}/users/userdata/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          'user_id': userData.userId,
-          'latitude': userData.latitude,
-          'longitude': userData.longitude,
-          'address': userData.address,
-          'pincode': userData.pincode,
-          'notification_token': userData.notificationToken,
-        }));
+    final res =
+        await http.post(Uri.parse('${GlobalConsts.backend_url}/users/userdata'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode({
+              'user_id': userData.userId,
+              'latitude': userData.latitude,
+              'longitude': userData.longitude,
+              'address': userData.address,
+              'pincode': userData.pincode,
+              'notification_token': userData.notificationToken,
+            }));
 
     if (res.statusCode == 201) {
       UserData userData = UserData.fromJson(jsonDecode(res.body));
@@ -87,11 +87,12 @@ class UserData {
 
   static Future<UserData> updateUserData(UserData userData) async {
     final res = await http.put(
-      Uri.parse('${GlobalConsts.backend_url}/users/userdata/'),
+      Uri.parse('${GlobalConsts.backend_url}/users/userdata'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode({
+        'id': userData.id,
         'user_id': userData.userId,
         'latitude': userData.latitude,
         'longitude': userData.longitude,

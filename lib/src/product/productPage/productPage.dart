@@ -1,104 +1,11 @@
-// import 'package:flutter/material.dart';
-// import 'package:openzo_frontend/models/product.dart'; // Ensure this path is correct for your model imports
-// // import 'your_product_repository.dart'; // Replace with your actual data fetching repository
-
-// class ProductPage extends StatefulWidget {
-//   final String productId;
-
-//   const ProductPage({Key? key, required this.productId}) : super(key: key);
-
-//   @override
-//   _ProductPageState createState() => _ProductPageState();
-// }
-
-// class _ProductPageState extends State<ProductPage> {
-//   late Product product;
-//   late String selectedSize;
-//   late String selectedColor;
-//   bool isLoading = true;
-//   @override
-//   void initState() {
-//     super.initState();
-//     fetchProduct().then((_) {
-//       setState(() {
-//         isLoading = false;
-//       });
-//     });
-//   }
-
-//   Future<void> fetchProduct() async {
-//     product = await Product.fetchOne(productId);
-//     selectedSize =
-//         product.sizeVariants.isNotEmpty ? product.sizeVariants.first.size : '';
-//     selectedColor = product.colorVariants.isNotEmpty
-//         ? product.colorVariants.first.color
-//         : '';
-//     setState(() {});
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//           // title: Text(product.name),
-//           ),
-//       body: isLoading
-//           ? Center(child: CircularProgressIndicator())
-//           : SingleChildScrollView(
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Image.network(product.images.isNotEmpty
-//                       ? product.images.first.image
-//                       : 'default_image_path'),
-//                   Text(product.name,
-//                       style: Theme.of(context).textTheme.headline6),
-//                   Text('₹${product.discountPrice} ₹${product.mrp}',
-//                       style: Theme.of(context).textTheme.headline5),
-//                   Wrap(
-//                     children: product.sizeVariants
-//                         .map((size) => ChoiceChip(
-//                               label: Text(size.size),
-//                               selected: selectedSize == size.size,
-//                               onSelected: (bool selected) {
-//                                 setState(() {
-//                                   selectedSize = size.size;
-//                                 });
-//                               },
-//                             ))
-//                         .toList(),
-//                   ),
-//                   Wrap(
-//                     children: product.colorVariants
-//                         .map((color) => ChoiceChip(
-//                               label: Text(color.color),
-//                               selected: selectedColor == color.color,
-//                               onSelected: (bool selected) {
-//                                 setState(() {
-//                                   selectedColor = color.color;
-//                                 });
-//                               },
-//                             ))
-//                         .toList(),
-//                   ),
-//                   ElevatedButton(
-//                     onPressed: () {
-//                       // Code to handle adding to cart
-//                     },
-//                     child: Text('Add to Cart'),
-//                   )
-//                 ],
-//               ),
-//             ),
-//     );
-//   }
-// }
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
+import 'package:openzo_frontend/providers/sales_provider.dart';
+import 'package:provider/provider.dart';
 
 class ProductPage extends StatefulWidget {
   final String productId;
@@ -111,17 +18,16 @@ class ProductPage extends StatefulWidget {
 
 class _ProductPageState extends State<ProductPage> {
   late Product product;
-  late String selectedSize;
-  late String selectedColor;
+  SizeVariant? selectedSize;
+  ColorVariant? selectedColor;
   bool isLoading = true;
 
   Future<void> fetchProduct() async {
     product = await Product.fetchOne(widget.productId);
     selectedSize =
-        product.sizeVariants.isNotEmpty ? product.sizeVariants.first.size : '';
-    selectedColor = product.colorVariants.isNotEmpty
-        ? product.colorVariants.first.color
-        : '';
+        product.sizeVariants.isNotEmpty ? product.sizeVariants.first : null;
+    selectedColor =
+        product.colorVariants.isNotEmpty ? product.colorVariants.first : null;
     setState(() {});
   }
 
@@ -138,40 +44,63 @@ class _ProductPageState extends State<ProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: GlobalSearchBar(),
-        ),
-        centerTitle: true,
-        leadingWidth: 20,
-        toolbarHeight: 74,
-      ),
-      backgroundColor: Colors.grey.shade50,
-      bottomNavigationBar: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(12),
-        child: ElevatedButton(
-          onPressed: () {
-            // Add to cart logic
-          },
-          child: const Padding(
-            padding: EdgeInsets.all(6.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Add to Cart'),
-                SizedBox(width: 32),
-                Icon(Icons.shopping_cart_checkout_sharp),
-              ],
+    return isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : Scaffold(
+            appBar: AppBar(
+              title: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: GlobalSearchBar(),
+              ),
+              centerTitle: true,
+              leadingWidth: 20,
+              toolbarHeight: 74,
             ),
-          ),
-        ),
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+            backgroundColor: Colors.grey.shade50,
+            bottomNavigationBar: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(12),
+              child: !Provider.of<SalesProvider>(context).isInCart(product.id)
+                  ? ElevatedButton(
+                      onPressed: () {
+                        // Add to cart logic
+                        Provider.of<SalesProvider>(context, listen: false)
+                            .updateSaleOrderItems(
+                                product, selectedSize, selectedColor, 1);
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.all(6.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Add to Cart'),
+                            SizedBox(width: 32),
+                            Icon(Icons.shopping_cart_checkout_sharp),
+                          ],
+                        ),
+                      ),
+                    )
+                  : //view cart
+                  ElevatedButton(
+                      onPressed: () {
+                        // Add to cart logic
+                        context.go(
+                            '/cart/${Provider.of<SalesProvider>(context, listen: false).getSaleByStoreId(product.storeID).id}');
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.all(6.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('View Cart'),
+                            SizedBox(width: 32),
+                            Icon(Icons.shopping_cart_checkout_sharp),
+                          ],
+                        ),
+                      ),
+                    ),
+            ),
+            body: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -304,7 +233,7 @@ class _ProductPageState extends State<ProductPage> {
                 ],
               ),
             ),
-    );
+          );
   }
 }
 

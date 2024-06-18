@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/components/globalSearchBar.dart';
-import 'package:openzo_frontend/constants/constants.dart';
-import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/src/home_page/ad_carousel.dart';
-import 'package:openzo_frontend/src/home_page/local_search_delegate.dart';
 import 'package:openzo_frontend/src/home_page/store_card.dart';
-import 'package:openzo_frontend/src/home_page/store_category.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -30,11 +26,13 @@ class HomePage extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              const SizedBox(height: 20),
-              const SizedBox(height: 20),
+              // const SizedBox(height: 20),
+              // const SizedBox(height: 20),
               const Separator(title: "EXPLORE"),
               const MainCategories(),
               const SizedBox(height: 20),
+              const Separator(title: "ADS"),
+
               const AdSpace(),
               const SizedBox(height: 10),
               // SingleChildScrollView(
@@ -126,7 +124,7 @@ class MainCategories extends StatelessWidget {
         MainCategoryTile(title: 'Ride hire'),
         InkWell(
           onTap: () {
-            context.go('/categories');
+            context.go('/category');
           },
           child: Column(
             children: [
@@ -192,7 +190,7 @@ class MainCategoryTile extends StatelessWidget {
         children: [
           Container(
             width: 64,
-            height: 64,
+            height: 54,
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100.0),

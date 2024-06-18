@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -18,6 +19,7 @@ import 'firebase_options.dart';
 // FlutterFire's Firebase Cloud Messaging plugin
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 // used to pass messages from event handler to the UI
 final messageStreamController = BehaviorSubject<RemoteMessage>();
@@ -38,21 +40,56 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  AwesomeNotifications().initialize(
+      null,
+      [
+        NotificationChannel(
+          channelGroupKey: 'basic_channel_group',
+          channelKey: 'basic_channel',
+          channelName: 'Basic notifications',
+          channelDescription: 'Notification channel for basic tests',
+          defaultColor: GlobalStyle.primaryColor,
+          ledColor: Colors.white,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+
+          defaultRingtoneType: DefaultRingtoneType.Notification,
+          // icon: 'resource://drawable/ic_notification',
+          playSound: true,
+          enableVibration: true,
+          vibrationPattern: Int64List.fromList([1000, 1000, 2000, 1000, 3000]),
+          // soundSource: "resource://raw/res_custom_notification",
+          // playSound: true,
+          // enableVibration: true,
+        )
+      ],
+      // Channel groups are only visual and are not required
+      channelGroups: [
+        NotificationChannelGroup(
+            channelGroupKey: 'basic_channel_group',
+            channelGroupName: 'Basic group')
+      ],
+      debug: true);
+  AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+    if (!isAllowed) {
+      AwesomeNotifications().requestPermissionToSendNotifications();
+    }
+  });
   final messaging = FirebaseMessaging.instance;
 
-  final settings = await messaging.requestPermission(
-    alert: true,
-    announcement: false,
-    badge: true,
-    carPlay: false,
-    criticalAlert: false,
-    provisional: false,
-    sound: true,
-  );
+  // final settings = await messaging.requestPermission(
+  //   alert: true,
+  //   announcement: false,
+  //   badge: true,
+  //   carPlay: false,
+  //   criticalAlert: false,
+  //   provisional: false,
+  //   sound: true,
+  // );
 
-  if (kDebugMode) {
-    print('Permission granted: ${settings.authorizationStatus}');
-  }
+  // if (kDebugMode) {
+  //   print('Permission granted: ${settings.authorizationStatus}');
+  // }
 
   String? token = await messaging.getToken();
   log('Token: $token');
@@ -62,16 +99,7 @@ Future<void> main() async {
     print('Registration Token=$token');
   }
 
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    if (kDebugMode) {
-      print('Handling a foreground message: ${message.messageId}');
-      print('Message data: ${message.data}');
-      print('Message notification: ${message.notification?.title}');
-      print('Message notification: ${message.notification?.body}');
-    }
 
-    messageStreamController.sink.add(message);
-  });
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final settingsController = SettingsController(SettingsService());
