@@ -79,6 +79,7 @@ class UserData {
     );
 
     if (res.statusCode == 200) {
+      print(res.body);
       return UserData.fromJson(jsonDecode(res.body));
     } else {
       throw Exception('Failed to load user data');

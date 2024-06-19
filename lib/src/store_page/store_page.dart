@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/components/skeleton.dart';
 import 'package:openzo_frontend/constants/constants.dart';
+import 'package:openzo_frontend/models/Review.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/store.dart';
@@ -83,26 +84,31 @@ class _StorePageState extends State<StorePage>
 
     return DefaultTabController(
       length: 2,
+      
       child: Scaffold(
-        bottomNavigationBar: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: cart.id != ""
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Total: ${cart.totalAmount}'),
-                    ElevatedButton(
-                      onPressed: () {
-                        context.go('/cart/${cart.id}');
-                      },
-                      child: const Text('View Cart'),
-                    ),
-                  ],
-                )
-              : Container(
-                  height: 0,
-                ),
-        ),
+        resizeToAvoidBottomInset: true,
+        bottomNavigationBar: pageIndex == 0
+            ? Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: cart.id != ""
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Total: ${cart.totalAmount}'),
+                          ElevatedButton(
+                            onPressed: () {
+                              context.go('/cart/${cart.id}');
+                            },
+                            child: const Text('View Cart'),
+                          ),
+                        ],
+                      )
+                    : Container(
+                        height: 0,
+                      ),
+              )
+            : AddReview(storeId: widget.storeId),
         body: NestedScrollView(
           controller: _scrollController,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -285,13 +291,8 @@ class _StorePageState extends State<StorePage>
                           },
                         );
                       } else {
-                        return Container(
-                          child: const Column(
-                            children: [
-                              Review(),
-                              Text('Reviews'),
-                            ],
-                          ),
+                        return ReviewsList(
+                          storeId: widget.storeId,
                         );
                       }
                     }

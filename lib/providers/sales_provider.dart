@@ -68,16 +68,17 @@ class SalesProvider extends ChangeNotifier {
             .contains(product.storeID) ==
         false) {
       await addSale(Sale(
-          orderItems: [
-            OrderItem(
-              productId: product.id,
-              quantity: quantity,
-              colorVariantId: colorVariant?.id,
-              sizeVariantId: sizeVariant?.id,
-            )
-          ],
-          totalAmount: product.discountPrice * quantity * 1.0,
-          storeId: product.storeID));
+        orderItems: [
+          OrderItem(
+            productId: product.id,
+            quantity: quantity,
+            colorVariantId: colorVariant?.id,
+            sizeVariantId: sizeVariant?.id,
+          )
+        ],
+        totalAmount: product.discountPrice * quantity * 1.0,
+        storeId: product.storeID,
+      ));
       return;
     }
 

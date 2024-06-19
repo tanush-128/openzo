@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/models/store.dart';
@@ -28,11 +26,6 @@ class HomePage extends StatelessWidget {
                 expandedTitleScale: 1,
                 background: Container(
                   decoration: const BoxDecoration(
-                    // gradient: LinearGradient(
-                    //   begin: Alignment.topLeft,
-                    //   end: Alignment.bottomRight,
-                    //   colors: const [Colors.orange, Colors.red],
-                    // ),
                     borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(20),
                         bottomRight: Radius.circular(20)),
@@ -47,16 +40,12 @@ class HomePage extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate(
                 [
-                  // const SizedBox(height: 20),
-                  // const SizedBox(height: 20),
                   const Separator(title: "EXPLORE"),
                   const MainCategories(),
                   const SizedBox(height: 20),
                   const Separator(title: "ADS"),
-
                   const AdSpace(),
                   const SizedBox(height: 10),
-
                   const Separator(title: "RECOMMENDED STORES"),
                   const SizedBox(height: 20),
                   FutureBuilder(

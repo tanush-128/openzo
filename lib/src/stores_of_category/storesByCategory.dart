@@ -16,7 +16,7 @@ class StoresByCategory extends StatefulWidget {
 
 class _StoresByCategoryState extends State<StoresByCategory> {
   SubCategory? subCategory;
-  final subCategories = GlobalConsts.categories[0].subCategories;
+  late final subCategories = widget.category.subCategories;
 
   setSubCategory(SubCategory subCategory) {
     setState(() {

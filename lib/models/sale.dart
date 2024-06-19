@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/product.dart';
@@ -62,6 +63,9 @@ class Sale {
     };
   }
 
+  static String endpoint = '${GlobalConsts.backend_url}/sales';
+  // static String endpoint = 'https://lnn7jf70-8082.inc1.devtunnels.ms';
+
   factory Sale.fromJson(Map<String, dynamic> json) {
     return Sale(
       id: json['id'],
@@ -93,7 +97,7 @@ class Sale {
       saleId: "",
     );
     final response = await http.post(
-      Uri.parse('${GlobalConsts.backend_url}/sales/'),
+      Uri.parse('$endpoint/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -109,7 +113,7 @@ class Sale {
 
   static Future<Sale> getSaleByID(String id) async {
     final response = await http.get(
-      Uri.parse('${GlobalConsts.backend_url}/sales/$id'),
+      Uri.parse('$endpoint/$id'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -124,7 +128,7 @@ class Sale {
 
   static Future<List<Sale>> getSalesByStoreID(String storeID) async {
     final response = await http.get(
-      Uri.parse('${GlobalConsts.backend_url}/sales/store/$storeID'),
+      Uri.parse('$endpoint/store/$storeID'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -145,17 +149,22 @@ class Sale {
     String? userDataId = prefs.getString('user_data_id');
     print("Fetching orders for User data id: $userDataId");
     final response = await http.get(
-      Uri.parse('${GlobalConsts.backend_url}/sales/user/$userDataId'),
+      Uri.parse('$endpoint/user/$userDataId'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
 
     if (response.statusCode == 200) {
-      // print(response.body);
+      // log(response.body.map);
       List<dynamic> body = jsonDecode(response.body);
+      // log()[0].toString());
+      body.map((e) => e['customer']).forEach((element) {
+        print("Customer: $element");
+      });
       List<Sale> sales =
           body.map((dynamic item) => Sale.fromJson(item)).toList();
+      // print("Sales customer: ${sales[0].customer?.toJson()}");
       return sales;
     } else {
       throw Exception('Failed to get sales');
@@ -164,7 +173,7 @@ class Sale {
 
   static Future<Sale> changeSaleStatus(String id, String status) async {
     final response = await http.put(
-      Uri.parse('${GlobalConsts.backend_url}/sales/$id/status/$status'),
+      Uri.parse('$endpoint/$id/status/$status'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -179,7 +188,7 @@ class Sale {
 
   static Future<Sale> updateSale(Sale sale) async {
     final response = await http.put(
-      Uri.parse('${GlobalConsts.backend_url}/sales/'),
+      Uri.parse('$endpoint/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -187,6 +196,7 @@ class Sale {
     );
 
     if (response.statusCode == 200) {
+      print("Updated sale: ${response.body}");
       return Sale.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Failed to update sale');

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 class GlobalStyle {
+  static const Color secondaryColor = Color(0xFFFFA900);
+  // static const Color primaryColor = Color(0xFF0061A8); // Example primary color
   // static const Color primaryColor = Color(0xFF0D47A1);
   static const Color primaryColor = Color(0xFFCD113B);
-  static const Color secondaryColor = Color(0xFFFFA900);
+  static const Color accentColor = Color(0xFFFFC107); // Example accent color
+  static const Color backgroundColor = Color.fromARGB(255, 255, 255, 255);
 
   static final inputDec = InputDecoration(
       border: UnderlineInputBorder(
