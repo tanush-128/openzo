@@ -72,7 +72,7 @@ class Sale {
       orderItems: List<OrderItem>.from(
           json['order_items'].map((x) => OrderItem.fromJson(x))),
       customer: Customer.fromJson(json['customer']),
-      orderTime: DateTime.parse(json['order_time']),
+      orderTime: DateTime.tryParse(json['order_time']),
       totalAmount: double.parse(json['total_amount'].toString()),
       undiscountedTotalAmount:
           double.parse(json['undiscounted_amount'].toString()),

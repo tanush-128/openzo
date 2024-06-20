@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:openzo_frontend/models/Review.dart';
 import 'package:intl/intl.dart';
+import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/utils/capitalize.dart';
+import 'package:provider/provider.dart';
 
 class ReviewsList extends StatefulWidget {
   final String storeId;
@@ -18,6 +20,13 @@ class ReviewsList extends StatefulWidget {
 class _ReviewsListState extends State<ReviewsList> {
   late final reviewData =
       Future.value(Review.getReviewsByStoreID(widget.storeId));
+  String userId = "";
+
+  @override
+  void initState() {
+    userId = Provider.of<UserProvider>(context, listen: false).user.id;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +50,18 @@ class _ReviewsListState extends State<ReviewsList> {
               child: Text('No reviews found'),
             );
           }
+          List<Review> reviews = snapshot.data!;
+          Review? userReview =
+              reviews.where((element) => element.userId == userId).firstOrNull;
+          if (userReview != null) {
+            reviews.remove(userReview);
+            reviews.insert(0, userReview);
+          }
+
           return Column(
-            children: snapshot.data!
-                .map((review) => ReviewTile(review: review))
+            children: reviews
+                .map((review) =>
+                    ReviewTile(review: review, byUser: review.userId == userId))
                 .toList(),
           );
         },
@@ -54,7 +72,8 @@ class _ReviewsListState extends State<ReviewsList> {
 
 class ReviewTile extends StatelessWidget {
   final Review review;
-  const ReviewTile({super.key, required this.review});
+  final bool byUser;
+  const ReviewTile({super.key, required this.review, this.byUser = false});
 
   @override
   Widget build(BuildContext context) {
@@ -73,53 +92,65 @@ class ReviewTile extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Row(
+          byUser
+              ? const Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Icon(Icons.edit),
+                )
+              : const SizedBox(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade100,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Row(
-                  children: [
-                    for (int i = 0; i < review.rating; i++)
-                      const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                        size: 20,
-                      ),
-                    for (int i = 0; i < 5 - review.rating; i++)
-                      Icon(
-                        Icons.star,
-                        color: Colors.grey.shade400,
-                        size: 20,
-                      ),
-                  ],
-                ),
+              Row(
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade100,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      children: [
+                        for (int i = 0; i < review.rating; i++)
+                          const Icon(
+                            Icons.star,
+                            color: Colors.amber,
+                            size: 20,
+                          ),
+                        for (int i = 0; i < 5 - review.rating; i++)
+                          Icon(
+                            Icons.star,
+                            color: Colors.grey.shade400,
+                            size: 20,
+                          ),
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    DateFormat.yMMMd().format(review.createdAt),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
               ),
-              const Spacer(),
+              // const SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
-                DateFormat.yMMMd().format(review.createdAt),
+                capitalize(review.review),
                 style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
+                  fontSize: 16,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
-          ),
-          // const SizedBox(height: 8),
-          const SizedBox(height: 8),
-          Text(
-            capitalize(review.review),
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
-            ),
           ),
         ],
       ),
@@ -143,6 +174,63 @@ class AddReview extends StatefulWidget {
 class _AddReviewState extends State<AddReview> {
   final TextEditingController _reviewController = TextEditingController();
   int _rating = 0;
+  String userId = "";
+
+  @override
+  void initState() {
+    userId = Provider.of<UserProvider>(context, listen: false).user.id;
+    super.initState();
+  }
+
+  Future<void> submitReview() async {
+    if (_reviewController.text.isEmpty || _rating == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please provide a rating and a review.'),
+        ),
+      );
+      return;
+    }
+
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      // Create review
+      await Review.createReview(
+        Review(
+          storeId: widget.storeId,
+          rating: _rating,
+          createdAt: DateTime.now(),
+          review: _reviewController.text,
+          userId: userId,
+        ),
+      );
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Review added successfully')),
+      );
+
+      // Clear the form
+      _reviewController.clear();
+      setState(() {
+        _rating = 0;
+      });
+    } catch (error) {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${error.toString()}')),
+      );
+    } finally {
+      // Hide loading indicator
+      Navigator.of(context).pop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -218,32 +306,7 @@ class _AddReviewState extends State<AddReview> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      Review.createReview(Review(
-                              storeId: widget.storeId,
-                              rating: _rating,
-                              createdAt: DateTime.now(),
-                              review: _reviewController.text))
-                          .then((value) {
-                        if (value != null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Review added successfully'),
-                            ),
-                          );
-                          _reviewController.clear();
-                          setState(() {
-                            _rating = 0;
-                          });
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Failed to add review'),
-                            ),
-                          );
-                        }
-                      });
-                    },
+                    onPressed: submitReview,
                     child: const Text('Submit'),
                   ),
                 ],

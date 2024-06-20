@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,21 +43,22 @@ class UserData {
       notificationToken: json['notification_token'],
     );
   }
+  static String endpoint = "${GlobalConsts.backend_url}/users";
+  // static String endpoint = "https://lnn7jf70-8081.inc1.devtunnels.ms";
 
   static createUserData(UserData userData) async {
-    final res =
-        await http.post(Uri.parse('${GlobalConsts.backend_url}/users/userdata'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: jsonEncode({
-              'user_id': userData.userId,
-              'latitude': userData.latitude,
-              'longitude': userData.longitude,
-              'address': userData.address,
-              'pincode': userData.pincode,
-              'notification_token': userData.notificationToken,
-            }));
+    final res = await http.post(Uri.parse('$endpoint/userdata'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'user_id': userData.userId,
+          'latitude': userData.latitude,
+          'longitude': userData.longitude,
+          'address': userData.address,
+          'pincode': userData.pincode,
+          'notification_token': userData.notificationToken,
+        }));
 
     if (res.statusCode == 201) {
       UserData userData = UserData.fromJson(jsonDecode(res.body));
@@ -72,7 +74,27 @@ class UserData {
     String userDataId,
   ) async {
     final res = await http.get(
-      Uri.parse('${GlobalConsts.backend_url}/users/userdata/$userDataId'),
+      Uri.parse('$endpoint/userdata/$userDataId'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (res.statusCode == 200) {
+      print(res.body);
+      return UserData.fromJson(jsonDecode(res.body));
+    } else {
+      throw Exception('Failed to load user data');
+    }
+  }
+
+  // router.GET("/userdata/user/:id", handler.GetUserDataByUserID)
+
+  static Future<UserData> getUserDataByUserID(
+    String userId,
+  ) async {
+    final res = await http.get(
+      Uri.parse('$endpoint/userdata/user/$userId'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -88,7 +110,7 @@ class UserData {
 
   static Future<UserData> updateUserData(UserData userData) async {
     final res = await http.put(
-      Uri.parse('${GlobalConsts.backend_url}/users/userdata'),
+      Uri.parse('$endpoint/userdata'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

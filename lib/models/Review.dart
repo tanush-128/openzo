@@ -39,17 +39,20 @@ class Review {
     return {
       'id': id,
       'store_id': storeId,
+      'review': review,
       'user_id': userId,
       'user_name': userName,
       'rating': rating,
       'created_at': createdAt.toIso8601String(),
-      'review': review,
     };
   }
 
   static Future<Review> createReview(Review review) async {
+    print(review.review);
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
+
     if (token == null) {
       throw Exception('Token not found');
     }
@@ -67,6 +70,7 @@ class Review {
       Review review = Review.fromJson(jsonDecode(response.body));
       return review;
     } else {
+      print(response.body);
       throw Exception('Failed to create review');
     }
   }
@@ -81,6 +85,9 @@ class Review {
 
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
+      body.forEach((element) {
+        print(element);
+      });
       List<Review> reviews =
           body.map((dynamic item) => Review.fromJson(item)).toList();
       return reviews;
