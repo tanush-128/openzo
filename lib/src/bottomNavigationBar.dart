@@ -26,6 +26,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
     return Scaffold(
       body: pages.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
+        // backgroundColor: Colors.red,
         currentIndex: _selectedIndex,
         onTap: (int index) {
           setState(() {

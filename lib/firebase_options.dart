@@ -25,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -58,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBWG50Z4mdMTpqOyGYyOUjjVIYzSQEFFfo',
-    appId: '1:53179141705:android:294fcb5b751497c1fc3998',
+    appId: '1:53179141705:android:6496fe97cb250200fc3998',
     messagingSenderId: '53179141705',
     projectId: 'openzo-rt',
     storageBucket: 'openzo-rt.appspot.com',
@@ -72,4 +66,24 @@ class DefaultFirebaseOptions {
     storageBucket: 'openzo-rt.appspot.com',
     iosBundleId: 'com.example.openzoFrontend',
   );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAZSLPcgdo6B2vGpzaC76kjCo0WRa2xoA8',
+    appId: '1:53179141705:ios:ace6efba76468e91fc3998',
+    messagingSenderId: '53179141705',
+    projectId: 'openzo-rt',
+    storageBucket: 'openzo-rt.appspot.com',
+    iosBundleId: 'com.example.openzoFrontend',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBj3OhJV4C4wn--ODhRbdPjRc7W5IiPNV4',
+    appId: '1:53179141705:web:97dfc59e0b0ebcf3fc3998',
+    messagingSenderId: '53179141705',
+    projectId: 'openzo-rt',
+    authDomain: 'openzo-rt.firebaseapp.com',
+    storageBucket: 'openzo-rt.appspot.com',
+    measurementId: 'G-KX7YVEY757',
+  );
+
 }

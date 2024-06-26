@@ -4,13 +4,26 @@ class Category {
   String name;
   StoreType type;
   List<SubCategory> subCategories;
-  Category(
-      {required this.name, required this.subCategories, required this.type});
+  List<String> metaTags;
+  String metaDescription = "";
+  Category({
+    required this.name,
+    required this.subCategories,
+    this.metaTags = const [],
+    this.metaDescription = "",
+    required this.type,
+  });
 }
 
 class SubCategory {
   String name;
-  SubCategory({required this.name});
+  List<String> metaTags;
+  String metaDescription = "";
+  SubCategory({
+    required this.name,
+    this.metaTags = const [],
+    this.metaDescription = "",
+  });
 }
 
 enum StoreType {
@@ -28,9 +41,22 @@ class GlobalConsts {
   static List<Category> categories = [
     Category(
       name: 'Stores',
+      metaDescription: "this is meta des",
+      metaTags: [
+        "store",
+        "shop",
+        "buy",
+      ],
       type: StoreType.store,
       subCategories: [
-        SubCategory(name: 'Appliances'),
+        SubCategory(
+            name: 'Appliances',
+            metaDescription: "this is meta des",
+            metaTags: [
+              "store",
+              "shop",
+              "buy",
+            ]),
         SubCategory(name: 'Electronics'),
         SubCategory(name: 'Furniture'),
         SubCategory(name: 'Footwear'),
@@ -44,11 +70,6 @@ class GlobalConsts {
         SubCategory(name: 'Personal care'),
       ],
     ),
-// 'AC Repair.png' Electrician.png Painter.png 'TV Repair.png'
-// Beautician.png Mechanic.png Plumber.png 'Washing Machine Repair.png'
-// carpenter.png 'Metal Works.png' 'Refrigator Repair.png'
-// Cook.png Others.png Transporter.png
-
     Category(
         name: 'Home Services',
         subCategories: [
@@ -68,7 +89,6 @@ class GlobalConsts {
           SubCategory(name: 'Others'),
         ],
         type: StoreType.service),
-
     Category(
       name: 'Services',
       type: StoreType.service,
@@ -84,9 +104,6 @@ class GlobalConsts {
         SubCategory(name: 'Saloons'),
       ],
     ),
-// Bakery.png 'Food Truck.png' 'Street foods.png'
-// Cafe.png 'Ice Cream Parlour.png' Sweets.png
-// 'Fast Food.png' 'Juice shop.png' 'Top Restaurants.png'
     Category(
       name: "Food",
       subCategories: [
@@ -102,7 +119,6 @@ class GlobalConsts {
       ],
       type: StoreType.food,
     ),
-
     Category(
       name: 'Rental stores',
       type: StoreType.service,
@@ -116,10 +132,6 @@ class GlobalConsts {
         SubCategory(name: 'Furniture Rentals'),
       ],
     ),
-// 'Academic Coaching.png' 'language Coaching.png' 'Technology Coaching.png'
-// 'Arts Coaching.png' 'Music Coaching.png' 'Test Prep Coaching.png'
-// 'Dance Coaching.png' 'Sports Coaching.png' 'Wellness Coaching.png'
-
     Category(
       name: 'Coachings',
       type: StoreType.service,
@@ -135,10 +147,6 @@ class GlobalConsts {
         SubCategory(name: 'Wellness Coaching'),
       ],
     ),
-// 'Advertising Agency.png' 'Event Planning Agency.png' 'Travel Agency.png'
-// 'Desining Agency.png' 'Marketing Agency.png'
-// 'Employement Agency.png' 'Printing Press.png'
-
     Category(
       name: 'Agencies',
       type: StoreType.service,
@@ -152,9 +160,6 @@ class GlobalConsts {
         SubCategory(name: 'Printing Press'),
       ],
     ),
-// 'Automobile Showrooms.png' 'Electronics Showrooms.png' 'Jewellery Showrooms.png'
-// 'Clothing Showrooms.png' 'Furniture Showrooms.png'
-
     Category(
       name: 'Showrooms',
       type: StoreType.store,
@@ -177,15 +182,10 @@ class GlobalConsts {
         SubCategory(name: 'Video Games'),
       ],
     ),
-// 'Local Toursims.png' 'Pubs & Bars.png' 'Sweets & Bakeries.png'
-// Parks.png 'Street foods.png' 'Top Restaurants.png'
     Category(name: "Explore", type: StoreType.service, subCategories: [
       SubCategory(name: 'Local Toursims'),
       SubCategory(name: 'Pubs & Bars'),
-      SubCategory(name: 'Sweets & Bakeries'),
       SubCategory(name: 'Parks'),
-      SubCategory(name: 'Street foods'),
-      SubCategory(name: 'Top Restaurants'),
     ]),
     Category(
       name: 'Businesses',
@@ -297,21 +297,10 @@ class GlobalConsts {
       productCategories: [
         ProductCategory(categoryName: 'Men’s shoes', image: 'mens_shoes'),
         ProductCategory(categoryName: 'Women’s shoes', image: 'womens_shoes'),
-// ProductCategory(
-// categoryName: 'Athletic footwear', image: 'athletic_footwear'),
-// ProductCategory(
-// categoryName: 'Sports shoes', image: 'casual_shoes'),
         ProductCategory(
             categoryName: 'Boots and booties', image: 'boots_and_booties'),
-// ProductCategory(categoryName: 'Sandals', image: 'sandals'),
         ProductCategory(categoryName: 'Slippers', image: 'slippers'),
         ProductCategory(categoryName: 'Kids’ shoes', image: 'kids_shoes'),
-// ProductCategory(
-// categoryName: 'Work and safety shoes',
-// image: 'work_and_safety_shoes'),
-// ProductCategory(
-// categoryName: 'Specialty footwear (dance, hiking, etc.)',
-// image: 'specialty_footwear'),
       ],
     ),
     StoreCategory(

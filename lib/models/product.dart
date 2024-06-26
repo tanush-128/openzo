@@ -82,7 +82,6 @@ class Product {
   String quantityUnit;
 
   int discountPrice = 0;
-// int quantity;
   List<ProductImage> images;
   List<SizeVariant> sizeVariants = [];
   List<ColorVariant> colorVariants = [];
@@ -96,28 +95,31 @@ class Product {
   String? type;
   String? vegType;
   int? servers;
+  bool outOfStock;
   String? storeName;
+  int displayOrder;
 
-  Product(
-      {required this.id,
-      required this.name,
-      required this.description,
-      required this.quantityUnit,
-      required this.mrp,
-      this.discountPrice = 0,
-      this.brand = '',
-      required this.sizeVariants,
-      required this.colorVariants,
-// required this.quantity,
-      required this.images,
-      required this.category,
-      required this.storeID,
-      required this.barcode,
-//
-      this.type,
-      this.vegType,
-      this.servers,
-      this.storeName});
+  Product({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.quantityUnit,
+    required this.mrp,
+    this.discountPrice = 0,
+    this.brand = '',
+    required this.sizeVariants,
+    required this.colorVariants,
+    required this.images,
+    required this.category,
+    required this.storeID,
+    required this.barcode,
+    this.outOfStock = false,
+    this.type,
+    this.vegType,
+    this.servers,
+    this.storeName,
+    this.displayOrder = 0,
+  });
 
   static Future<List<Product>> fetchMany(String storeID) async {
     List<Product> products = [];
@@ -199,9 +201,7 @@ class Product {
       description: json['description'],
       quantityUnit: json['quantity_unit'] ?? '',
       mrp: json['mrp'],
-
       discountPrice: json['discount_price'] ?? json['mrp'],
-// quantity: json['quantity'] ?? 0,
       barcode: json['barcode'],
       images: json['images'] != null
           ? (json['images'] as List)
@@ -211,7 +211,6 @@ class Product {
       category: json['category'],
       storeID: json['store_id'],
       brand: json['brand'],
-
       sizeVariants: json['size_variants'] == null
           ? []
           : (json['size_variants'] as List)
@@ -226,25 +225,9 @@ class Product {
       vegType: json['veg_type'],
       servers: json['servers'],
       storeName: json['store_name'],
+      outOfStock: json['out_of_stock'],
+      displayOrder: json['display_order'],
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    Product product = this;
-    return {
-      'id': product.id,
-      'name': product.name,
-      'description': product.description,
-      'mrp': product.mrp,
-
-      'discount_price': product.discountPrice,
-// 'quantity': product.quantity,
-      'barcode': product.barcode,
-      'images':
-          product.images.map((e) => {'id': e.id, 'image': e.image}).toList(),
-      'category': product.category,
-      'store_id': product.storeID,
-    };
   }
 }
 

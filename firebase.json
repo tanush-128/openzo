@@ -1,13 +1,1 @@
-{
-  "hosting": {
-    "source": ".",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "frameworksBackend": {
-      "region": "us-central1"
-    }
-  }
-}
+{"hosting":{"source":".","ignore":["firebase.json","**/.*","**/node_modules/**"],"frameworksBackend":{"region":"us-central1"}},"flutter":{"platforms":{"android":{"default":{"projectId":"openzo-rt","appId":"1:53179141705:android:6496fe97cb250200fc3998","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"openzo-rt","configurations":{"android":"1:53179141705:android:6496fe97cb250200fc3998","ios":"1:53179141705:ios:ace6efba76468e91fc3998","macos":"1:53179141705:ios:ace6efba76468e91fc3998","web":"1:53179141705:web:12f45315fc06c606fc3998","windows":"1:53179141705:web:97dfc59e0b0ebcf3fc3998"}}}}}}

@@ -3,12 +3,19 @@ import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/store.dart';
-import 'package:openzo_frontend/src/home_page/store_card.dart';
+import 'package:openzo_frontend/src/home_page/widgets/store_card.dart';
+import 'package:openzo_frontend/src/home_page/widgets/stores_list.dart';
 
 class StoresByCategory extends StatefulWidget {
   Category category;
   SubCategory? subCategory;
-  StoresByCategory({super.key, required this.category, this.subCategory});
+  bool delivery = false;
+  StoresByCategory({
+    super.key,
+    required this.category,
+    this.subCategory,
+    this.delivery = false,
+  });
 
   @override
   State<StoresByCategory> createState() => _StoresByCategoryState();
@@ -28,9 +35,11 @@ class _StoresByCategoryState extends State<StoresByCategory> {
 
   @override
   void initState() {
-    subCategory = widget.subCategory;
-    subCategories.remove(subCategory);
-    subCategories.insert(0, subCategory!);
+    if (widget.subCategory != null) {
+      subCategory = widget.subCategory;
+      subCategories.remove(subCategory);
+      subCategories.insert(0, subCategory!);
+    }
     super.initState();
   }
 
@@ -81,33 +90,14 @@ class _StoresByCategoryState extends State<StoresByCategory> {
                 ))),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: FutureBuilder(
-                    future: Store.getStoresWithPincode("123456"),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      if (snapshot.hasError) {
-                        return Center(
-                          child: Text(snapshot.error.toString(),
-                              style: const TextStyle(color: Colors.red)),
-                        );
-                      }
-                      if (snapshot.data!.isEmpty) {
-                        return const Center(
-                          child: Text('No stores found'),
-                        );
-                      }
-                      return Column(
-                        children: snapshot.data!
-                            .map((store) => StoreCard(store: store))
-                            .toList(),
-                      );
-                    }),
-              ),
+                  padding: const EdgeInsets.all(16.0),
+                  child: StoresList(
+                    future: subCategory != null
+                        ? Store.getStoreByPincodeAndSubCategory(
+                            '123456', subCategory!.name)
+                        : Store.getStoreByPincodeAndCategory(
+                            '123456', widget.category.name),
+                  )),
             )
           ],
         ),

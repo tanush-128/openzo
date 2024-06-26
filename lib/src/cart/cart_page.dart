@@ -7,7 +7,7 @@ import 'package:openzo_frontend/models/user_data.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/providers/user_data_provider.dart';
 import 'package:openzo_frontend/providers/user_provider.dart';
-import 'package:openzo_frontend/src/product/product_card.dart';
+import 'package:openzo_frontend/src/product/widgets/product_card.dart';
 import 'package:provider/provider.dart';
 
 class CartPage extends StatefulWidget {

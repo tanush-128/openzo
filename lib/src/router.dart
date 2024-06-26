@@ -1,11 +1,13 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/src/booking/bookingPage.dart';
 import 'package:openzo_frontend/src/bottomNavigationBar.dart';
 import 'package:openzo_frontend/src/cart/cart_page.dart';
 import 'package:openzo_frontend/src/categories_page.dart';
+import 'package:openzo_frontend/src/home_page/pages/food_delivery.dart';
 import 'package:openzo_frontend/src/login/loginPage.dart';
-import 'package:openzo_frontend/src/product/productPage/productPage.dart';
+import 'package:openzo_frontend/src/product/productPage/product_page.dart';
 import 'package:openzo_frontend/src/store_page/store_page.dart';
 import 'package:openzo_frontend/src/stores_of_category/storesByCategory.dart';
 
@@ -15,11 +17,51 @@ class AppRouter {
   AppRouter()
       : router = GoRouter(
           initialLocation: '/login',
+          observers: [
+            FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance)
+          ],
           routes: <RouteBase>[
             GoRoute(
               path: '/',
               builder: (context, state) => const BottomNavBar(),
               routes: [
+                GoRoute(
+                    path: 'food-delivery',
+                    builder: (context, state) {
+                      // return const FoodDelivery();
+                      return StoresByCategory(
+                        category: GlobalConsts.categories.firstWhere(
+                            (element) => element.name == 'Food',
+                            orElse: () => GlobalConsts.categories.first),
+                      );
+                    }),
+                GoRoute(
+                    path: 'services',
+                    builder: (context, state) {
+                      return StoresByCategory(
+                        category: GlobalConsts.categories.firstWhere(
+                            (element) => element.name == 'Services',
+                            orElse: () => GlobalConsts.categories.first),
+                      );
+                    }),
+                GoRoute(
+                    path: 'stores',
+                    builder: (context, state) {
+                      return StoresByCategory(
+                        category: GlobalConsts.categories.firstWhere(
+                            (element) => element.name == 'Stores',
+                            orElse: () => GlobalConsts.categories.first),
+                      );
+                    }),
+                GoRoute(
+                    path: 'home-services',
+                    builder: (context, state) {
+                      return StoresByCategory(
+                        category: GlobalConsts.categories.firstWhere(
+                            (element) => element.name == 'Home Services',
+                            orElse: () => GlobalConsts.categories.first),
+                      );
+                    }),
                 GoRoute(
                   path: 'cart/:storeID',
                   builder: (context, state) =>

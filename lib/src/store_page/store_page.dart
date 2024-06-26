@@ -1,25 +1,22 @@
-import 'package:accordion/accordion.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:openzo_frontend/components/skeleton.dart';
 import 'package:openzo_frontend/constants/constants.dart';
-import 'package:openzo_frontend/models/Review.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/store.dart';
+import 'package:openzo_frontend/providers/products_provider.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
-import 'package:openzo_frontend/src/store_page/Reviews.dart';
-import 'package:openzo_frontend/src/store_page/custom_search_delegate.dart';
-import 'package:openzo_frontend/src/product/product_card.dart';
-import 'package:openzo_frontend/src/product/verticalProductCard.dart';
-import 'package:openzo_frontend/src/store_page/storeDetails.dart';
+import 'package:openzo_frontend/src/store_page/widgets/Reviews.dart';
+import 'package:openzo_frontend/src/store_page/widgets/custom_search_delegate.dart';
+import 'package:openzo_frontend/src/store_page/widgets/productsList.dart';
+import 'package:openzo_frontend/src/store_page/widgets/productsListSkeleton.dart';
+import 'package:openzo_frontend/src/store_page/widgets/storeDetails.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class StorePage extends StatefulWidget {
-  //
   final String storeId;
+
   const StorePage({super.key, required this.storeId});
 
   @override
@@ -28,17 +25,259 @@ class StorePage extends StatefulWidget {
 
 class _StorePageState extends State<StorePage>
     with SingleTickerProviderStateMixin {
-  List<Product> products = [];
-  Map<String, List<Product>> categories = {};
-  final ScrollController _scrollController = ScrollController();
-
+  late Future<List<Product>> productData;
+  late Future<Store> storeData;
   late TabController _tabController;
+  int pageIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    fetchProducts();
+    productData = Product.fetchMany(widget.storeId);
+    storeData = Store.fetchStore(widget.storeId);
+    _tabController.addListener(() {
+      setState(() {
+        pageIndex = _tabController.index;
+      });
+    });
+  }
+
+  StoreType storeType = StoreType.store;
+
+  @override
+  Widget build(BuildContext context) {
+    final Sale cart =
+        Provider.of<SalesProvider>(context).getSaleByStoreId(widget.storeId);
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        bottomNavigationBar: _buildBottomBar(cart),
+        body: NestedScrollView(
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return <Widget>[
+              _buildSliverAppBar(),
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _SliverAppBarDelegate(
+                  TabBar(
+                    controller: _tabController,
+
+                    // onTap: (index) => setState(() {
+                    //   pageIndex = index;
+                    // }),
+                    tabs: const [
+                      Tab(text: 'Products'),
+                      Tab(text: 'Reviews'),
+                    ],
+                  ),
+                ),
+              ),
+            ];
+          },
+          body: _buildBody(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomBar(Sale cart) {
+    return FutureBuilder(
+        future: storeData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const SizedBox.shrink();
+          } else if (snapshot.hasError) {
+            return const SizedBox.shrink();
+          } else if (snapshot.hasData) {
+            final store = snapshot.data as Store;
+            storeType = GlobalConsts.categories
+                .firstWhere(
+                  (element) => element.name == store.category,
+                  orElse: () => GlobalConsts.categories[0],
+                )
+                .type;
+            return pageIndex == 0
+                ? storeType == StoreType.service
+                    ? _buildContactBottmBar()
+                    : _buildBottomNavigationBar(cart)
+                : AddReviewButton(storeId: widget.storeId);
+          } else {
+            return const SizedBox.shrink();
+          }
+        });
+  }
+
+  Widget _buildBottomNavigationBar(Sale cart) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: cart.id.isNotEmpty
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Total: ${cart.totalAmount}'),
+                ElevatedButton(
+                  onPressed: () {
+                    context.go('/cart/${cart.id}');
+                  },
+                  child: const Row(
+                    children: [
+                      Text(
+                        'View Cart',
+                      ),
+                      SizedBox(width: 5),
+                      Icon(Icons.arrow_forward_outlined),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          : const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildContactBottmBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ElevatedButton(
+            onPressed: () {
+              final Uri url = Uri(
+                scheme: 'tel',
+                path: "0700000000",
+              );
+              launchUrl(
+                url,
+                mode: LaunchMode.externalApplication,
+              );
+            },
+            child: const Row(
+              children: [
+                Icon(Icons.call),
+                Text(
+                  'Contact Now',
+                ),
+                SizedBox(width: 5),
+                Icon(Icons.arrow_forward_outlined),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSliverAppBar() {
+    return SliverAppBar(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.white,
+      iconTheme: const IconThemeData(color: Colors.black),
+      expandedHeight: MediaQuery.of(context).size.width + 140.0,
+      floating: false,
+      pinned: true,
+      shadowColor: Colors.transparent,
+      elevation: 0,
+      flexibleSpace: FlexibleSpaceBar(
+        background: StoreDetails(
+          storeData: storeData,
+        ),
+      ),
+      actions: [
+        FutureBuilder(
+            future: productData,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SizedBox.shrink();
+              } else if (snapshot.hasError) {
+                return const SizedBox.shrink();
+              } else if (snapshot.hasData) {
+                final products = snapshot.data!;
+                return IconButton(
+                  onPressed: () {
+                    showSearch(
+                      context: context,
+                      delegate: CustomSearchDelegate(products),
+                    );
+                  },
+                  icon: const Icon(Icons.search),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            }),
+        IconButton(
+          onPressed: () {
+            launchUrl(
+              Uri.parse("https://maps.app.goo.gl/Wa1EP6fwMdep2vYn7"),
+              mode: LaunchMode.externalApplication,
+            );
+          },
+          icon: const Icon(Icons.location_on_sharp),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBody() {
+    final Sale cart =
+        Provider.of<SalesProvider>(context).getSaleByStoreId(widget.storeId);
+
+    return FutureBuilder<List<Product>>(
+      future: productData,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const ProductListSkeleton();
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (snapshot.hasData) {
+          final products = snapshot.data!;
+          Provider.of<ProductsProvider>(context, listen: false)
+              .setProducts(products);
+
+          return TabBarView(controller: _tabController, children: [
+            _buildProductsList(cart),
+            ReviewsList(
+              storeId: widget.storeId,
+              storeData: storeData,
+            ),
+          ]);
+        } else {
+          return const Center(child: Text('No products available'));
+        }
+      },
+    );
+  }
+
+  Widget _buildProductsList(Sale cart) {
+    return FutureBuilder<Store>(
+      future: storeData,
+      builder: (context, storeSnapshot) {
+        if (storeSnapshot.connectionState == ConnectionState.waiting) {
+          return const ProductListSkeleton();
+        } else if (storeSnapshot.hasError) {
+          return Center(child: Text('Error: ${storeSnapshot.error}'));
+        } else if (storeSnapshot.hasData) {
+          storeType = GlobalConsts.categories
+              .firstWhere(
+                (element) => element.name == storeSnapshot.data!.category,
+                orElse: () => GlobalConsts.categories[0],
+              )
+              .type;
+          return ProductsList(
+            // categories: categories,
+            storeType: storeType,
+            cart: cart,
+            addableToCart: storeSnapshot.data!.selfDeliveryService,
+          );
+        } else {
+          return const Center(child: Text('No store data available'));
+        }
+      },
+    );
   }
 
   @override
@@ -46,271 +285,12 @@ class _StorePageState extends State<StorePage>
     _tabController.dispose();
     super.dispose();
   }
-
-  Future<void> fetchProducts() async {
-    try {
-      final List<Product> fetchedProducts =
-          await Product.fetchMany(widget.storeId);
-      setState(() {
-        products = fetchedProducts;
-        categories = categorizeProducts(products);
-      });
-    } catch (e) {
-      // Handle error
-      print('Error fetching products: $e');
-    }
-  }
-
-  Map<String, List<Product>> categorizeProducts(List<Product> products) {
-    Map<String, List<Product>> categories = {};
-    for (var product in products) {
-      if (categories.containsKey(product.category)) {
-        categories[product.category]!.add(product);
-      } else {
-        categories[product.category] = [product];
-      }
-    }
-    return categories;
-  }
-
-  int pageIndex = 0;
-  late final productData = Future.value(Product.fetchMany(widget.storeId));
-  late final storeData = Future.value(Store.fetchStore(widget.storeId));
-
-  @override
-  Widget build(BuildContext context) {
-    Sale cart =
-        Provider.of<SalesProvider>(context).getSaleByStoreId(widget.storeId);
-
-    return DefaultTabController(
-      length: 2,
-      
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        bottomNavigationBar: pageIndex == 0
-            ? Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: cart.id != ""
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Total: ${cart.totalAmount}'),
-                          ElevatedButton(
-                            onPressed: () {
-                              context.go('/cart/${cart.id}');
-                            },
-                            child: const Text('View Cart'),
-                          ),
-                        ],
-                      )
-                    : Container(
-                        height: 0,
-                      ),
-              )
-            : AddReview(storeId: widget.storeId),
-        body: NestedScrollView(
-          controller: _scrollController,
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              SliverAppBar(
-                backgroundColor: Colors.white,
-                surfaceTintColor: Colors.white,
-                iconTheme: const IconThemeData(color: Colors.black),
-                expandedHeight: MediaQuery.of(context).size.width + 140.0,
-                floating: false,
-                pinned: true,
-                shadowColor: Colors.transparent,
-                elevation: 0,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: StoreDetails(
-                      storeData: storeData, widget: widget, products: products),
-                ),
-                actions: [
-                  IconButton(
-                    onPressed: () {
-                      showSearch(
-                        context: context,
-                        delegate: CustomSearchDelegate(products),
-                      );
-                    },
-                    icon: const Icon(Icons.search),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      launchUrl(
-                        Uri.parse("https://maps.app.goo.gl/Wa1EP6fwMdep2vYn7"),
-                        mode: LaunchMode.externalApplication,
-                      );
-                    },
-                    icon: const Icon(Icons.location_on_sharp),
-                  ),
-                ],
-              ),
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: _SliverAppBarDelegate(
-                  TabBar(
-                    controller: _tabController,
-                    onTap: (index) {
-                      print(index);
-                      setState(() {
-                        pageIndex = index;
-                      });
-                    },
-                    tabs: const [
-                      Tab(
-                        text: 'Products',
-                      ),
-                      Tab(
-                        text: 'Reviews',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ];
-          },
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                FutureBuilder<List<Product>>(
-                  // future: Product.fetchMany(widget.storeId),
-                  future: productData,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: Container(
-                          decoration:
-                              BoxDecoration(color: Colors.blueGrey.shade50),
-                          child: Accordion(
-                            disableScrolling: true,
-                            openAndCloseAnimation: false,
-                            contentBorderColor: Colors.transparent,
-                            headerBorderRadius: 0,
-                            headerBackgroundColor: Colors.white,
-                            paddingListHorizontal: 0,
-                            headerPadding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 16),
-                            contentVerticalPadding: 0,
-                            rightIcon: const Icon(
-                              Icons.arrow_drop_down,
-                              size: 32,
-                            ),
-                            maxOpenSections: 10,
-                            children: [1, 2, 3, 4, 5]
-                                .map(
-                                  (e) => AccordionSection(
-                                    isOpen: true,
-                                    header: Skeleton(
-                                      width: 100,
-                                      height: 20,
-                                    ),
-                                    // content:  ListView(
-                                    //   shrinkWrap: true,
-                                    //   children: [
-                                    //     ...products
-                                    //         .map((e) => ProductCard(product: e))
-                                    //   ],
-                                    // ),
-                                    content: GridView.builder(
-                                      gridDelegate:
-                                          const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 2,
-                                        childAspectRatio: 0.5,
-                                      ),
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemCount: 2,
-                                      itemBuilder: (context, index) {
-                                        // return VerticalProductCard(
-                                        //   product: categories[e]![index],
-                                        //   cart: cart!,
-                                        // );
-                                        return Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment
-                                                .start, // mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              Skeleton(
-                                                  height: 200,
-                                                  width: (MediaQuery.of(context)
-                                                              .size
-                                                              .width *
-                                                          0.5)
-                                                      .toInt()),
-                                              const SizedBox(height: 5),
-                                              Skeleton(
-                                                width: 100,
-                                                height: 20,
-                                              ),
-                                              const SizedBox(height: 5),
-                                              Skeleton(
-                                                width: 100,
-                                                height: 20,
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                        ),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text('Error: ${snapshot.error}'),
-                      );
-                    } else {
-                      products = snapshot.data!;
-                      final List<Product> fetchedProducts = snapshot.data!;
-                      categories = categorizeProducts(fetchedProducts);
-                      final Map<String, List<Product>> categorizedProducts =
-                          categorizeProducts(fetchedProducts);
-                      if (pageIndex == 0) {
-                        return FutureBuilder(
-                          future: storeData,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return ProductsList(
-                                categories: categorizedProducts,
-                                storeType: GlobalConsts.categories
-                                    .firstWhere((element) =>
-                                        element.name == snapshot.data!.category)
-                                    .type,
-                                cart: null,
-                              );
-                            } else {
-                              return Container();
-                            }
-                          },
-                        );
-                      } else {
-                        return ReviewsList(
-                          storeId: widget.storeId,
-                        );
-                      }
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  _SliverAppBarDelegate(this._tabBar);
-
   final TabBar _tabBar;
+
+  _SliverAppBarDelegate(this._tabBar);
 
   @override
   double get minExtent => _tabBar.preferredSize.height;
@@ -330,92 +310,5 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
     return false;
-  }
-}
-
-class ProductsList extends StatelessWidget {
-  const ProductsList({
-    super.key,
-    required this.categories,
-    required this.cart,
-    this.storeType,
-  });
-
-  final Map<String, List<Product>> categories;
-  final Sale? cart;
-  final StoreType? storeType;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        decoration: BoxDecoration(color: Colors.blueGrey.shade50),
-        child: Accordion(
-            disableScrolling: true,
-            openAndCloseAnimation: false,
-            contentBorderColor: Colors.transparent,
-            headerBorderRadius: 0,
-            headerBackgroundColor: Colors.white,
-            paddingListHorizontal: 0,
-            headerPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-            contentVerticalPadding: 0,
-            rightIcon: const Icon(
-              Icons.arrow_drop_down,
-              size: 32,
-            ),
-            maxOpenSections: 10,
-            children: categories.keys
-                .map(
-                  (e) => AccordionSection(
-                    isOpen: true,
-                    header: Text(
-                      e,
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                    content: Container(
-                      color: Colors.grey.shade50,
-                      // color: Colors.red,
-                      padding: EdgeInsets.zero,
-                      // color: Colors.black,
-                      child: storeType != StoreType.store
-                          ? ListView(
-                              shrinkWrap: true,
-                              padding: EdgeInsets.zero,
-                              physics: const NeverScrollableScrollPhysics(),
-                              children: [
-                                ...categories[e]!.map((e) => Padding(
-                                      padding: const EdgeInsets.all(1.5),
-                                      child: ProductCard(product: e),
-                                    ))
-                              ],
-                            )
-                          : GridView.builder(
-                              padding: const EdgeInsets.all(0.0),
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 0.56,
-                              ),
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: categories[e]!.length,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.all(1.5),
-                                  child: VerticalProductCard(
-                                    product: categories[e]![index],
-                                    // cart: cart!,
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                  ),
-                )
-                .toList()));
   }
 }

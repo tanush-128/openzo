@@ -36,7 +36,7 @@ class Store {
   bool? reserveTableOnline;
 
   double rating;
-  double reviewCount;
+  int reviewCount;
 
   Store({
     required this.id,
@@ -65,8 +65,11 @@ class Store {
     this.seatingCapacity,
     this.reserveTableOnline,
     this.rating = 0.0,
-    this.reviewCount = 0.0,
+    this.reviewCount = 0,
   });
+
+  static String endpoint = '${GlobalConsts.backend_url}/stores';
+  // static String endpoint = 'https://lnn7jf70-8080.inc1.devtunnels.ms';
 
   static getStoreWithUserEmail(String userEmail) async {
     var response = await http.get(
@@ -91,12 +94,11 @@ class Store {
       throw Exception('Token not found');
     }
 
-    var response = await http.get(
-        Uri.parse('${GlobalConsts.backend_url}/stores/$storeId'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': '',
-        });
+    var response = await http
+        .get(Uri.parse('$endpoint/$storeId'), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': '',
+    });
     if (response.statusCode == 200) {
       print(Store.fromJson(jsonDecode(response.body)).name);
       return Store.fromJson(jsonDecode(response.body));
@@ -106,11 +108,10 @@ class Store {
   }
 
   static Future<List<Store>> getStoresWithPincode(String pincode) async {
-    var response = await http.get(
-        Uri.parse('${GlobalConsts.backend_url}/stores/pincode/123456'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        });
+    var response = await http
+        .get(Uri.parse('$endpoint/pincode/123456'), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    });
 // 'Authorization': GlobalConsts.token,
     if (response.statusCode == 200) {
       List<Store> stores = [];
@@ -129,9 +130,27 @@ class Store {
   static Future<List<Store>> getStoreByPincodeAndCategory(
       String pincode, String category) async {
     http.Request req = http.Request(
-        'GET',
-        Uri.parse(
-            '${GlobalConsts.backend_url}/stores/pincode/$pincode/category/$category'));
+        'GET', Uri.parse('$endpoint/pincode/$pincode/category/$category'));
+
+    http.StreamedResponse response = await req.send();
+    if (response.statusCode == 200) {
+      List<Store> stores = [];
+      var body = await response.stream.bytesToString();
+      print(body);
+      for (var store in jsonDecode(body)) {
+        stores.add(Store.fromJson(store));
+      }
+      return stores;
+    } else {
+      return [];
+    }
+  }
+  // router.GET("/pincode/:pincode/subcategory/:sub_category", handler.GetStoresByPincodeAndSubCategory)
+
+  static Future<List<Store>> getStoreByPincodeAndSubCategory(
+      String pincode, String subCategory) async {
+    http.Request req = http.Request('GET',
+        Uri.parse('$endpoint/pincode/$pincode/subcategory/$subCategory'));
 
     http.StreamedResponse response = await req.send();
     if (response.statusCode == 200) {
@@ -192,7 +211,7 @@ class Store {
       seatingCapacity: json['seating_capacity'],
       reserveTableOnline: json['reserve_table_online'],
       rating: double.parse(json['rating'].toString()),
-      reviewCount: double.parse(json['review_count'].toString()),
+      reviewCount: int.parse(json['review_count'].toString()),
     );
   }
 }

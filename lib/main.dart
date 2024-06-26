@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/constants/styles.dart';
+import 'package:openzo_frontend/providers/products_provider.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/providers/user_data_provider.dart';
 import 'package:openzo_frontend/providers/user_provider.dart';
@@ -78,19 +79,7 @@ Future<void> main() async {
   });
   final messaging = FirebaseMessaging.instance;
 
-  // final settings = await messaging.requestPermission(
-  //   alert: true,
-  //   announcement: false,
-  //   badge: true,
-  //   carPlay: false,
-  //   criticalAlert: false,
-  //   provisional: false,
-  //   sound: true,
-  // );
 
-  // if (kDebugMode) {
-  //   print('Permission granted: ${settings.authorizationStatus}');
-  // }
 
   String? token = await messaging.getToken();
   log('Token: $token');
@@ -109,6 +98,7 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (context) => UserProvider()),
       ChangeNotifierProvider(create: (context) => UserDataProvider()),
       ChangeNotifierProvider(create: (context) => SalesProvider()),
+      ChangeNotifierProvider(create: (context) => ProductsProvider()),
     ],
     child: const MyApp(),
   ));

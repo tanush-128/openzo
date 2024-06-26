@@ -30,17 +30,16 @@ ThemeData appTheme(BuildContext context) {
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
+
       selectedItemColor: GlobalStyle.primaryColor,
       unselectedItemColor: Colors.black54,
       showSelectedLabels: false,
       showUnselectedLabels: false,
       type: BottomNavigationBarType.fixed,
+
       selectedIconTheme: IconThemeData(size: 28),
       unselectedIconTheme: IconThemeData(size: 24),
-      elevation: 5,
-      selectedLabelStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-      unselectedLabelStyle:
-          TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+      // elevation: 5,
     ),
     dividerTheme: DividerThemeData(
       space: 0,
@@ -54,11 +53,13 @@ ThemeData appTheme(BuildContext context) {
       shadowColor: Colors.grey.shade200,
       iconTheme: const IconThemeData(color: Colors.black87),
       centerTitle: true,
-      titleTextStyle: const TextStyle(
-        color: Colors.black87,
-        fontSize: 20,
-        fontWeight: FontWeight.w600,
-      ),
+      titleTextStyle: GoogleFonts.poppins(
+          fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black87),
+      //  const TextStyle(
+      //   color: Colors.black87,
+      //   fontSize: 20,
+      //   fontWeight: FontWeight.w600,
+      // ),
       actionsIconTheme: const IconThemeData(color: Colors.black87),
       systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -68,6 +69,25 @@ ThemeData appTheme(BuildContext context) {
         systemNavigationBarColor: Colors.white,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: GlobalStyle.primaryColor.withOpacity(0.1),
+      labelStyle: GoogleFonts.poppins(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          // color: GlobalStyle.primaryColor,
+          color: Colors.black87),
+      secondaryLabelStyle: GoogleFonts.poppins(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: GlobalStyle.primaryColor,
+      ),
+      surfaceTintColor: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      // side: BorderSide(color: GlobalStyle.primaryColor, width: 1),
     ),
     colorScheme: ColorScheme.fromSeed(
       seedColor: GlobalStyle.primaryColor,
@@ -85,7 +105,10 @@ ThemeData appTheme(BuildContext context) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        textStyle: GoogleFonts.poppins(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
@@ -132,14 +155,22 @@ ThemeData appTheme(BuildContext context) {
       //   borderRadius: BorderRadius.circular(8),
       //   borderSide: BorderSide(color: GlobalStyle.primaryColor, width: 2),
       // ),
-      labelStyle: const TextStyle(
+      labelStyle: GoogleFonts.poppins(
         fontSize: 16,
-        fontWeight: FontWeight.w500,
-      ),
-      hintStyle: TextStyle(
-        fontSize: 14,
         color: Colors.grey.shade600,
       ),
+      // const TextStyle(
+      //   fontSize: 16,
+      //   fontWeight: FontWeight.w500,
+      // ),
+      hintStyle: GoogleFonts.poppins(
+        fontSize: 16,
+        color: Colors.grey.shade600,
+      ),
+      //  TextStyle(
+      //   fontSize: 14,
+      //   color: Colors.grey.shade600,
+      // ),
     ),
     checkboxTheme: CheckboxThemeData(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
@@ -156,10 +187,10 @@ ThemeData appTheme(BuildContext context) {
     ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: GlobalStyle.primaryColor,
-      contentTextStyle: const TextStyle(
-        color: Colors.white,
+      contentTextStyle: GoogleFonts.poppins(
         fontSize: 16,
         fontWeight: FontWeight.w500,
+        color: Colors.white,
       ),
       actionTextColor: Colors.white,
       showCloseIcon: true,
