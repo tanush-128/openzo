@@ -86,6 +86,12 @@ class SalesProvider extends ChangeNotifier {
         .where((element) => element.status == "not_placed")
         .firstWhere((element) => element.storeId == product.storeID);
 
+    int prevQuantity = _onlineOrder.orderItems
+            .where((element) => element.productId == product.id)
+            .firstOrNull
+            ?.quantity ??
+        0;
+
     if (_onlineOrder.orderItems
         .any((element) => element.productId == product.id)) {
       if (quantity == 0) {
@@ -101,10 +107,8 @@ class SalesProvider extends ChangeNotifier {
       _onlineOrder.orderItems
           .add(OrderItem(productId: product.id, quantity: quantity));
     }
-    _onlineOrder.totalAmount = _onlineOrder.orderItems.fold(
-        0,
-        (previousValue, element) =>
-            previousValue + element.quantity * product.discountPrice * 1.0);
+    _onlineOrder.totalAmount +=
+        product.discountPrice * (quantity - prevQuantity) * 1.0;
 
     await updateSale(_onlineOrder);
 

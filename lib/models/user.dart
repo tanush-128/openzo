@@ -26,8 +26,8 @@ class User {
     );
   }
 
-  // static String endpoint = '${GlobalConsts.backend_url}/users';
-  static String endpoint = 'https://lnn7jf70-8080.inc1.devtunnels.ms';
+  static String endpoint = '${GlobalConsts.backend_url}/users';
+  // static String endpoint = 'https://lnn7jf70-8080.inc1.devtunnels.ms';
 
   static Future<User> getUserWithJWT() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
