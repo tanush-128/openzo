@@ -226,7 +226,7 @@ class Product {
       servers: json['servers'],
       storeName: json['store_name'],
       outOfStock: json['out_of_stock'],
-      displayOrder: json['display_order'],
+      displayOrder: json['display_order'] ?? 0,
     );
   }
 }

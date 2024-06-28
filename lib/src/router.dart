@@ -10,6 +10,8 @@ import 'package:openzo_frontend/src/login/loginPage.dart';
 import 'package:openzo_frontend/src/product/productPage/product_page.dart';
 import 'package:openzo_frontend/src/store_page/store_page.dart';
 import 'package:openzo_frontend/src/stores_of_category/storesByCategory.dart';
+import 'package:openzo_frontend/src/user/account_page.dart';
+import 'package:openzo_frontend/src/webview/web_view.dart';
 
 class AppRouter {
   final GoRouter router;
@@ -17,6 +19,7 @@ class AppRouter {
   AppRouter()
       : router = GoRouter(
           initialLocation: '/login',
+          // initialLocation: '/webview',
           observers: [
             FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance)
           ],
@@ -25,6 +28,15 @@ class AppRouter {
               path: '/',
               builder: (context, state) => const BottomNavBar(),
               routes: [
+                GoRoute(
+                    path: 'webview',
+                    builder: (context, state) {
+                      return WebViewC();
+                    }),
+                GoRoute(
+                  path: 'account',
+                  builder: (context, state) => const AccountPage(),
+                ),
                 GoRoute(
                     path: 'food-delivery',
                     builder: (context, state) {

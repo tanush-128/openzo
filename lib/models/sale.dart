@@ -88,14 +88,12 @@ class Sale {
   }
 
   static Future<Sale> createSale(Sale sale) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userDataId = prefs.getString('user_data_id');
-    sale.customer = Customer(
-      userDataId: userDataId ?? "",
-      phone: "",
-      address: "",
-      saleId: "",
-    );
+    // sale.customer = Customer(
+    //   userDataId: userDataId ?? "",
+    //   phone: "",
+    //   address: "",
+    //   saleId: "",
+    // );
     final response = await http.post(
       Uri.parse('$endpoint/'),
       headers: <String, String>{
@@ -144,19 +142,25 @@ class Sale {
     }
   }
 
-  static Future<List<Sale>> getSalesByUserDataID() async {
+  static Future<List<Sale>> getSalesByUserID() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userDataId = prefs.getString('user_data_id');
-    print("Fetching orders for User data id: $userDataId");
+    String? token = prefs.getString('token');
+
+    // String? userDataId = prefs.getString('user_data_id');
+    if (token == null) {
+      throw Exception('Token not found');
+    }
+
     final response = await http.get(
-      Uri.parse('$endpoint/user/$userDataId'),
+      Uri.parse('$endpoint/user'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
       },
     );
 
     if (response.statusCode == 200) {
-      // log(response.body.map);
+      log(response.body);
       List<dynamic> body = jsonDecode(response.body);
       // log()[0].toString());
       body.map((e) => e['customer']).forEach((element) {

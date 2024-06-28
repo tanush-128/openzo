@@ -5,7 +5,12 @@ class ProductsProvider extends ChangeNotifier {
   ProductsProvider();
 
   List<Product> _products = [];
+
+  List<Product> _posts = [];
+  List<Product> get posts => _posts;
+
   List<Product> _filteredProducts = [];
+
   int _sortIndex = 0;
   int get sortIndex => _sortIndex;
 
@@ -41,6 +46,9 @@ class ProductsProvider extends ChangeNotifier {
 
   Future<void> setProducts(List<Product> products) async {
     _products = products;
+    _posts = _products.where((product) => product.type == 'post').toList();
+
+    _products = _products.where((product) => product.type != 'post').toList();
     _products.sort((a, b) => b.displayOrder.compareTo(a.displayOrder));
 
     _filteredProducts = List.from(_products);

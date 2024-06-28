@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/constants/styles.dart';
@@ -29,8 +30,8 @@ class _StoresByCategoryState extends State<StoresByCategory> {
     setState(() {
       this.subCategory = subCategory;
     });
-    subCategories.remove(subCategory);
-    subCategories.insert(0, subCategory);
+    // subCategories.remove(subCategory);
+    // subCategories.insert(0, subCategory);
   }
 
   @override
@@ -54,11 +55,10 @@ class _StoresByCategoryState extends State<StoresByCategory> {
               leadingWidth: 20,
             ),
             SliverPersistentHeader(
-                pinned: true,
-                delegate: _SliverAppBarDelegate(
-                    child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              pinned: true,
+              delegate: _SliverAppBarDelegate(
+                child: Container(
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 8),
                   height: 120,
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -87,7 +87,9 @@ class _StoresByCategoryState extends State<StoresByCategory> {
                             setSelectedCategory: setSubCategory))
                         .toList(),
                   ),
-                ))),
+                ),
+              ),
+            ),
             SliverToBoxAdapter(
               child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -126,52 +128,53 @@ class SubcategoryListTile extends StatelessWidget {
       onTap: () {
         setSelectedCategory!(e);
       },
-      child: Stack(
-        children: [
-          active
-              ? const Positioned(
-                  top: 0,
-                  right: 0,
-                  child: CircleAvatar(
-                    radius: 8,
-                    backgroundColor: Colors.red,
-                    child: Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 16,
-                    ),
+      child: Container(
+        constraints: const BoxConstraints(minWidth: 80, maxWidth: 100),
+        child: Stack(
+          children: [
+            active
+                ? Positioned(
+                    bottom: -1,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      width: 80,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: GlobalStyle.primaryColor,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                    ))
+                : Container(),
+            Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      color: const Color(0xffe5f3f3)),
+                  child: Image.asset(
+                    "assets/images/Categories page/${category.name}/${e.name}.png",
+                    width: 42,
+                    height: 42,
                   ),
-                )
-              : Container(),
-          Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                margin: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    color: active
-                        ? GlobalStyle.primaryColor.withOpacity(0.15)
-                        : const Color(0xffe5f3f3)),
-                child: Image.asset(
-                  "assets/images/Categories page/${category.name}/${e.name}.png",
-                  width: 42,
-                  height: 42,
                 ),
-              ),
-              Center(
-                child: Text(
-                  e.name,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w600),
+                Center(
+                  child: Text(
+                    e.name,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w600),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -8,6 +8,7 @@ import 'package:openzo_frontend/providers/products_provider.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/src/store_page/widgets/Reviews.dart';
 import 'package:openzo_frontend/src/store_page/widgets/custom_search_delegate.dart';
+import 'package:openzo_frontend/src/store_page/widgets/post/post_list.dart';
 import 'package:openzo_frontend/src/store_page/widgets/productsList.dart';
 import 'package:openzo_frontend/src/store_page/widgets/productsListSkeleton.dart';
 import 'package:openzo_frontend/src/store_page/widgets/storeDetails.dart';
@@ -33,7 +34,7 @@ class _StorePageState extends State<StorePage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     productData = Product.fetchMany(widget.storeId);
     storeData = Store.fetchStore(widget.storeId);
     _tabController.addListener(() {
@@ -71,6 +72,7 @@ class _StorePageState extends State<StorePage>
                     tabs: const [
                       Tab(text: 'Products'),
                       Tab(text: 'Reviews'),
+                      Tab(text: 'Posts'),
                     ],
                   ),
                 ),
@@ -103,7 +105,9 @@ class _StorePageState extends State<StorePage>
                 ? storeType == StoreType.service
                     ? _buildContactBottmBar()
                     : _buildBottomNavigationBar(cart)
-                : AddReviewButton(storeId: widget.storeId);
+                : pageIndex == 1
+                    ? AddReviewButton(storeId: widget.storeId)
+                    : const SizedBox(height: 0);
           } else {
             return const SizedBox.shrink();
           }
@@ -238,13 +242,17 @@ class _StorePageState extends State<StorePage>
           Provider.of<ProductsProvider>(context, listen: false)
               .setProducts(products);
 
-          return TabBarView(controller: _tabController, children: [
-            _buildProductsList(cart),
-            ReviewsList(
-              storeId: widget.storeId,
-              storeData: storeData,
-            ),
-          ]);
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _buildProductsList(cart),
+              ReviewsList(
+                storeId: widget.storeId,
+                storeData: storeData,
+              ),
+              PostList(),
+            ],
+          );
         } else {
           return const Center(child: Text('No products available'));
         }

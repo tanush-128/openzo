@@ -1,89 +1,72 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:openzo_frontend/models/user.dart';
-import 'package:openzo_frontend/models/user_data.dart';
-import 'package:openzo_frontend/providers/user_data_provider.dart';
+import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/utils/location_util.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<void> handleUserData(String mobileNo, BuildContext context) async {
+Future<void> handleUserData(BuildContext context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String fcmToken = prefs.getString('fcmToken')!;
-  String? userDataId = prefs.getString('user_data_id');
-  print("mobileNo: $mobileNo");
-  if (mobileNo == "") {
-    if (userDataId == null) {
-      await _createNewUserData(context, null, fcmToken);
-    } else {
-      log('UserData Id: $userDataId');
-      UserData userData = await UserData.getUserData(userDataId);
-      await _updateUserData(context, userData, null, fcmToken);
-    }
-  } else {
-    User user = await handleUserLogin(mobileNo, context);
+  String? token = prefs.getString('token');
 
-    try {
-      UserData userData = await UserData.getUserDataByUserID(user.id);
-      await _updateUserData(context, userData, user, fcmToken);
-      log('User data already exists');
-      return;
-    } catch (e) {
-      print(e.toString());
-      await _createNewUserData(context, user, fcmToken);
-    }
+  late User user;
+  if (token == null) {
+    user = await _createUser(context, null, fcmToken);
+  } else {
+    user = await User.getUserWithJWT();
+    user = await _updateUserData(context, user, fcmToken);
   }
+
+  Provider.of<UserProvider>(context, listen: false).setUser(user);
+  Provider.of<SalesProvider>(context, listen: false).setUser(user);
 }
 
-Future<void> _updateUserData(BuildContext context, UserData userData,
-    User? user, String fcmToken) async {
+Future<User> _updateUserData(
+    BuildContext context, User user, String fcmToken) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  prefs.setString('user_data_id', userData.id);
-  if (userData.notificationToken != fcmToken || userData.userId != user?.id) {
-    userData.notificationToken = fcmToken;
-    userData.userId = user?.id ?? "";
-    userData = await UserData.updateUserData(userData);
+  if (user.notificationToken != fcmToken ||
+      user.address == null ||
+      user.address == '') {
+    user.notificationToken = fcmToken;
+    Position? position = await getLocation(context);
+    if (position == null) {
+      print('Location permission not granted');
+      position = await showLocationPermissionBottomSheet(context);
+    }
+
+    if (position != null) {
+      user.latitude = position.latitude.toString();
+      user.longitude = position.longitude.toString();
+      user = await User.updateUser(user);
+    }
   }
-  Provider.of<UserDataProvider>(context, listen: false).setUserData(userData);
+
+  return user;
 }
 
-Future<void> _createNewUserData(
-    BuildContext context, User? user, String fcmToken) async {
+Future<User> _createUser(
+    BuildContext context, String? phone, String fcmToken) async {
   Position? position = await getLocation(context);
   if (position == null) {
     print('Location permission not granted');
     position = await showLocationPermissionBottomSheet(context);
   }
   if (position != null) {
-    UserData userData = UserData(
+    User user = User(
+      id: '',
+      phone: phone ?? '',
       latitude: position.latitude.toString(),
       longitude: position.longitude.toString(),
       notificationToken: fcmToken,
-      userId: user?.id ?? "",
     );
-    userData = await UserData.createUserData(userData);
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    user = await User.registerUser(user);
 
-    prefs.setString('user_data_id', userData.id);
-    Provider.of<UserDataProvider>(context, listen: false).setUserData(userData);
+    return user;
   }
-}
 
-Future<User> handleUserLogin(String mobileNo, BuildContext context) async {
-  try {
-    bool isSignedIn = await User.signIn(mobileNo);
-    if (isSignedIn) {
-      User user = await User.getUserWithJWT();
-      Provider.of<UserProvider>(context, listen: false).setUser(user);
-      return user;
-    }
-    throw Exception('Failed to sign in');
-  } catch (e) {
-    print(e.toString());
-    throw Exception(e.toString());
-  }
+  throw Exception('Location permission not granted');
 }

@@ -3,9 +3,8 @@ import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/user.dart';
-import 'package:openzo_frontend/models/user_data.dart';
+
 import 'package:openzo_frontend/providers/sales_provider.dart';
-import 'package:openzo_frontend/providers/user_data_provider.dart';
 import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/src/product/widgets/product_card.dart';
 import 'package:provider/provider.dart';
@@ -33,12 +32,12 @@ class _CartPageState extends State<CartPage> {
     print(cart.customer!.phone);
     print(cart.customer!.userDataId);
 
-    if (cart.customer!.address == "" || cart.customer!.phone == "") {
-      final UserData userData =
-          Provider.of<UserDataProvider>(context, listen: false).userData;
+    if (cart.customer!.address == "") {
+      // final UserData userData =
+      //     Provider.of<UserDataProvider>(context, listen: false).userData;
       final User user = Provider.of<UserProvider>(context, listen: false).user;
-      address = userData.address;
-      phone = user.phone!;
+      address = user.address ?? "";
+      phone = user.phone;
     } else {
       address = cart.customer!.address;
       phone = cart.customer!.phone;

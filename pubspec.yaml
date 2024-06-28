@@ -14,8 +14,6 @@ dependencies:
 
   flutter:
     sdk: flutter
-  flutter_localizations:
-    sdk: flutter
   flutter_otp_text_field: ^1.1.1
   geolocator: ^11.0.0
   google_fonts: 6.1.0

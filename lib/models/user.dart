@@ -5,24 +5,51 @@ import 'package:openzo_frontend/constants/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
-  String name;
-  String email;
-  String phone;
   String id;
+  String? email;
+  String? name;
+  String phone;
+  String? latitude;
+  String? longitude;
+  String? address;
+  String? pincode;
+  String? city;
+  String? state;
+  String? country;
+  String? notificationToken;
+  bool isVerified;
 
   User({
     required this.id,
+    this.email,
+    this.name,
     required this.phone,
-    this.name = "",
-    this.email = "",
+    this.latitude,
+    this.longitude,
+    this.address,
+    this.pincode,
+    this.city,
+    this.state,
+    this.country,
+    this.notificationToken,
+    this.isVerified = false,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['ID'],
-      name: json['Name'],
-      email: json['Email'],
-      phone: json['Phone'],
+      id: json['id'],
+      email: json['email'],
+      name: json['name'],
+      phone: json['phone'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
+      address: json['address'],
+      pincode: json['pincode'],
+      city: json['city'],
+      state: json['state'],
+      country: json['country'],
+      notificationToken: json['notification_token'],
+      isVerified: json['is_verified'],
     );
   }
 
@@ -43,6 +70,7 @@ class User {
     });
     if (response.statusCode == 200) {
       User user = User.fromJson(jsonDecode(response.body));
+      print('User: ${user.pincode} ${user.city} ${user.state}');
       return user;
     } else {
       final prefs = await SharedPreferences.getInstance();
@@ -51,64 +79,48 @@ class User {
     }
   }
 
-  static Future<bool> signIn(String mobile) async {
-    http.Response res = await http.post(Uri.parse('$endpoint/signin'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          'mobile': mobile,
-          'otp': '',
-        }));
-    if (res.statusCode == 200) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('token', jsonDecode(res.body)['token']);
-      print('JWT Token: ${jsonDecode(res.body)['token']}');
-
-      return true;
-    } else {
-      try {
-        await User.addUser(User(id: '', phone: mobile));
-
-        return signIn(mobile);
-      } catch (e) {
-        throw Exception(jsonDecode(res.body)['error']);
-      }
-    }
-  }
-
-  static Future<User> addUser(User user) async {
+  static Future<User> registerUser(User user) async {
     var res = await http.post(Uri.parse('$endpoint/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode({
-          'name': user.name,
-          'email': user.email,
-          'phone': user.phone,
-        }));
+        body: jsonEncode(
+          user.toJson(),
+        ));
     if (res.statusCode == 201) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      print(jsonDecode(res.body));
+
+      prefs.setString('token', jsonDecode(res.body)['token']);
+      print('JWT Token: ${jsonDecode(res.body)['token']}');
+      return User.fromJson(jsonDecode(res.body)['user']);
+    }
+
+    throw Exception(jsonDecode(res.body)['error']);
+  }
+
+  static Future<User> updateUser(User user) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Token not found');
+    }
+
+    var res = await http.put(Uri.parse('$endpoint/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': token,
+        },
+        body: jsonEncode(user.toJson()));
+    if (res.statusCode == 200) {
       return User.fromJson(jsonDecode(res.body));
     }
 
     throw Exception(jsonDecode(res.body)['error']);
   }
 
-//   type OTPRequest struct {
-// 	PhoneNo string `json:"phone_no"`
-// }
-
-// type OTPVerifyRequest struct {
-// 	PhoneNo        string `json:"phone_no"`
-// 	OTP            string `json:"otp"`
-// 	VerificationId string `json:"verification_id"`
-// }
-
-  // router.POST("/otp", measureMetrics("/otp", "POST", otp_handler.GenerateOTP))
-  // router.POST("/otp/verify", measureMetrics("/otp/verify", "POST", otp_handler.Ve/rifyOTP))
-
-  static Future<bool> verifyOTP(
-      String mobile, String verification_id, String otp) async {
+  static Future<String> verifyOTP(
+      String mobile, String verification_id, String otp, String used_id) async {
     http.Response res = await http.post(Uri.parse('$endpoint/otp/verify'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -117,13 +129,14 @@ class User {
           'phone_no': mobile,
           'otp': otp,
           'verification_id': verification_id,
+          'user_id': used_id,
         }));
     if (res.statusCode == 200) {
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // prefs.setString('token', jsonDecode(res.body)['token']);
-      // print('JWT Token: ${jsonDecode(res.body)['token']}');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('token', jsonDecode(res.body)['token']);
+      print('JWT Token: ${jsonDecode(res.body)['token']}');
 
-      return true;
+      return jsonDecode(res.body)['token'];
     } else {
       throw Exception(jsonDecode(res.body)['error']);
     }
@@ -142,5 +155,23 @@ class User {
     } else {
       throw Exception(jsonDecode(res.body)['error']);
     }
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'name': name,
+      'phone': phone,
+      'latitude': latitude,
+      'longitude': longitude,
+      'address': address,
+      'pincode': pincode,
+      'city': city,
+      'state': state,
+      'country': country,
+      'notification_token': notificationToken,
+      'is_verified': isVerified,
+    };
   }
 }

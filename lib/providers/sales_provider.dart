@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
+import 'package:openzo_frontend/models/user.dart';
 
 class SalesProvider extends ChangeNotifier {
   SalesProvider();
+
+  User _user = User(
+    id: "",
+    phone: "",
+  );
 
   List<Sale> _onlineOrders = [];
   List<Sale> get onlineOrders => _onlineOrders;
@@ -23,9 +29,14 @@ class SalesProvider extends ChangeNotifier {
   bool get fetching => _fetching;
 
   Future<void> getOrders() async {
-    _onlineOrders = await Sale.getSalesByUserDataID();
+    _onlineOrders = await Sale.getSalesByUserID();
     print("Orders: $_onlineOrders");
     _fetching = false;
+    notifyListeners();
+  }
+
+  Future<void> setUser(User user) async {
+    _user = user;
     notifyListeners();
   }
 
@@ -47,6 +58,13 @@ class SalesProvider extends ChangeNotifier {
   }
 
   Future<void> addSale(Sale onlineOrder) async {
+    Customer _customer = Customer(
+      id: 0,
+      phone: _user.phone,
+      userDataId: _user.id,
+      address: _user.address ?? "",
+    );
+    onlineOrder.customer = _customer;
     Sale _onlineOrder = await Sale.createSale(onlineOrder);
     _onlineOrders.add(_onlineOrder);
 
