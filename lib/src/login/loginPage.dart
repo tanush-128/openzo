@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/user.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
-import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/src/login/loading_screen.dart';
 import 'package:openzo_frontend/utils/user_util.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +19,7 @@ class PhoneAuthPage extends StatefulWidget {
 class _PhoneAuthPageState extends State<PhoneAuthPage> {
   final _phoneController = TextEditingController();
   String? _verificationId;
-  // bool _isLoading = false; // Loading state
+
   bool _isLoading = true; // Loading state
 
   @override
@@ -37,15 +36,11 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
     try {
       await handleUserData(context);
 
-      // FirebaseAnalytics.instance.setUserId(id:);
-      // await FirebaseAnalytics.instance
-      //     .logEvent(name: 'login', parameters: {'phone_number': phoneNumber});
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Welcome back!')),
       );
 
-      await _fetchOrdersAndNavigate();
+      _fetchOrdersAndNavigate();
     } catch (error) {
       print('Error handling user authentication: $error');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -58,9 +53,9 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
     }
   }
 
-  Future<void> _fetchOrdersAndNavigate() async {
+  _fetchOrdersAndNavigate() {
     try {
-      await Provider.of<SalesProvider>(context, listen: false).getOrders();
+      Provider.of<SalesProvider>(context, listen: false).getOrders();
       context.go('/');
     } catch (error) {
       print('Error fetching orders: $error');

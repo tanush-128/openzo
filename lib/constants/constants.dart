@@ -107,6 +107,7 @@ class GlobalConsts {
     Category(
       name: "Food",
       subCategories: [
+        SubCategory(name: 'Restaurants'),
         SubCategory(name: 'Bakery'),
         SubCategory(name: 'Cafe'),
         SubCategory(name: 'Fast Food'),
@@ -115,7 +116,6 @@ class GlobalConsts {
         SubCategory(name: 'Juice shop'),
         SubCategory(name: 'Street foods'),
         SubCategory(name: 'Sweets'),
-        SubCategory(name: 'Restaurants'),
       ],
       type: StoreType.food,
     ),
@@ -189,6 +189,16 @@ class GlobalConsts {
     ]),
     Category(
       name: 'Businesses',
+      type: StoreType.service,
+      subCategories: [],
+    ),
+    Category(
+      name: 'Hotel',
+      type: StoreType.service,
+      subCategories: [],
+    ),
+    Category(
+      name: 'Ride hire',
       type: StoreType.service,
       subCategories: [],
     ),

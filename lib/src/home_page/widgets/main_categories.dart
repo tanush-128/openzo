@@ -15,12 +15,14 @@ class MainCategories extends StatelessWidget {
           crossAxisCount: 4, mainAxisSpacing: 15),
       children: [
         const MainCategoryTile(title: 'Food delivery', route: '/food-delivery'),
-        const MainCategoryTile(title: 'Services', route: '/home-services'),
-        const MainCategoryTile(title: 'Stores', route: '/stores'),
-        const MainCategoryTile(title: 'Grocery delivery'),
         const MainCategoryTile(title: 'Service stores', route: '/services'),
-        const MainCategoryTile(title: 'Hotel rooms'),
-        const MainCategoryTile(title: 'Ride hire'),
+        const MainCategoryTile(title: 'Stores', route: '/stores'),
+        const MainCategoryTile(
+            title: 'Grocery delivery', route: '/grocery-delivery'),
+        const MainCategoryTile(title: 'Services', route: '/home-services'),
+        const MainCategoryTile(title: 'Hotel rooms', route: '/hotel-rooms'),
+        // const MainCategoryTile(title: 'Food'),
+        const MainCategoryTile(title: 'Ride hire', route: '/ride-hire'),
         InkWell(
           onTap: () {
             context.go('/category');

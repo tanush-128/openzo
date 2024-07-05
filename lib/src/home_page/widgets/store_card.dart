@@ -74,13 +74,6 @@ class _StoreCardState extends State<StoreCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSubCategoryLabel(),
-            const Spacer(),
-            _buildFavoriteIcon(),
-            const Icon(
-              Icons.more_vert,
-              color: Colors.white,
-              size: 30,
-            ),
           ],
         ),
       ),
@@ -128,7 +121,7 @@ class _StoreCardState extends State<StoreCard> {
         children: [
           _buildTitleAndRating(),
           const SizedBox(height: 5),
-          if (storeType == StoreType.store) _buildDescription(),
+          if (storeType != StoreType.food) _buildDescription(),
           if (storeType == StoreType.food) _buildCuisineAndPrice(),
           const SizedBox(height: 5),
         ],
@@ -153,7 +146,24 @@ class _StoreCardState extends State<StoreCard> {
         ),
         Row(
           children: [
-            Rating(rating: widget.store.rating),
+            widget.store.reviewCount > 0
+                ? Rating(rating: widget.store.rating)
+                : Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 1, horizontal: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade100,
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Text(
+                      "New",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
             const SizedBox(width: 5),
             if (storeType == StoreType.food) _buildVegIndicator(),
           ],

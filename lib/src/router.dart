@@ -40,11 +40,28 @@ class AppRouter {
                 GoRoute(
                     path: 'food-delivery',
                     builder: (context, state) {
-                      // return const FoodDelivery();
                       return StoresByCategory(
                         category: GlobalConsts.categories.firstWhere(
                             (element) => element.name == 'Food',
                             orElse: () => GlobalConsts.categories.first),
+                        deliveryOnly: true,
+                        showSubCategories: false,
+                      );
+                    }),
+                GoRoute(
+                    path: 'grocery-delivery',
+                    builder: (context, state) {
+                      return StoresByCategory(
+                        category: GlobalConsts.categories.firstWhere(
+                            (element) => element.name == 'Stores',
+                            orElse: () => GlobalConsts.categories.first),
+                        subCategory: GlobalConsts.categories.first.subCategories
+                            .firstWhere(
+                                (element) => element.name == 'Grocery stores',
+                                orElse: () => GlobalConsts
+                                    .categories.first.subCategories.first),
+                        deliveryOnly: true,
+                        showSubCategories: false,
                       );
                     }),
                 GoRoute(
@@ -72,6 +89,26 @@ class AppRouter {
                         category: GlobalConsts.categories.firstWhere(
                             (element) => element.name == 'Home Services',
                             orElse: () => GlobalConsts.categories.first),
+                      );
+                    }),
+                GoRoute(
+                    path: 'hotel-rooms',
+                    builder: (context, state) {
+                      return StoresByCategory(
+                        category: GlobalConsts.categories.firstWhere(
+                            (element) => element.name == 'Hotel',
+                            orElse: () => GlobalConsts.categories.first),
+                        showSubCategories: false,
+                      );
+                    }),
+                GoRoute(
+                    path: 'ride-hire',
+                    builder: (context, state) {
+                      return StoresByCategory(
+                        category: GlobalConsts.categories.firstWhere(
+                            (element) => element.name == 'Ride hire',
+                            orElse: () => GlobalConsts.categories.first),
+                        showSubCategories: false,
                       );
                     }),
                 GoRoute(

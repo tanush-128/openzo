@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:openzo_frontend/constants/constants.dart';
+import 'package:openzo_frontend/models/store.dart';
 
 class SizeVariant {
   int id;
@@ -74,6 +76,16 @@ class ColorVariant {
   }
 }
 
+class Post {
+  Product post;
+  StoreBasicDetails store;
+
+  Post({
+    required this.post,
+    required this.store,
+  });
+}
+
 class Product {
   String id;
   String name;
@@ -121,11 +133,14 @@ class Product {
     this.displayOrder = 0,
   });
 
+  static String endpoint = '${GlobalConsts.backend_url}/products';
+  // static String endpoint = 'https://lnn7jf70-8080.inc1.devtunnels.ms';
+
   static Future<List<Product>> fetchMany(String storeID) async {
     List<Product> products = [];
 // fetch products from the server
-    http.Request req = http.Request('GET',
-        Uri.parse('${GlobalConsts.backend_url}/products/store/$storeID'));
+    http.Request req =
+        http.Request('GET', Uri.parse('$endpoint/store/$storeID'));
     http.StreamedResponse res = await req.send();
 
     String body = await res.stream.bytesToString();
@@ -141,8 +156,7 @@ class Product {
 
   static Future<Product> fetchOne(String productID) async {
 // fetch products from the server
-    http.Request req = http.Request(
-        'GET', Uri.parse('${GlobalConsts.backend_url}/products/$productID'));
+    http.Request req = http.Request('GET', Uri.parse('$endpoint/$productID'));
     http.StreamedResponse res = await req.send();
 
     String body = await res.stream.bytesToString();
@@ -152,10 +166,44 @@ class Product {
     return Product.fromJson(product);
   }
 
+  // router.GET("post/pincode/:pincode", handler.GetPostByPincode)
+
+  static Future<List<Post>> fetchPostByPincode(String pincode) async {
+    final res = await http.get(
+      Uri.parse('$endpoint/post/pincode/$pincode'),
+    );
+
+    if (res.statusCode == 200) {
+      List<Product> products = [];
+      List<StoreBasicDetails> stores = [];
+      for (var product in jsonDecode(res.body)) {
+        products.add(Product.fromJson(product));
+      }
+
+      for (var store in jsonDecode(res.body)) {
+        // StoreBasicDetails store = await StoreBasicDetails.getStoreBasicDetailsByID(store.storeID);
+        stores.add(StoreBasicDetails.fromJson(store));
+      }
+
+      List<Post> posts = [];
+      for (int i = 0; i < products.length; i++) {
+        posts.add(Post(post: products[i], store: stores[i]));
+      }
+
+      return posts;
+
+      // log(stores.toString());
+      // return products;
+    } else {
+      print(res.body);
+      throw Exception('Failed to load products');
+    }
+  }
+
   static getItemsByOrderId(int orderId) async {
     List<Product> products = [];
     http.Response res = await http.get(
-      Uri.parse('${GlobalConsts.backend_url}/product/?order_id=$orderId'),
+      Uri.parse('$endpoint/product/?order_id=$orderId'),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Authorization': GlobalConsts.token,
@@ -225,7 +273,7 @@ class Product {
       vegType: json['veg_type'],
       servers: json['servers'],
       storeName: json['store_name'],
-      outOfStock: json['out_of_stock'],
+      outOfStock: json['out_of_stock'] ?? false,
       displayOrder: json['display_order'] ?? 0,
     );
   }

@@ -17,7 +17,8 @@ Future<void> handleUserData(BuildContext context) async {
     user = await _createUser(context, null, fcmToken);
   } else {
     user = await User.getUserWithJWT();
-    user = await _updateUserData(context, user, fcmToken);
+    _updateUserData(context, user, fcmToken).then((value) =>
+        Provider.of<SalesProvider>(context, listen: false).setUser(user));
   }
 
   Provider.of<UserProvider>(context, listen: false).setUser(user);
@@ -26,8 +27,6 @@ Future<void> handleUserData(BuildContext context) async {
 
 Future<User> _updateUserData(
     BuildContext context, User user, String fcmToken) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-
   if (user.notificationToken != fcmToken ||
       user.address == null ||
       user.address == '') {

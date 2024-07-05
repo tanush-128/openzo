@@ -41,12 +41,12 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                           ? DecorationImage(
                               image:
                                   NetworkImage(widget.product.images[0].image),
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                             )
                           : const DecorationImage(
                               image:
                                   AssetImage('assets/images/placeholder.png'),
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                             ),
                     ),
                   ),

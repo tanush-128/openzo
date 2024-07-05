@@ -116,38 +116,39 @@ class HomePage extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Consumer<UserProvider>(
-                  builder: (context, userProvider, child) {
-                    User user = userProvider.user;
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Explore your locality",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          if (user.pincode != null &&
-                              user.city != null &&
-                              user.state != null)
-                            Text(
-                              "${user.pincode}-${user.city}, ${user.state}",
-                              style: const TextStyle(
+                Expanded(
+                  child: Consumer<UserProvider>(
+                    builder: (context, userProvider, child) {
+                      User user = userProvider.user;
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Explore your locality",
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 16,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
                               ),
-                            )
-                        ],
-                      ),
-                    );
-                  },
+                            ),
+                            if (user.pincode != null &&
+                                user.city != null &&
+                                user.state != null)
+                              Text(
+                                "${user.pincode}-${user.city}, ${user.state}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              )
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-                const Spacer(),
                 IconButton(
                   onPressed: () {
                     if (Provider.of<UserProvider>(context, listen: false)

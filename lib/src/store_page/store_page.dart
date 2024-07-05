@@ -65,10 +65,6 @@ class _StorePageState extends State<StorePage>
                 delegate: _SliverAppBarDelegate(
                   TabBar(
                     controller: _tabController,
-
-                    // onTap: (index) => setState(() {
-                    //   pageIndex = index;
-                    // }),
                     tabs: const [
                       Tab(text: 'Products'),
                       Tab(text: 'Reviews'),
@@ -103,7 +99,7 @@ class _StorePageState extends State<StorePage>
                 .type;
             return pageIndex == 0
                 ? storeType == StoreType.service
-                    ? _buildContactBottmBar()
+                    ? _buildContactBottmBar(snapshot.data!.phone)
                     : _buildBottomNavigationBar(cart)
                 : pageIndex == 1
                     ? AddReviewButton(storeId: widget.storeId)
@@ -142,7 +138,7 @@ class _StorePageState extends State<StorePage>
     );
   }
 
-  Widget _buildContactBottmBar() {
+  Widget _buildContactBottmBar(String mobile) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
@@ -152,7 +148,7 @@ class _StorePageState extends State<StorePage>
             onPressed: () {
               final Uri url = Uri(
                 scheme: 'tel',
-                path: "0700000000",
+                path: mobile,
               );
               launchUrl(
                 url,

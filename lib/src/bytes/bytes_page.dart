@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:openzo_frontend/models/notification.dart';
-import 'package:openzo_frontend/src/bytes/byte.dart';
+import 'package:openzo_frontend/models/product.dart';
+import 'package:openzo_frontend/src/store_page/widgets/post/post_card.dart';
 
 class BytesPage extends StatefulWidget {
   const BytesPage({super.key});
@@ -17,9 +17,8 @@ class _BytesPageState extends State<BytesPage> {
         title: const Text('Local Bytes'),
       ),
       body: FutureBuilder(
-          future: NotificationByte.fetchMany("721301"),
-          builder: (BuildContext context,
-              AsyncSnapshot<List<NotificationByte>> snapshot) {
+          future: Product.fetchPostByPincode("123456"),
+          builder: (BuildContext context, AsyncSnapshot<List<Post>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
                 child: CircularProgressIndicator(),
@@ -32,7 +31,10 @@ class _BytesPageState extends State<BytesPage> {
               return ListView.builder(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return Byte(notificationByte: snapshot.data![index]);
+                  return PostCard(
+                    product: snapshot.data![index].post,
+                    store: snapshot.data![index].store,
+                  );
                 },
               );
             }

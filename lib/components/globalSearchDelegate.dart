@@ -10,6 +10,7 @@
 // /src/store_page/widgets/product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:openzo_frontend/components/search_results_page.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/store.dart';
@@ -49,21 +50,7 @@ class GlobalSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     return products.isNotEmpty || stores.isNotEmpty
-        ? Container(
-            color: Colors.grey.shade50,
-            padding: const EdgeInsets.all(8.0),
-            child: ListView.builder(
-              itemCount: products.length + stores.length,
-              itemBuilder: (context, index) {
-                return index < products.length
-                    ? Padding(
-                        padding: const EdgeInsets.all(1.5),
-                        child: ProductCard(product: products[index]),
-                      )
-                    : StoreCard(store: stores[index - products.length]);
-              },
-            ),
-          )
+        ? SearchResultsPage(stores: stores, products: products)
         : const Center(
             child: Text('No results found'),
           );

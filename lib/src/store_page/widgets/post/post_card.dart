@@ -1,46 +1,85 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/models/product.dart';
+import 'package:openzo_frontend/models/store.dart';
 
-class PostCard extends StatelessWidget {
+class PostCard extends StatefulWidget {
   final Product product;
-
-  const PostCard({
+  StoreBasicDetails? store;
+  PostCard({
     super.key,
     required this.product,
+    this.store,
   });
 
-  // Future<void> shareProduct() async {
-  //   try {
-  //     final uri = Uri.parse(product.images.isNotEmpty
-  //         ? product.images[0].image
-  //         : ''); // Default placeholder if no image
-  //     final response = await http.get(uri);
-  //     final imageBytes = response.bodyBytes;
-  //     final tempDir = await getTemporaryDirectory();
-  //     final path = '${tempDir.path}/${product.id}.png';
-  //     await File(path).writeAsBytes(imageBytes);
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
 
-  //     await Share.shareXFiles([XFile(path)], text: _generateProductShareText());
-  //   } catch (e) {
-  //     print('Error sharing product: $e');
-  //   }
-  // }
-
-  String _generateProductShareText() {
-    return '''*${product.name}*
-${product.description}
-MRP: ₹${product.mrp}
-Discounted Price: ₹${product.discountPrice}''';
-  }
-
+class _PostCardState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: Colors.white,
       margin: const EdgeInsets.only(bottom: 10, top: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          widget.store != null
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6.0, vertical: 4.0),
+                  child: InkWell(
+                    onTap: () {
+                      context.go('/store/${widget.product.storeID}');
+                    },
+                    child: Row(
+                      children: [
+                        widget.store!.image != ""
+                            ? CircleAvatar(
+                                backgroundImage:
+                                    NetworkImage(widget.store!.image),
+                                radius: 20,
+                              )
+                            : CircleAvatar(
+                                backgroundColor: Colors.grey.shade300,
+                                radius: 20,
+                                child: Icon(
+                                  Icons.store,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.store!.name,
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                widget.store!.description,
+                                style: GoogleFonts.poppins(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : const SizedBox(),
           _buildProductImage(),
           // const SizedBox(width: 12),
           _buildProductDetails(context)
@@ -56,7 +95,7 @@ Discounted Price: ₹${product.discountPrice}''';
         // height: 10
         // height: 300,
 
-        child: product.images.isEmpty
+        child: widget.product.images.isEmpty
             ? Center(
                 child: Icon(
                   Icons.image,
@@ -65,7 +104,7 @@ Discounted Price: ₹${product.discountPrice}''';
                 ),
               )
             : Image(
-                image: NetworkImage(product.images[0].image),
+                image: NetworkImage(widget.product.images[0].image),
                 fit: BoxFit.cover,
                 width: double.infinity,
               ));
@@ -78,7 +117,7 @@ Discounted Price: ₹${product.discountPrice}''';
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            product.name,
+            widget.product.name,
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.w600,
@@ -86,7 +125,7 @@ Discounted Price: ₹${product.discountPrice}''';
             ),
           ),
           Text(
-            product.description,
+            widget.product.description,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.poppins(

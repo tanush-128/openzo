@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/store.dart';
-import 'package:openzo_frontend/src/home_page/widgets/store_card.dart';
 import 'package:openzo_frontend/src/home_page/widgets/stores_list.dart';
 
 class StoresByCategory extends StatefulWidget {
   Category category;
   SubCategory? subCategory;
+  bool showSubCategories = true;
+  bool deliveryOnly = false;
   bool delivery = false;
   StoresByCategory({
     super.key,
     required this.category,
     this.subCategory,
-    this.delivery = false,
+    this.showSubCategories = true,
+    this.deliveryOnly = false,
   });
 
   @override
@@ -50,46 +51,54 @@ class _StoresByCategoryState extends State<StoresByCategory> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            const SliverAppBar(
+            SliverAppBar(
               title: GlobalSearchBar(),
               leadingWidth: 20,
+              pinned: !widget.showSubCategories,
             ),
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _SliverAppBarDelegate(
-                child: Container(
-                  padding: const EdgeInsets.only(left: 16, right: 16, top: 8),
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 0.1,
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
+            widget.showSubCategories
+                ? SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _SliverAppBarDelegate(
+                      child: Container(
+                        padding:
+                            const EdgeInsets.only(left: 16, right: 16, top: 8),
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              spreadRadius: 0.1,
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              spreadRadius: 0.1,
+                              blurRadius: 2,
+                              offset: const Offset(-2, -1),
+                            ),
+                          ],
+                        ),
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: subCategories
+                              .map((e) => SubcategoryListTile(
+                                  e: e,
+                                  category: widget.category,
+                                  active: e == subCategory,
+                                  setSelectedCategory: setSubCategory))
+                              .toList(),
+                        ),
                       ),
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 0.1,
-                        blurRadius: 2,
-                        offset: const Offset(-2, -1),
-                      ),
-                    ],
+                    ),
+                  )
+                : SliverToBoxAdapter(
+                    child: Container(
+                      height: 0,
+                    ),
                   ),
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: subCategories
-                        .map((e) => SubcategoryListTile(
-                            e: e,
-                            category: widget.category,
-                            active: e == subCategory,
-                            setSelectedCategory: setSubCategory))
-                        .toList(),
-                  ),
-                ),
-              ),
-            ),
             SliverToBoxAdapter(
               child: Padding(
                   padding: const EdgeInsets.all(16.0),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:openzo_frontend/models/product.dart';
 
 class ServiceCard extends StatefulWidget {
@@ -18,13 +17,7 @@ class _ServiceCardState extends State<ServiceCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // constraints: const BoxConstraints(
-      //   minHeight: 200,
-
-      // ),
-      // height: MediaQuery.of(context).size.width * 0.6 + 150,
-
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.all(Radius.circular(12.0)),
@@ -32,14 +25,6 @@ class _ServiceCardState extends State<ServiceCard> {
           color: Colors.grey[200]!,
           width: 0.5,
         ),
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.grey,
-        //     blurRadius: 5.0,
-        //     spreadRadius: 0.0,
-        //     offset: Offset(0.0, 0.0),
-        //   )
-        // ],
       ),
       child: Column(
         children: [
@@ -117,8 +102,11 @@ class _ServiceCardState extends State<ServiceCard> {
     if (widget.product.images.isEmpty) return const SizedBox();
 
     return Container(
-      // height: MediaQuery.of(context).size.width * 0.6,
+      // height: MediaQuery.of(context).size.width * 0.75,
       width: double.infinity,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.width * 0.75,
+      ),
       // margin: const EdgeInsets.only(top: 16),
       decoration: const BoxDecoration(
         color: Colors.white,

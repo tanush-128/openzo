@@ -3,7 +3,6 @@ import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/user.dart';
-
 import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/src/product/widgets/product_card.dart';

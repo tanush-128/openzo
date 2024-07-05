@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/src/product/productPage/widgets/carousel.dart';
-import 'package:openzo_frontend/src/product/productPage/widgets/moreBySameSelller.dart';
-import 'package:openzo_frontend/src/product/productPage/widgets/similarProducts.dart';
+import 'package:openzo_frontend/src/product/productPage/widgets/more_by_same_selller.dart';
+import 'package:openzo_frontend/src/product/productPage/widgets/similar_products.dart';
 import 'package:provider/provider.dart';
 
 class ProductPage extends StatefulWidget {
@@ -201,9 +202,13 @@ class _ProductPageState extends State<ProductPage> {
                         ),
                         const SizedBox(width: 16),
                         SizeOptions(
-                            sizes: product.sizeVariants
-                                .map((e) => e.size)
-                                .toList()),
+                            sizes: product.sizeVariants,
+                            selectedSize: selectedSize,
+                            onSizeSelected: (size) {
+                              setState(() {
+                                selectedSize = size;
+                              });
+                            })
                       ],
                     ),
                   ),
@@ -221,9 +226,13 @@ class _ProductPageState extends State<ProductPage> {
                         ),
                         const SizedBox(width: 16),
                         ColorOptions(
-                            colors: product.colorVariants
-                                .map((e) => e.color)
-                                .toList()),
+                            colors: product.colorVariants,
+                            selectedColor: selectedColor,
+                            onColorSelected: (color) {
+                              setState(() {
+                                selectedColor = color;
+                              });
+                            }),
                       ],
                     ),
                   ),
@@ -246,9 +255,11 @@ class _ProductPageState extends State<ProductPage> {
 }
 
 class SizeOptions extends StatelessWidget {
-  final List<String> sizes;
-
-  const SizeOptions({super.key, required this.sizes});
+  final List<SizeVariant> sizes;
+  SizeVariant? selectedSize;
+  Function(SizeVariant)? onSizeSelected;
+  SizeOptions(
+      {super.key, required this.sizes, this.selectedSize, this.onSizeSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -257,10 +268,10 @@ class SizeOptions extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.all(4.0),
           child: ChoiceChip(
-            label: Text(size),
-            selected: false,
+            label: Text(size.size),
+            selected: selectedSize == size,
             onSelected: (selected) {
-              // Handle size selection
+              onSizeSelected!(size);
             },
           ),
         );
@@ -270,9 +281,15 @@ class SizeOptions extends StatelessWidget {
 }
 
 class ColorOptions extends StatelessWidget {
-  final List<String> colors;
+  final List<ColorVariant> colors;
+  Function(ColorVariant)? onColorSelected;
+  ColorVariant? selectedColor;
 
-  const ColorOptions({required this.colors});
+  ColorOptions(
+      {super.key,
+      required this.colors,
+      this.onColorSelected,
+      this.selectedColor});
 
   @override
   Widget build(BuildContext context) {
@@ -280,10 +297,10 @@ class ColorOptions extends StatelessWidget {
       spacing: 8,
       children: colors.map((color) {
         return ChoiceChip(
-          label: Text(color),
-          selected: false,
+          label: Text(color.color),
+          selected: selectedColor == color,
           onSelected: (selected) {
-            // Handle color selection
+            onColorSelected!(color);
           },
         );
       }).toList(),

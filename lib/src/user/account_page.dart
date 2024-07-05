@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/models/user.dart';
 import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +14,7 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   Future<void> _handleLogout() async {
     await Provider.of<UserProvider>(context, listen: false).logout();
+    context.go('/login');
   }
 
   @override

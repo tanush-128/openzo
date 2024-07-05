@@ -4,6 +4,59 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 
+// type StoreBasicDetails struct {
+// 	ID    string `json:"id" gorm:"primaryKey"`
+// 	Name  string `json:"name"`
+// 	Image string `json:"image"`
+
+// 	Address string `json:"address"`
+
+// 	Category    string `json:"category" gorm:"default:store"`
+// 	SubCategory string `json:"sub_category" gorm:"default:general_store'"`
+
+// 	Description string  `json:"description"`
+// 	Rating      float64 `json:"rating" gorm:"default:0"`
+// 	ReviewCount int     `json:"review_count" gorm:"default:0"`
+// }
+
+class StoreBasicDetails {
+  final String id;
+  final String name;
+  final String image;
+  final String address;
+  final String category;
+  final String subCategory;
+  final String description;
+  final double rating;
+  final int reviewCount;
+
+  StoreBasicDetails({
+    required this.id,
+    required this.name,
+    required this.image,
+    required this.address,
+    required this.category,
+    required this.subCategory,
+    required this.description,
+    required this.rating,
+    required this.reviewCount,
+  });
+
+  factory StoreBasicDetails.fromJson(Map<String, dynamic> json) {
+    return StoreBasicDetails(
+      id: json['store_id'],
+      name: json['store_name'],
+      image: json['store_image'],
+      address: json['store_address'],
+      category: json['store_category'],
+      subCategory: json['store_sub_category'],
+      description: json['store_description'],
+      rating: double.parse(json['store_rating'].toString()),
+      reviewCount: int.parse(json['store_review_count'].toString()),
+    );
+  }
+}
+
 class Store {
   final String id;
   final String name;
@@ -13,7 +66,7 @@ class Store {
   final bool selfDeliveryService;
 
   final String pincode;
-// final String phone;
+  final String phone;
   final String description;
   final String address;
   final String openingTime;
@@ -49,6 +102,7 @@ class Store {
     required this.description,
     required this.closingTime,
     required this.image,
+    required this.phone,
 // required this.onlineDiscovery,
     required this.selfDeliveryService,
     this.category = "",
@@ -69,6 +123,8 @@ class Store {
   });
 
   static String endpoint = '${GlobalConsts.backend_url}/stores';
+  // static String endpoint = 'https://lnn7jf70-8080.inc1.devtunnels.ms';
+
   // static String endpoint = 'https://lnn7jf70-8080.inc1.devtunnels.ms';
 
   static getStoreWithUserEmail(String userEmail) async {
@@ -193,6 +249,7 @@ class Store {
       address: json['address'],
       pincode: json['pincode'],
       name: json['name'],
+      phone: json['phone'] ?? "",
       image: json['image'],
       location: json['location'],
       openingTime: json['opening_time'],

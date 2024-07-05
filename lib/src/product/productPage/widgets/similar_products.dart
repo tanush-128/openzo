@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/src/product/widgets/vertical_product_card.dart';
 
@@ -49,7 +47,12 @@ class _SimilarProductsState extends State<SimilarProducts> {
                       child: Text('An error occurred'),
                     );
                   }
-                  final products = snapshot.data as List<Product>;
+                  List<Product> products = snapshot.data as List<Product>;
+                  products.removeWhere(
+                    (element) =>
+                        element.id == widget.product.id ||
+                        element.type == "post",
+                  );
                   return ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: products.length,

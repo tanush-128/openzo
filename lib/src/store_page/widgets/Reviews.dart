@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:openzo_frontend/models/Review.dart';
 import 'package:intl/intl.dart';
+import 'package:openzo_frontend/models/Review.dart';
 import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/providers/user_provider.dart';
-import 'package:openzo_frontend/src/store_page/store_page.dart';
 import 'package:openzo_frontend/utils/capitalize.dart';
 import 'package:provider/provider.dart';
 
@@ -217,7 +215,7 @@ class ReviewTile extends StatelessWidget {
 class AddReviewButton extends StatelessWidget {
   final String storeId;
 
-  AddReviewButton({required this.storeId});
+  const AddReviewButton({super.key, required this.storeId});
 
   @override
   Widget build(BuildContext context) {
@@ -243,7 +241,7 @@ class AddReviewButton extends StatelessWidget {
 class AddReviewModal extends StatefulWidget {
   final String storeId;
 
-  AddReviewModal({required this.storeId});
+  const AddReviewModal({super.key, required this.storeId});
 
   @override
   _AddReviewModalState createState() => _AddReviewModalState();
@@ -398,7 +396,8 @@ class ReviewSummary extends StatelessWidget {
   final int reviewCount;
   final Map<String, int> ratingDistribution;
 
-  ReviewSummary({
+  const ReviewSummary({
+    super.key,
     required this.averageRating,
     required this.reviewCount,
     required this.ratingDistribution,
