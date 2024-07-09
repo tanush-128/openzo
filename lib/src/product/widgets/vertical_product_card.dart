@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
@@ -25,8 +26,26 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
           InkWell(
             onTap: () {
               print('Product ID: ${widget.product.id}');
-              GoRouter.of(context).go(
-                  '/store/${widget.product.storeID}/product/${widget.product.id}');
+              // Navigator.pushNamed(
+              //   context,
+              //   '/store/${widget.product.storeID}/product/${widget.product.id}',
+              // );
+              // First navigate to a temporary route
+              context.go('/');
+
+// Then navigate to the desired route
+              Future.delayed(const Duration(milliseconds: 1), () {
+                context.go(
+                    '/store/${widget.product.storeID}/product/${widget.product.id}');
+              });
+
+              // context.replace(
+              //     '/store/${widget.product.storeID}/product/${widget.product.id}');
+
+              // context.go(
+              //     '/store/${widget.product.storeID}/product/${widget.product.id}');
+              // context.goNamed(
+              //     '/store/${widget.product.storeID}/product/${widget.product.id}');
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
@@ -50,8 +69,8 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                             ),
                     ),
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.5,
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.45,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -76,42 +95,46 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                           ),
                         ),
                         widget.product.mrp != widget.product.discountPrice
-                            ? Row(
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.arrow_downward_rounded,
-                                          color: GlobalStyle.primaryColor,
-                                          size: 16),
-                                      Text(
-                                        '${((widget.product.mrp - widget.product.discountPrice) / widget.product.mrp * 100).toStringAsFixed(0)}%',
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          color: GlobalStyle.primaryColor,
+                            ? FittedBox(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.arrow_downward_rounded,
+                                            color: GlobalStyle.primaryColor,
+                                            size: 16),
+                                        Text(
+                                          '${((widget.product.mrp - widget.product.discountPrice) / widget.product.mrp * 100).toStringAsFixed(0)}%',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            color: GlobalStyle.primaryColor,
+                                          ),
                                         ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '₹ ${widget.product.mrp}',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.grey,
+                                        decoration: TextDecoration.lineThrough,
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    '₹ ${widget.product.mrp}',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.grey,
-                                      decoration: TextDecoration.lineThrough,
                                     ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    '₹${widget.product.discountPrice}',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '₹${widget.product.discountPrice}',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               )
                             : Text(
                                 '₹ ${widget.product.mrp}',

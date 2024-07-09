@@ -148,7 +148,7 @@ class Sale {
 
     // String? userDataId = prefs.getString('user_data_id');
     if (token == null) {
-      throw Exception('Token not found');
+      return [];
     }
 
     final response = await http.get(
@@ -191,6 +191,7 @@ class Sale {
   }
 
   static Future<Sale> updateSale(Sale sale) async {
+    sale.orderTime = DateTime.now();
     final response = await http.put(
       Uri.parse('$endpoint/'),
       headers: <String, String>{
@@ -204,6 +205,24 @@ class Sale {
       return Sale.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Failed to update sale');
+    }
+  }
+
+  static Future<void> DeleteSale(String id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    final response = await http.delete(
+      Uri.parse('$endpoint/$id'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token!,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print("Deleted sale: ${response.body}");
+    } else {
+      throw Exception('Failed to delete sale');
     }
   }
 }

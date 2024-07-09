@@ -31,8 +31,6 @@ class _StoresByCategoryState extends State<StoresByCategory> {
     setState(() {
       this.subCategory = subCategory;
     });
-    // subCategories.remove(subCategory);
-    // subCategories.insert(0, subCategory);
   }
 
   @override

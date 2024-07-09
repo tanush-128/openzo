@@ -15,21 +15,37 @@ class SalesProvider extends ChangeNotifier {
   List<Sale> get onlineOrders => _onlineOrders;
 
   List<Sale> get placedOrders => _onlineOrders
-      .where((element) =>
-          (element.status != "not_placed" && element.status != "delivered"))
+      .where((element) => (element.status != "not_placed" &&
+          element.status != "delivered" &&
+          ((element.status != "rejected" && element.status != "cancelled") ||
+              element.orderTime!.isAfter(
+                  DateTime.now().subtract(const Duration(minutes: 30))))))
       .toList();
 
   List<Sale> get unplacedOrders =>
       _onlineOrders.where((element) => element.status == "not_placed").toList();
 
-  List<Sale> get deliveredOrders =>
-      _onlineOrders.where((element) => element.status == "delivered").toList();
+  List<Sale> get completedOrders => _onlineOrders
+      .where((element) =>
+          element.status == "delivered" ||
+          element.status == "cancelled" ||
+          element.status == "rejected")
+      .toList();
 
   bool _fetching = true;
   bool get fetching => _fetching;
 
   Future<void> getOrders() async {
-    _onlineOrders = await Sale.getSalesByUserID();
+    final orders = await Sale.getSalesByUserID();
+
+    for (var element in orders) {
+      if (element.orderItems.isEmpty || element.totalAmount <= 0) {
+        Sale.DeleteSale(element.id);
+      } else {
+        _onlineOrders.add(element);
+      }
+    }
+
     print("Orders: $_onlineOrders");
     _fetching = false;
     notifyListeners();
@@ -78,8 +94,18 @@ class SalesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteSale(String id) async {
+    await Sale.DeleteSale(id);
+    _onlineOrders.removeWhere((element) => element.id == id);
+    notifyListeners();
+  }
+
   Future<void> updateSaleOrderItems(Product product, SizeVariant? sizeVariant,
       ColorVariant? colorVariant, int quantity) async {
+    if (quantity < 0) {
+      return;
+    }
+
     if (_onlineOrders
             .where((element) => element.status == "not_placed")
             .map((e) => e.storeId)
@@ -128,15 +154,22 @@ class SalesProvider extends ChangeNotifier {
     _onlineOrder.totalAmount +=
         product.discountPrice * (quantity - prevQuantity) * 1.0;
 
+    // if (_onlineOrder.orderItems.isEmpty || _onlineOrder.totalAmount <= 0) {
+    //   Sale.DeleteSale(_onlineOrder.id);
+    //   _onlineOrders
+    //       .removeWhere((element) => element.storeId == product.storeID);
+    // } else {
+    // }
     await updateSale(_onlineOrder);
-
     notifyListeners();
   }
 
   Sale getSaleByStoreId(String storeId) {
     return _onlineOrders.firstWhere(
-        (element) =>
-            (element.storeId == storeId && element.status != "delivered"),
+        (element) => (element.storeId == storeId &&
+            element.status != "delivered" &&
+            element.status != "cancelled" &&
+            element.status != "rejected"),
         orElse: () => Sale(storeId: storeId));
   }
 

@@ -117,15 +117,41 @@ class _StorePageState extends State<StorePage>
           ? Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Total: ${cart.totalAmount}'),
+                // Text('Total: ${cart.totalAmount}'),
+                Row(
+                  children: [
+                    ImageIcon(
+                      const AssetImage('assets/icons/bill.png'),
+                      color: Colors.grey.shade500,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      "Total Bill   ",
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Text(
+                      "₹${cart.totalAmount + 40}",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
                 ElevatedButton(
                   onPressed: () {
                     context.go('/cart/${cart.id}');
                   },
-                  child: const Row(
+                  child: Row(
                     children: [
                       Text(
-                        'View Cart',
+                        cart.status == "not_placed"
+                            ? 'View Cart'
+                            : "View Order",
                       ),
                       SizedBox(width: 5),
                       Icon(Icons.arrow_forward_outlined),
@@ -179,9 +205,32 @@ class _StorePageState extends State<StorePage>
       expandedHeight: MediaQuery.of(context).size.width + 140.0,
       floating: false,
       pinned: true,
+      title: FutureBuilder(
+        future: storeData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const SizedBox.shrink();
+          } else if (snapshot.hasError) {
+            return const SizedBox.shrink();
+          } else if (snapshot.hasData) {
+            final store = snapshot.data as Store;
+            return Text(
+              store.name,
+              maxLines: 1,
+              style: TextStyle(),
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+      ),
+    
+      centerTitle: false,
+      leadingWidth: 32,
       shadowColor: Colors.transparent,
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
+        
         background: StoreDetails(
           storeData: storeData,
         ),
@@ -275,7 +324,8 @@ class _StorePageState extends State<StorePage>
             // categories: categories,
             storeType: storeType,
             cart: cart,
-            addableToCart: storeSnapshot.data!.selfDeliveryService,
+            addableToCart: storeSnapshot.data!.selfDeliveryService &&
+                cart.status == "not_placed",
           );
         } else {
           return const Center(child: Text('No store data available'));

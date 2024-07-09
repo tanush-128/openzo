@@ -28,6 +28,7 @@ ThemeData appTheme(BuildContext context) {
         ),
       ),
     ),
+    // inputDecorationTheme: inputDecorationTheme,
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
 
@@ -138,39 +139,6 @@ ThemeData appTheme(BuildContext context) {
     ).apply(
       bodyColor: Colors.black87,
       displayColor: Colors.black87,
-    ),
-    inputDecorationTheme: InputDecorationTheme(
-      // filled: true,
-      // fillColor: Colors.grey.shade100,
-      // border: OutlineInputBorder(
-      //   borderRadius: BorderRadius.circular(8),
-      //   borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
-      // ),
-      border: InputBorder.none,
-      // enabledBorder: OutlineInputBorder(
-      //   borderRadius: BorderRadius.circular(8),
-      //   borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
-      // ),
-      // focusedBorder: OutlineInputBorder(
-      //   borderRadius: BorderRadius.circular(8),
-      //   borderSide: BorderSide(color: GlobalStyle.primaryColor, width: 2),
-      // ),
-      labelStyle: GoogleFonts.poppins(
-        fontSize: 16,
-        color: Colors.grey.shade600,
-      ),
-      // const TextStyle(
-      //   fontSize: 16,
-      //   fontWeight: FontWeight.w500,
-      // ),
-      hintStyle: GoogleFonts.poppins(
-        fontSize: 16,
-        color: Colors.grey.shade600,
-      ),
-      //  TextStyle(
-      //   fontSize: 14,
-      //   color: Colors.grey.shade600,
-      // ),
     ),
     checkboxTheme: CheckboxThemeData(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),

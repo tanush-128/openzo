@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/src/cart/cart_list_tile.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +18,7 @@ class CartsPage extends StatelessWidget {
             tabs: [
               Tab(text: 'pending'),
               Tab(text: 'placed'),
-              Tab(text: 'delivered'),
+              Tab(text: 'completed'),
             ],
           ),
         ),
@@ -41,9 +42,65 @@ class CartList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final salesProvider = Provider.of<SalesProvider>(context);
-    final carts = salesProvider.onlineOrders
+
+    List<Sale> carts = salesProvider.onlineOrders
         .where((sale) => sale.status == status)
         .toList();
+
+    if (status == 'placed') {
+      carts = salesProvider.placedOrders;
+    } else if (status == 'delivered') {
+      carts = salesProvider.completedOrders;
+    } else if (status == 'all') {
+      carts = salesProvider.onlineOrders;
+    }
+    carts.sort((a, b) => a.orderTime!.compareTo(b.orderTime!) * -1);
+
+    // remove carts having same order id
+
+    final List<Sale> uniqueCarts = [];
+
+    for (final cart in carts) {
+      if (uniqueCarts.indexWhere((element) => element.id == cart.id) == -1) {
+        uniqueCarts.add(cart);
+      }
+    }
+
+    carts = uniqueCarts;
+
+    if (carts.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.shopping_cart_outlined,
+              size: 100,
+              color: Colors.grey,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'No carts found',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {},
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // const Icon(Icons.refresh),
+                  Text('Refresh'),
+                ],
+              ),
+            )
+          ],
+        ),
+      );
+    }
 
     return ListView.builder(
       itemCount: carts.length,
@@ -54,7 +111,3 @@ class CartList extends StatelessWidget {
     );
   }
 }
-
-
-
-

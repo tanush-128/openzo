@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class MarketplacePage extends StatelessWidget {
   @override
@@ -53,46 +54,51 @@ class MarketplaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
-      surfaceTintColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      elevation: 4.0,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
+    return InkWell(
+      onTap: () {
+        context.go('/coming-soon');
+      },
+      child: Card(
+        color: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        elevation: 4.0,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      color: Colors.grey[700],
+                    const SizedBox(height: 8.0),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        color: Colors.grey[700],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 16.0),
-            Image(
-              image: image,
-              width: 60,
-              height: 60,
-            ),
-          ],
+              const SizedBox(width: 16.0),
+              Image(
+                image: image,
+                width: 60,
+                height: 60,
+              ),
+            ],
+          ),
         ),
       ),
     );

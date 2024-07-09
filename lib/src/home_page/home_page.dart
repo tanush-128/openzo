@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/components/separator.dart';
@@ -86,17 +87,6 @@ class HomePage extends StatelessWidget {
       pinned: true,
       centerTitle: true,
       collapsedHeight: 80,
-      // actions: [
-      //   IconButton(
-      //     onPressed: () {},
-      //     icon: const Icon(
-      //       Icons.account_circle_outlined,
-      //       color: Colors.white,
-      //       size: 48,
-      //     ),
-      //   )
-      // ],
-
       flexibleSpace: FlexibleSpaceBar(
         title: const GlobalSearchBar(),
         centerTitle: true,
@@ -125,12 +115,17 @@ class HomePage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              "Explore your locality",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.w900,
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.6,
+                              child: const FittedBox(
+                                child: Text(
+                                  "Explore your locality",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
                               ),
                             ),
                             if (user.pincode != null &&

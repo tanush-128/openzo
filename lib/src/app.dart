@@ -2,6 +2,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/main.dart';
@@ -138,14 +139,25 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      
-      debugShowCheckedModeBanner: false,
-      restorationScopeId: 'app',
-      theme: appTheme(context),
-      routeInformationParser: _appRouter.router.routeInformationParser,
-      routerDelegate: _appRouter.router.routerDelegate,
-      routeInformationProvider: _appRouter.router.routeInformationProvider,
+    return ScreenUtilInit(
+      designSize: const Size(360, 690),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: const TextScaler.linear(1.0),
+            ),
+            child: MaterialApp.router(
+              debugShowCheckedModeBanner: false,
+              restorationScopeId: 'app',
+              theme: appTheme(context),
+              routeInformationParser: _appRouter.router.routeInformationParser,
+              routerDelegate: _appRouter.router.routerDelegate,
+              routeInformationProvider:
+                  _appRouter.router.routeInformationProvider,
+            ));
+      },
     );
   }
 }

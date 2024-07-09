@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
@@ -85,20 +86,27 @@ class _ProductCardState extends State<ProductCard> {
         children: [
           InkWell(
             onTap: () {
-              showModalBottomSheet(
-                backgroundColor: Colors.white,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                barrierColor: Colors.grey.withOpacity(0.5),
-                context: context,
-                builder: (context) {
-                  return Container(); // TODO: Implement the ProductModalBottomView
-                },
-              );
+              if (widget.product.type == "product") {
+                // Navigator.of(context).pushNamed('/product', arguments: widget.product);
+                GoRouter.of(context).go(
+                    '/store/${widget.product.storeID}/product/${widget.product.id}');
+              } else {
+                // Navigator.of(context).pushNamed('/food', arguments: widget.product);
+              }
+              // showModalBottomSheet(
+              //   backgroundColor: Colors.white,
+              //   shape: const RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.only(
+              //       topLeft: Radius.circular(20),
+              //       topRight: Radius.circular(20),
+              //     ),
+              //   ),
+              //   barrierColor: Colors.grey.withOpacity(0.5),
+              //   context: context,
+              //   builder: (context) {
+              //     return Container(); // TODO: Implement the ProductModalBottomView
+              //   },
+              // );
             },
             child: Row(
               children: [
@@ -120,7 +128,7 @@ class _ProductCardState extends State<ProductCard> {
                         Text(
                           widget.product.name,
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: Colors.blueGrey.shade900,
                           ),
@@ -146,11 +154,32 @@ class _ProductCardState extends State<ProductCard> {
             ),
           ),
           if (widget.product.storeName != null)
-            Text(
-              widget.product.storeName!,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.w600,
+            InkWell(
+              onTap: () {
+                GoRouter.of(context).go('/store/${widget.product.storeID}');
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.product.storeName!,
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                      border:
+                          Border.all(color: Colors.grey.shade200, width: 1.5),
+                    ),
+                    child: const Text("View"),
+                  )
+                ],
               ),
             ),
           if (quantity > 0)
@@ -193,49 +222,67 @@ class _ProductCardState extends State<ProductCard> {
       return Row(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
             decoration: BoxDecoration(
               border: Border.all(color: GlobalStyle.primaryColor, width: 0.75),
-              color: GlobalStyle.primaryColor,
-              borderRadius: BorderRadius.circular(10.0),
-              boxShadow: [
-                BoxShadow(
-                  color: GlobalStyle.primaryColor.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                ),
-              ],
+              color: const Color.fromARGB(167, 245, 152, 172).withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8.0),
+              // boxShadow: [
+              //   BoxShadow(
+              //     color: GlobalStyle.primaryColor.withOpacity(0.2),
+              //     spreadRadius: 1,
+              //     blurRadius: 2,
+              //     offset: const Offset(0, 1),
+              //   ),
+              // ],
             ),
             child: quantity != 0
                 ? Row(
                     children: [
                       InkWell(
                         onTap: () => _updateQuantity(quantity - 1),
-                        child: const Icon(Icons.remove, color: Colors.white),
+                        child: const Padding(
+                          padding: EdgeInsets.only(
+                              top: 2, bottom: 2, right: 12, left: 2),
+                          child: Icon(
+                            Icons.remove,
+                            color: GlobalStyle.primaryColor,
+                            size: 18,
+                          ),
+                        ),
                       ),
-                      const SizedBox(width: 10),
                       Text('$quantity',
                           style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
+                            // color: Colors.white,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           )),
-                      const SizedBox(width: 10),
                       InkWell(
                         onTap: () => _updateQuantity(quantity + 1),
-                        child: const Icon(Icons.add, color: Colors.white),
+                        child: const Padding(
+                          padding: EdgeInsets.only(
+                              top: 2, bottom: 2, right: 2, left: 12),
+                          child: Icon(
+                            Icons.add,
+                            color: GlobalStyle.primaryColor,
+                            size: 18,
+                          ),
+                        ),
                       ),
                     ],
                   )
                 : InkWell(
                     onTap: () => _updateQuantity(quantity + 1),
-                    child: const Text(
-                      'ADD',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    child: const Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 2, horizontal: 12),
+                      child: Text(
+                        'ADD',
+                        style: TextStyle(
+                          color: GlobalStyle.primaryColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -244,10 +291,10 @@ class _ProductCardState extends State<ProductCard> {
       );
     } else {
       return Text(
-        "Quantity: $quantity",
-        style: const TextStyle(
-          fontSize: 16,
-          color: Colors.grey,
+        "quantity: $quantity",
+        style: TextStyle(
+          fontSize: 15,
+          color: Colors.grey.shade400,
         ),
       );
     }

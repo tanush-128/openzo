@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/constants/styles.dart';
@@ -7,6 +6,7 @@ import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/src/product/productPage/widgets/carousel.dart';
 import 'package:openzo_frontend/src/product/productPage/widgets/more_by_same_selller.dart';
+import 'package:openzo_frontend/src/product/productPage/widgets/productPageSkeleton.dart';
 import 'package:openzo_frontend/src/product/productPage/widgets/similar_products.dart';
 import 'package:provider/provider.dart';
 
@@ -47,7 +47,7 @@ class _ProductPageState extends State<ProductPage> {
   @override
   Widget build(BuildContext context) {
     return isLoading
-        ? const Center(child: CircularProgressIndicator())
+        ? ProductPageSkeleton()
         : Scaffold(
             appBar: AppBar(
               title: const Padding(
@@ -189,53 +189,54 @@ class _ProductPageState extends State<ProductPage> {
                   const SizedBox(height: 4),
 
                   // Size Options
-
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        const Text(
-                          'Size:',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(width: 16),
-                        SizeOptions(
-                            sizes: product.sizeVariants,
-                            selectedSize: selectedSize,
-                            onSizeSelected: (size) {
-                              setState(() {
-                                selectedSize = size;
-                              });
-                            })
-                      ],
+                  if (product.sizeVariants.isNotEmpty)
+                    Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          const Text(
+                            'Size:',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 16),
+                          SizeOptions(
+                              sizes: product.sizeVariants,
+                              selectedSize: selectedSize,
+                              onSizeSelected: (size) {
+                                setState(() {
+                                  selectedSize = size;
+                                });
+                              })
+                        ],
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 4),
                   // Color Options
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        const Text(
-                          'Color:',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(width: 16),
-                        ColorOptions(
-                            colors: product.colorVariants,
-                            selectedColor: selectedColor,
-                            onColorSelected: (color) {
-                              setState(() {
-                                selectedColor = color;
-                              });
-                            }),
-                      ],
+                  if (product.colorVariants.isNotEmpty)
+                    Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          const Text(
+                            'Color:',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 16),
+                          ColorOptions(
+                              colors: product.colorVariants,
+                              selectedColor: selectedColor,
+                              onColorSelected: (color) {
+                                setState(() {
+                                  selectedColor = color;
+                                });
+                              }),
+                        ],
+                      ),
                     ),
-                  ),
 
                   const Divider(),
 

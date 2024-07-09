@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:openzo_frontend/constants/styles.dart';
+import 'package:intl/intl.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/store.dart';
-import 'package:intl/intl.dart';
 
 class CartListTile extends StatefulWidget {
   Sale cart;
@@ -46,16 +44,16 @@ class _CartListTileState extends State<CartListTile> {
             }
             return InkWell(
               onTap: () {
-    
                 context.go('/cart/${widget.cart.id}');
               },
               child: Row(
+                // crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Image.network(
                     snapshot.data!.image,
                     width: 82,
                     height: 82,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                   ),
                   Expanded(
                     child: Padding(
@@ -66,6 +64,8 @@ class _CartListTileState extends State<CartListTile> {
                         children: [
                           Text(
                             snapshot.data!.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -83,15 +83,37 @@ class _CartListTileState extends State<CartListTile> {
                       ),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.shopping_cart_rounded,
-                      color: GlobalStyle.primaryColor,
-                    ),
-                    onPressed: () {
-                      // Provider.of<SalesProvider>(context, listen: false)
-                    },
+                  // IconButton(
+                  //   icon: const Icon(
+                  //     Icons.shopping_cart_rounded,
+                  //     color: GlobalStyle.primaryColor,
+                  //   ),
+                  //   onPressed: () {
+                  //     // Provider.of<SalesProvider>(context, listen: false)
+                  //   },
+                  // ),
+
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      OrderStatusBadge(status: widget.cart.status),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey[300]!),
+                        ),
+                        child: const Text("View"),
+                      )
+                    ],
                   ),
+                  const SizedBox(width: 8)
                 ],
               ),
 
@@ -120,5 +142,65 @@ class _CartListTileState extends State<CartListTile> {
             );
           }),
     );
+  }
+}
+
+class OrderStatusBadge extends StatelessWidget {
+  const OrderStatusBadge({Key? key, required this.status}) : super(key: key);
+
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    Color statusColor;
+    String statusText;
+
+    switch (status) {
+      case "placed":
+        statusColor = Colors.green;
+        statusText = "Placed";
+        break;
+      case "accepted":
+        statusColor = Colors.blue;
+        statusText = "Accepted";
+        break;
+      case "rejected":
+        statusColor = Colors.red;
+        statusText = "Rejected";
+        break;
+      case "out_for_delivery":
+        statusColor = Colors.orange;
+        statusText = "Out for delivery";
+        break;
+      case "cancelled":
+        statusColor = Colors.red;
+        statusText = "Cancelled";
+        break;
+      case "delivered":
+        statusColor = Colors.grey;
+        statusText = "Delivered";
+        break;
+      default:
+        statusColor = Colors.white;
+        statusText = "";
+    }
+
+    return statusText != ""
+        ? Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              statusText,
+              style: TextStyle(
+                color: statusColor,
+
+                // fontWeight: FontWeight.bold,
+              ),
+            ),
+          )
+        : const SizedBox();
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/store.dart';
+import 'package:openzo_frontend/src/cart/cart_page.dart';
 import 'package:openzo_frontend/src/home_page/widgets/store_card.dart';
 import 'package:openzo_frontend/src/product/widgets/product_card.dart';
 import 'package:openzo_frontend/src/product/widgets/service_card.dart';
@@ -70,6 +71,19 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                     isSelected: filterType == 'product',
                   ),
                   FilterChipWidget(
+                    label: 'Food',
+                    onPressed: () {
+                      setState(() {
+                        filteredStores = [];
+                        filteredProducts = widget.products
+                            .where((product) => product.type == 'food')
+                            .toList();
+                        filterType = 'food';
+                      });
+                    },
+                    isSelected: filterType == 'food',
+                  ),
+                  FilterChipWidget(
                     label: 'Posts',
                     onPressed: () {
                       setState(() {
@@ -100,23 +114,37 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: filteredProducts.length + filteredStores.length,
-              itemBuilder: (context, index) {
-                if (index < filteredProducts.length) {
-                  final product = filteredProducts[index];
-                  if (product.type == 'post') {
-                    return PostCard(product: product);
-                  } else if (product.type == 'service') {
-                    return ServiceCard(product: product);
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: ListView.builder(
+                itemCount: filteredProducts.length + filteredStores.length,
+                itemBuilder: (context, index) {
+                  if (index < filteredProducts.length) {
+                    final product = filteredProducts[index];
+                    if (product.type == 'post') {
+                      return Column(
+                        children: [
+                          PostCard(product: product),
+                          kSeparator(),
+                        ],
+                      );
+                    } else if (product.type == 'service') {
+                      return ServiceCard(product: product);
+                    } else {
+                      return Column(
+                        children: [
+                          ProductCard(product: product),
+                          kSeparator(),
+                        ],
+                      );
+                    }
                   } else {
-                    return ProductCard(product: product);
+                    final store =
+                        filteredStores[index - filteredProducts.length];
+                    return StoreCard(store: store);
                   }
-                } else {
-                  final store = filteredStores[index - filteredProducts.length];
-                  return StoreCard(store: store);
-                }
-              },
+                },
+              ),
             ),
           ),
         ],
