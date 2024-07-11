@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+
 import 'package:http/http.dart' as http;
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/product.dart';
@@ -160,15 +161,13 @@ class Sale {
     );
 
     if (response.statusCode == 200) {
-      log(response.body);
       List<dynamic> body = jsonDecode(response.body);
-      // log()[0].toString());
-      body.map((e) => e['customer']).forEach((element) {
-        print("Customer: $element");
-      });
+
       List<Sale> sales =
           body.map((dynamic item) => Sale.fromJson(item)).toList();
-      // print("Sales customer: ${sales[0].customer?.toJson()}");
+
+      log("Successfully fetched ${sales.length} sales");
+      log("Sales: ${sales.map((e) => e.id).toList()}");
       return sales;
     } else {
       throw Exception('Failed to get sales');
@@ -208,7 +207,7 @@ class Sale {
     }
   }
 
-  static Future<void> DeleteSale(String id) async {
+  static Future<void> deleteSale(String id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     final response = await http.delete(

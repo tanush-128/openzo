@@ -2,10 +2,11 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:openzo_frontend/models/product.dart';
+
 class ProductImagesCarousel extends StatelessWidget {
   final List<ProductImage> images;
 
-  ProductImagesCarousel({required this.images});
+  const ProductImagesCarousel({super.key, required this.images});
 
   @override
   Widget build(BuildContext context) {

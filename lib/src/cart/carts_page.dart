@@ -10,7 +10,7 @@ class CartsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Carts'),
@@ -19,6 +19,7 @@ class CartsPage extends StatelessWidget {
               Tab(text: 'pending'),
               Tab(text: 'placed'),
               Tab(text: 'completed'),
+              Tab(text: 'all')
             ],
           ),
         ),
@@ -27,6 +28,7 @@ class CartsPage extends StatelessWidget {
             CartList(status: 'not_placed'),
             CartList(status: 'placed'),
             CartList(status: 'delivered'),
+            CartList(status: 'all'),
           ],
         ),
       ),
@@ -34,80 +36,111 @@ class CartsPage extends StatelessWidget {
   }
 }
 
-class CartList extends StatelessWidget {
+class CartList extends StatefulWidget {
   final String status;
 
   const CartList({Key? key, required this.status}) : super(key: key);
 
   @override
+  State<CartList> createState() => _CartListState();
+}
+
+class _CartListState extends State<CartList> {
+  // List<Sale> carts = [];
+  // @override
+  // void initState() {
+  //   if (widget.status == 'placed') {
+  //     // carts = salesProvider.placedOrders;
+  //     carts = Provider.of<SalesProvider>(context, listen: false).placedOrders;
+  //   } else if (widget.status == 'delivered') {
+  //     // carts = salesProvider.completedOrders;
+  //     carts =
+  //         Provider.of<SalesProvider>(context, listen: false).completedOrders;
+  //   } else if (widget.status == 'all') {
+  //     // carts = salesProvider.onlineOrders;
+  //     carts = Provider.of<SalesProvider>(context, listen: false).onlineOrders;
+  //   }
+
+  //   // carts.sort((a, b) => a.orderTime!.compareTo(b.orderTime!) * -1);
+  //   super.initState();
+  // }
+
+  @override
   Widget build(BuildContext context) {
-    final salesProvider = Provider.of<SalesProvider>(context);
+    // return Container(
+    //   child: ListView.builder(
+    //     itemCount: carts.length,
+    //     itemBuilder: (context, index) {
+    //       final cart = carts[index];
+    //       return CartListTile(cart: cart);
+    //     },
+    //   ),
+    // );
+    return Consumer<SalesProvider>(builder: (context, salesProvider, child) {
+      List<Sale> carts = salesProvider.onlineOrders
+          .where((sale) => sale.status == widget.status)
+          .toList();
 
-    List<Sale> carts = salesProvider.onlineOrders
-        .where((sale) => sale.status == status)
-        .toList();
-
-    if (status == 'placed') {
-      carts = salesProvider.placedOrders;
-    } else if (status == 'delivered') {
-      carts = salesProvider.completedOrders;
-    } else if (status == 'all') {
-      carts = salesProvider.onlineOrders;
-    }
-    carts.sort((a, b) => a.orderTime!.compareTo(b.orderTime!) * -1);
-
-    // remove carts having same order id
-
-    final List<Sale> uniqueCarts = [];
-
-    for (final cart in carts) {
-      if (uniqueCarts.indexWhere((element) => element.id == cart.id) == -1) {
-        uniqueCarts.add(cart);
+      if (widget.status == 'all') {
+        carts = salesProvider.onlineOrders;
+      } else if (widget.status == 'placed') {
+        carts = salesProvider.placedOrders;
+      } else if (widget.status == 'delivered') {
+        carts = salesProvider.completedOrders;
       }
-    }
+      // remove carts having same order id
+      carts.sort((a, b) => a.orderTime!.compareTo(b.orderTime!) * -1);
+      final List<Sale> uniqueCarts = [];
 
-    carts = uniqueCarts;
+      for (final cart in carts) {
+        if (uniqueCarts.indexWhere((element) => element.id == cart.id) == -1) {
+          uniqueCarts.add(cart);
+        }
+      }
 
-    if (carts.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.shopping_cart_outlined,
-              size: 100,
-              color: Colors.grey,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'No carts found',
-              style: TextStyle(
+      carts = uniqueCarts;
+
+      if (carts.isEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.shopping_cart_outlined,
+                size: 100,
                 color: Colors.grey,
-                fontSize: 20,
               ),
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // const Icon(Icons.refresh),
-                  Text('Refresh'),
-                ],
+              const SizedBox(height: 8),
+              const Text(
+                'No carts found',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 20,
+                ),
               ),
-            )
-          ],
-        ),
-      );
-    }
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {},
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // const Icon(Icons.refresh),
+                    Text('Refresh'),
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+      }
 
-    return ListView.builder(
-      itemCount: carts.length,
-      itemBuilder: (context, index) {
-        final cart = carts[index];
-        return CartListTile(cart: cart);
-      },
-    );
+      return ListView.builder(
+        itemCount: carts.length,
+        itemBuilder: (context, index) {
+          final cart = carts[index];
+          return CartListTile(cart: cart);
+        },
+      );
+    });
   }
 }

@@ -6,7 +6,6 @@ import 'package:openzo_frontend/src/bottomNavigationBar.dart';
 import 'package:openzo_frontend/src/cart/cart_page.dart';
 import 'package:openzo_frontend/src/categories_page.dart';
 import 'package:openzo_frontend/src/comingSoonPage.dart';
-import 'package:openzo_frontend/src/home_page/pages/food_delivery.dart';
 import 'package:openzo_frontend/src/login/loginPage.dart';
 import 'package:openzo_frontend/src/product/productPage/product_page.dart';
 import 'package:openzo_frontend/src/store_page/store_page.dart';
@@ -162,7 +161,7 @@ class AppRouter {
                     ]),
                 GoRoute(
                   path: 'login',
-                  builder: (context, state) => PhoneAuthPage(),
+                  builder: (context, state) => const PhoneAuthPage(),
                 ),
                 GoRoute(
                   path: 'booking',

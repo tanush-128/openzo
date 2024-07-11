@@ -133,8 +133,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   //when app is opened from background
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    Provider.of<SalesProvider>(context, listen: false).getOrders();
     super.didChangeAppLifecycleState(state);
+    print("App state: $state");
+    if (state == AppLifecycleState.resumed) {
+      Provider.of<SalesProvider>(context, listen: false).getOrders();
+    }
   }
 
   @override

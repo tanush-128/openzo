@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> handleUserData(BuildContext context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String fcmToken = prefs.getString('fcmToken')!;
+  String fcmToken = prefs.getString('fcmToken') ?? '';
   String? token = prefs.getString('token');
 
   late User user;
@@ -30,12 +30,13 @@ Future<User> _updateUserData(
   if (user.notificationToken != fcmToken ||
       user.address == null ||
       user.address == '') {
-    user.notificationToken = fcmToken;
     Position? position = await getLocation(context);
     if (position == null) {
       print('Location permission not granted');
       position = await showLocationPermissionBottomSheet(context);
     }
+
+    user.notificationToken = fcmToken;
 
     if (position != null) {
       user.latitude = position.latitude.toString();

@@ -14,13 +14,27 @@ class SalesProvider extends ChangeNotifier {
   List<Sale> _onlineOrders = [];
   List<Sale> get onlineOrders => _onlineOrders;
 
-  List<Sale> get placedOrders => _onlineOrders
-      .where((element) => (element.status != "not_placed" &&
-          element.status != "delivered" &&
-          ((element.status != "rejected" && element.status != "cancelled") ||
-              element.orderTime!.isAfter(
-                  DateTime.now().subtract(const Duration(minutes: 30))))))
-      .toList();
+  List<Sale> get placedOrders => _getPlacedOrders(_onlineOrders);
+
+  List<Sale> _getPlacedOrders(List<Sale> orders) {
+    List<Sale> _placedOrders = [];
+
+    for (var order in orders) {
+      if (order.status != "not_placed" &&
+          order.status != "delivered" &&
+          order.status != "rejected" &&
+          order.status != "cancelled") {
+        _placedOrders.add(order);
+      }
+
+      if ((order.status == "rejected" || order.status == "cancelled") &&
+          order.orderTime!
+              .isAfter(DateTime.now().subtract(const Duration(minutes: 30)))) {
+        _placedOrders.add(order);
+      }
+    }
+    return _placedOrders;
+  }
 
   List<Sale> get unplacedOrders =>
       _onlineOrders.where((element) => element.status == "not_placed").toList();
@@ -37,16 +51,25 @@ class SalesProvider extends ChangeNotifier {
 
   Future<void> getOrders() async {
     final orders = await Sale.getSalesByUserID();
+    
+    final orderIds = _onlineOrders.map((order) => order.id).toSet();
 
     for (var element in orders) {
       if (element.orderItems.isEmpty || element.totalAmount <= 0) {
-        Sale.DeleteSale(element.id);
+        await Sale.deleteSale(element.id);
       } else {
-        _onlineOrders.add(element);
+        if (!orderIds.contains(element.id)) {
+          _onlineOrders.add(element);
+        } else {
+          int index =
+              _onlineOrders.indexWhere((order) => order.id == element.id);
+          if (index != -1) {
+            _onlineOrders[index] = element;
+          }
+        }
       }
     }
 
-    print("Orders: $_onlineOrders");
     _fetching = false;
     notifyListeners();
   }
@@ -58,16 +81,15 @@ class SalesProvider extends ChangeNotifier {
 
   Future<void> sortOnlineOrders() async {
     _onlineOrders.sort((a, b) => a.orderTime!.compareTo(b.orderTime!) * -1);
-// notifyListeners();
+    notifyListeners();
   }
 
   Future<void> updateOrderStatus(String id, String orderStatus) async {
-// OrderStatus status = orderStatus == "placed" ? OrderStatus.placed : orderStatus == "accepted" ? OrderStatus.accepted : orderStatus == "out_for_delivery" ? OrderStatus.out_for_delivery : orderStatus == "delivered" ? OrderStatus.delivered : orderStatus == "rejected" ? OrderStatus.rejected : OrderStatus.cancelled;
     int index = _onlineOrders.indexWhere((element) => element.id == id);
     if (index == -1) {
       return;
     }
-    print("Updatind at $index");
+    print("Updating at $index");
     _onlineOrders[index].status = orderStatus;
 
     notifyListeners();
@@ -95,7 +117,7 @@ class SalesProvider extends ChangeNotifier {
   }
 
   Future<void> deleteSale(String id) async {
-    await Sale.DeleteSale(id);
+    await Sale.deleteSale(id);
     _onlineOrders.removeWhere((element) => element.id == id);
     notifyListeners();
   }
@@ -154,12 +176,6 @@ class SalesProvider extends ChangeNotifier {
     _onlineOrder.totalAmount +=
         product.discountPrice * (quantity - prevQuantity) * 1.0;
 
-    // if (_onlineOrder.orderItems.isEmpty || _onlineOrder.totalAmount <= 0) {
-    //   Sale.DeleteSale(_onlineOrder.id);
-    //   _onlineOrders
-    //       .removeWhere((element) => element.storeId == product.storeID);
-    // } else {
-    // }
     await updateSale(_onlineOrder);
     notifyListeners();
   }

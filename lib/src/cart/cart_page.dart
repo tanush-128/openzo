@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/store.dart';
@@ -10,7 +10,6 @@ import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/src/cart/cart_item.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 class CartPage extends StatefulWidget {
   static const String routeName = '/cart';
@@ -145,11 +144,6 @@ class _CartPageState extends State<CartPage> {
 
                         cart.status = 'placed';
 
-                        cart.customer = Customer(
-                          phone: phone,
-                          address: address,
-                          userDataId: cart.customer!.userDataId,
-                        );
                         Provider.of<SalesProvider>(context, listen: false)
                             .updateSale(cart);
 
