@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
@@ -25,27 +24,12 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
         children: [
           InkWell(
             onTap: () {
-              print('Product ID: ${widget.product.id}');
-              // Navigator.pushNamed(
-              //   context,
-              //   '/store/${widget.product.storeID}/product/${widget.product.id}',
-              // );
-              // First navigate to a temporary route
               context.go('/');
 
-// Then navigate to the desired route
               Future.delayed(const Duration(milliseconds: 1), () {
                 context.go(
                     '/store/${widget.product.storeID}/product/${widget.product.id}');
               });
-
-              // context.replace(
-              //     '/store/${widget.product.storeID}/product/${widget.product.id}');
-
-              // context.go(
-              //     '/store/${widget.product.storeID}/product/${widget.product.id}');
-              // context.goNamed(
-              //     '/store/${widget.product.storeID}/product/${widget.product.id}');
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
@@ -69,7 +53,7 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                             ),
                     ),
                   ),
-                  Container(
+                  SizedBox(
                     width: MediaQuery.of(context).size.width * 0.45,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

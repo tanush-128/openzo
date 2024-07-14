@@ -1,15 +1,13 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/main.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/src/router.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:openzo_frontend/utils/theme.dart';
 import 'package:provider/provider.dart';
 
@@ -33,6 +31,7 @@ void showNotification(RemoteMessage message) {
     autoDismissible: true,
     title: message.notification?.title ?? 'Notification',
     body: message.notification?.body ?? 'Order status updated',
+    icon: 'resource://drawable/ic_notification',
   ));
 }
 

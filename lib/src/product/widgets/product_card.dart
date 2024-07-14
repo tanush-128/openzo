@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
-import 'package:openzo_frontend/models/sale.dart';
-import 'package:openzo_frontend/providers/sales_provider.dart';
-import 'package:provider/provider.dart';
+import 'package:openzo_frontend/src/product/widgets/add_button.dart';
 
 class ProductCard extends StatefulWidget {
   final Product product;
-  final Sale? cart;
-  final bool addable;
   final bool addableToCart;
 
   const ProductCard({
     Key? key,
     required this.product,
-    this.cart,
-    this.addable = true,
     this.addableToCart = true,
   }) : super(key: key);
 
@@ -29,51 +22,6 @@ class _ProductCardState extends State<ProductCard> {
   int quantity = 0;
   SizeVariant? selectedSize;
   ColorVariant? selectedColor;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _initializeProductData();
-  }
-
-  void _initializeProductData() {
-    quantity = widget.cart?.orderItems
-            .firstWhereOrNull((item) => item.productId == widget.product.id)
-            ?.quantity ??
-        0;
-    selectedSize = _getInitialSizeVariant();
-    selectedColor = _getInitialColorVariant();
-  }
-
-  SizeVariant? _getInitialSizeVariant() {
-    if (widget.product.sizeVariants.isEmpty) return null;
-    // return widget.cart?.orderItems
-    //         .firstWhereOrNull((item) => item.productId == widget.product.id)
-    //         ?.sizeVariantId.let((id) => widget.product.sizeVariants) ??
-    //     widget.product.sizeVariants.first;
-  }
-
-  ColorVariant? _getInitialColorVariant() {
-    if (widget.product.colorVariants.isEmpty) return null;
-    // return widget.cart?.orderItems
-    //         .firstWhereOrNull((item) => item.productId == widget.product.id)
-    //         ?.colorVariantId
-    //         .let((id) => widget.product.colorVariants
-    //             .firstWhereOrNull((variant) => variant.id == id)) ??
-    //     widget.product.colorVariants.first;
-  }
-
-  void _updateQuantity(int newQuantity) {
-    setState(() {
-      quantity = newQuantity;
-      Provider.of<SalesProvider>(context, listen: false).updateSaleOrderItems(
-        widget.product,
-        selectedSize,
-        selectedColor,
-        quantity,
-      );
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,23 +38,7 @@ class _ProductCardState extends State<ProductCard> {
                 // Navigator.of(context).pushNamed('/product', arguments: widget.product);
                 GoRouter.of(context).go(
                     '/store/${widget.product.storeID}/product/${widget.product.id}');
-              } else {
-                // Navigator.of(context).pushNamed('/food', arguments: widget.product);
-              }
-              // showModalBottomSheet(
-              //   backgroundColor: Colors.white,
-              //   shape: const RoundedRectangleBorder(
-              //     borderRadius: BorderRadius.only(
-              //       topLeft: Radius.circular(20),
-              //       topRight: Radius.circular(20),
-              //     ),
-              //   ),
-              //   barrierColor: Colors.grey.withOpacity(0.5),
-              //   context: context,
-              //   builder: (context) {
-              //     return Container(); // TODO: Implement the ProductModalBottomView
-              //   },
-              // );
+              } else {}
             },
             child: Row(
               children: [
@@ -144,7 +76,11 @@ class _ProductCardState extends State<ProductCard> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        _buildAddButton(),
+                        // _buildAddButton(),
+                        AddButton(
+                          product: widget.product,
+                          addableToCart: widget.addableToCart,
+                        ),
                       ],
                     ),
                   ),
@@ -213,91 +149,6 @@ class _ProductCardState extends State<ProductCard> {
         ],
       ),
     );
-  }
-
-  Widget _buildAddButton() {
-    if (!widget.addableToCart) return const SizedBox();
-
-    if (widget.addable) {
-      return Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-            decoration: BoxDecoration(
-              border: Border.all(color: GlobalStyle.primaryColor, width: 0.75),
-              color: const Color.fromARGB(167, 245, 152, 172).withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8.0),
-              // boxShadow: [
-              //   BoxShadow(
-              //     color: GlobalStyle.primaryColor.withOpacity(0.2),
-              //     spreadRadius: 1,
-              //     blurRadius: 2,
-              //     offset: const Offset(0, 1),
-              //   ),
-              // ],
-            ),
-            child: quantity != 0
-                ? Row(
-                    children: [
-                      InkWell(
-                        onTap: () => _updateQuantity(quantity - 1),
-                        child: const Padding(
-                          padding: EdgeInsets.only(
-                              top: 2, bottom: 2, right: 12, left: 2),
-                          child: Icon(
-                            Icons.remove,
-                            color: GlobalStyle.primaryColor,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                      Text('$quantity',
-                          style: const TextStyle(
-                            // color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          )),
-                      InkWell(
-                        onTap: () => _updateQuantity(quantity + 1),
-                        child: const Padding(
-                          padding: EdgeInsets.only(
-                              top: 2, bottom: 2, right: 2, left: 12),
-                          child: Icon(
-                            Icons.add,
-                            color: GlobalStyle.primaryColor,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                : InkWell(
-                    onTap: () => _updateQuantity(quantity + 1),
-                    child: const Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 2, horizontal: 12),
-                      child: Text(
-                        'ADD',
-                        style: TextStyle(
-                          color: GlobalStyle.primaryColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-          ),
-        ],
-      );
-    } else {
-      return Text(
-        "quantity: $quantity",
-        style: TextStyle(
-          fontSize: 15,
-          color: Colors.grey.shade400,
-        ),
-      );
-    }
   }
 
   Widget _buildProductImage() {

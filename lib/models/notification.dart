@@ -1,12 +1,3 @@
-// type Notification struct {
-// 	gorm.Model
-// 	StoreID int    `json:"store_id"`
-// 	Title   string `json:"title"`
-// 	Message string `json:"message"`
-// 	Image   string `json:"image"`
-// 	Pincode string `json:"pincode"`
-// 	// ScheduledAt time.Time `json:"scheduled_at"`
-// }
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;

@@ -167,7 +167,7 @@ class Sale {
           body.map((dynamic item) => Sale.fromJson(item)).toList();
 
       log("Successfully fetched ${sales.length} sales");
-      log("Sales: ${sales.map((e) => e.id).toList()}");
+
       return sales;
     } else {
       throw Exception('Failed to get sales');

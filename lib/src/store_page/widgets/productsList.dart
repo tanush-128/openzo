@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/product.dart';
-import 'package:openzo_frontend/models/sale.dart';
+import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/providers/products_provider.dart';
 import 'package:openzo_frontend/src/product/widgets/filter_bar.dart';
 import 'package:openzo_frontend/src/product/widgets/product_card.dart';
+import 'package:openzo_frontend/src/product/widgets/product_card_2.dart';
 import 'package:openzo_frontend/src/product/widgets/service_card.dart';
 import 'package:openzo_frontend/src/product/widgets/vertical_product_card.dart';
 import 'package:provider/provider.dart';
@@ -14,15 +15,13 @@ import 'package:provider/provider.dart';
 class ProductsList extends StatefulWidget {
   const ProductsList({
     super.key,
-    // required this.categories,
-    required this.cart,
     this.storeType,
+    this.store,
     this.addableToCart = false,
   });
 
-  // final Map<String, List<Product>> categories;
-  final Sale? cart;
   final StoreType? storeType;
+  final Store? store;
   final bool addableToCart;
 
   @override
@@ -58,7 +57,7 @@ class _ProductsListState extends State<ProductsList> {
           children: [
             Column(
               children: [
-                FilterBar(),
+                const FilterBar(),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Container(
@@ -78,10 +77,8 @@ class _ProductsListState extends State<ProductsList> {
                           size: 32,
                         ),
                         maxOpenSections: 10,
-                        // scrollIntoViewOfItems: ,
                         children: categories.keys.map((category) {
                           return AccordionSection(
-                            // key: categoryKeys[category],
                             isOpen: true,
                             header: Text(
                               key: categoryKeys[category],
@@ -93,7 +90,6 @@ class _ProductsListState extends State<ProductsList> {
                               ),
                             ),
                             content: Container(
-                              // key: categoryKeys[category],
                               color: Colors.grey.shade50,
                               padding: EdgeInsets.zero,
                               child: _buildContent(category),
@@ -121,13 +117,42 @@ class _ProductsListState extends State<ProductsList> {
 
   Widget _buildContent(String categoryKey) {
     var products = categories[categoryKey]!;
+    if (widget.store?.subCategory == "Grocery stores") {
+      return Container(
+        height: 260,
+        padding: const EdgeInsets.only(
+          bottom: 20,
+        ),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+        ),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: products.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+              child: SizedBox(
+                // width: 200,
+                width: MediaQuery.of(context).size.width * 0.35,
+
+                height: 240,
+                child: ProductCard2(
+                  product: products[index],
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
     switch (widget.storeType) {
       case StoreType.food:
         return _buildListView(
             products,
             (product) => ProductCard(
                   product: product,
-                  cart: widget.cart,
+                  // cart: widget.cart,
                   addableToCart: widget.addableToCart,
                 ));
       case StoreType.service:
@@ -172,9 +197,9 @@ class _ProductsListState extends State<ProductsList> {
 }
 
 class CategoryMenu extends StatefulWidget {
-  Map<String, GlobalKey> categoryKeys;
-  Map<String, List<Product>> categories;
-  CategoryMenu(
+  final Map<String, GlobalKey> categoryKeys;
+  final Map<String, List<Product>> categories;
+  const CategoryMenu(
       {super.key, required this.categoryKeys, required this.categories});
 
   @override
@@ -188,10 +213,6 @@ class _CategoryMenuState extends State<CategoryMenu> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Align(
-        //   alignment: Alignment.bottomRight,
-        //   child: _buildCategoryMenu(),
-        // ),
         Positioned(bottom: 48, right: 24, child: _buildCategoryMenu()),
         Align(
           alignment: Alignment.bottomRight,
@@ -237,7 +258,6 @@ class _CategoryMenuState extends State<CategoryMenu> {
     return Container(
       width: MediaQuery.of(context).size.width * 0.75,
       constraints: const BoxConstraints(maxHeight: 400, minHeight: 150),
-      // margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),

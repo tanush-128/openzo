@@ -1,15 +1,3 @@
-// import 'package:flutter/material.dart';
-
-// class PostList extends StatelessWidget {
-
-//   const PostList({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Placeholder();
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/providers/products_provider.dart';
@@ -18,7 +6,7 @@ import 'package:openzo_frontend/src/store_page/widgets/post/post_card.dart';
 import 'package:provider/provider.dart';
 
 class PostList extends StatelessWidget {
-  PostList({
+  const PostList({
     super.key,
   });
 
@@ -62,15 +50,6 @@ class PostList extends StatelessWidget {
                                             fontSize: 16,
                                           ),
                                         ),
-                                        // TextSpan(
-                                        //     text: "ADD POSTT",
-                                        //     style: TextStyle(
-                                        //         color: Colors.black,
-                                        //         fontWeight: FontWeight.bold)),
-                                        // TextSpan(
-                                        //     text: " to add a new post",
-                                        //     style:
-                                        //         TextStyle(color: Colors.black))
                                       ],
                                     ),
                                   ),

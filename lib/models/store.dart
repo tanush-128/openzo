@@ -1,23 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
+
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:openzo_frontend/constants/constants.dart';
-
-// type StoreBasicDetails struct {
-// 	ID    string `json:"id" gorm:"primaryKey"`
-// 	Name  string `json:"name"`
-// 	Image string `json:"image"`
-
-// 	Address string `json:"address"`
-
-// 	Category    string `json:"category" gorm:"default:store"`
-// 	SubCategory string `json:"sub_category" gorm:"default:general_store'"`
-
-// 	Description string  `json:"description"`
-// 	Rating      float64 `json:"rating" gorm:"default:0"`
-// 	ReviewCount int     `json:"review_count" gorm:"default:0"`
-// }
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StoreBasicDetails {
   final String id;
@@ -125,23 +111,6 @@ class Store {
   static String endpoint = '${GlobalConsts.backend_url}/stores';
   // static String endpoint = 'https://lnn7jf70-8080.inc1.devtunnels.ms';
 
-  // static String endpoint = 'https://lnn7jf70-8080.inc1.devtunnels.ms';
-
-  static getStoreWithUserEmail(String userEmail) async {
-    var response = await http.get(
-        Uri.parse('${GlobalConsts.backend_url}/store/?user_email=$userEmail'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': GlobalConsts.token,
-        });
-    if (response.statusCode == 200) {
-      print(response.body);
-      return Store.fromJson(jsonDecode(response.body));
-    } else {
-      return null;
-    }
-  }
-
   static Future<Store> fetchStore(String storeId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -156,7 +125,7 @@ class Store {
       'Authorization': '',
     });
     if (response.statusCode == 200) {
-      print(Store.fromJson(jsonDecode(response.body)).name);
+      log(Store.fromJson(jsonDecode(response.body)).name);
       return Store.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Failed to load store');
@@ -171,11 +140,11 @@ class Store {
 // 'Authorization': GlobalConsts.token,
     if (response.statusCode == 200) {
       List<Store> stores = [];
-      print(response.body);
+
       for (var store in jsonDecode(response.body)) {
         stores.add(Store.fromJson(store));
       }
-      log(stores.toString());
+
       return stores;
     } else {
       print(response.body);
@@ -192,7 +161,7 @@ class Store {
     if (response.statusCode == 200) {
       List<Store> stores = [];
       var body = await response.stream.bytesToString();
-      print(body);
+
       for (var store in jsonDecode(body)) {
         stores.add(Store.fromJson(store));
       }
@@ -232,7 +201,7 @@ class Store {
         'Authorization': GlobalConsts.token,
       },
     );
-    print(res.body);
+
     if (res.statusCode == 200) {
       for (var store in jsonDecode(res.body)) {
         stores.add(Store.fromJson(store));

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:openzo_frontend/models/notification.dart';
 
 class Byte extends StatefulWidget {
-  NotificationByte notificationByte;
-  Byte({super.key, required this.notificationByte});
+  final NotificationByte notificationByte;
+  const Byte({super.key, required this.notificationByte});
 
   @override
   State<Byte> createState() => _ByteState();

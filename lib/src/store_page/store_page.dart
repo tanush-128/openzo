@@ -13,6 +13,7 @@ import 'package:openzo_frontend/src/store_page/widgets/productsList.dart';
 import 'package:openzo_frontend/src/store_page/widgets/productsListSkeleton.dart';
 import 'package:openzo_frontend/src/store_page/widgets/storeDetails.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class StorePage extends StatefulWidget {
@@ -37,6 +38,11 @@ class _StorePageState extends State<StorePage>
     _tabController = TabController(length: 3, vsync: this);
     productData = Product.fetchMany(widget.storeId);
     storeData = Store.fetchStore(widget.storeId);
+    storeData.then((value) {
+      setState(() {
+        store = value;
+      });
+    });
     _tabController.addListener(() {
       setState(() {
         pageIndex = _tabController.index;
@@ -45,17 +51,15 @@ class _StorePageState extends State<StorePage>
   }
 
   StoreType storeType = StoreType.store;
+  Store? store;
 
   @override
   Widget build(BuildContext context) {
-    final Sale cart =
-        Provider.of<SalesProvider>(context).getSaleByStoreId(widget.storeId);
-
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         resizeToAvoidBottomInset: true,
-        bottomNavigationBar: _buildBottomBar(cart),
+        bottomNavigationBar: _buildBottomBar(),
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
@@ -81,33 +85,26 @@ class _StorePageState extends State<StorePage>
     );
   }
 
-  Widget _buildBottomBar(Sale cart) {
-    return FutureBuilder(
-        future: storeData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SizedBox.shrink();
-          } else if (snapshot.hasError) {
-            return const SizedBox.shrink();
-          } else if (snapshot.hasData) {
-            final store = snapshot.data as Store;
-            storeType = GlobalConsts.categories
-                .firstWhere(
-                  (element) => element.name == store.category,
-                  orElse: () => GlobalConsts.categories[0],
-                )
-                .type;
-            return pageIndex == 0
-                ? storeType == StoreType.service
-                    ? _buildContactBottmBar(snapshot.data!.phone)
-                    : _buildBottomNavigationBar(cart)
-                : pageIndex == 1
-                    ? AddReviewButton(storeId: widget.storeId)
-                    : const SizedBox(height: 0);
-          } else {
-            return const SizedBox.shrink();
-          }
-        });
+  Widget _buildBottomBar() {
+    return Consumer<SalesProvider>(
+      builder: (context, salesProvider, child) {
+        final Sale cart = salesProvider.getSaleByStoreId(widget.storeId);
+
+        storeType = GlobalConsts.categories
+            .firstWhere(
+              (element) => element.name == store?.category,
+              orElse: () => GlobalConsts.categories[0],
+            )
+            .type;
+        return pageIndex == 0
+            ? storeType == StoreType.service
+                ? _buildContactBottmBar(store?.phone ?? "")
+                : _buildBottomNavigationBar(cart)
+            : pageIndex == 1
+                ? AddReviewButton(storeId: widget.storeId)
+                : const SizedBox(height: 0);
+      },
+    );
   }
 
   Widget _buildBottomNavigationBar(Sale cart) {
@@ -153,8 +150,8 @@ class _StorePageState extends State<StorePage>
                             ? 'View Cart'
                             : "View Order",
                       ),
-                      SizedBox(width: 5),
-                      Icon(Icons.arrow_forward_outlined),
+                      const SizedBox(width: 5),
+                      const Icon(Icons.arrow_forward_outlined),
                     ],
                   ),
                 ),
@@ -202,7 +199,9 @@ class _StorePageState extends State<StorePage>
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.white,
       iconTheme: const IconThemeData(color: Colors.black),
-      expandedHeight: MediaQuery.of(context).size.width + 140.0,
+      expandedHeight: MediaQuery.of(context).size.width +
+          40 +
+          (store?.description.isNotEmpty ?? true ? 100 : 0),
       floating: false,
       pinned: true,
       title: FutureBuilder(
@@ -213,24 +212,24 @@ class _StorePageState extends State<StorePage>
           } else if (snapshot.hasError) {
             return const SizedBox.shrink();
           } else if (snapshot.hasData) {
-            final store = snapshot.data as Store;
+            // final store = snapshot.data as Store;
+            store = snapshot.data as Store;
+
             return Text(
-              store.name,
+              store!.name,
               maxLines: 1,
-              style: TextStyle(),
+              style: const TextStyle(),
             );
           } else {
             return const SizedBox.shrink();
           }
         },
       ),
-    
       centerTitle: false,
       leadingWidth: 32,
       shadowColor: Colors.transparent,
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
-        
         background: StoreDetails(
           storeData: storeData,
         ),
@@ -261,20 +260,24 @@ class _StorePageState extends State<StorePage>
         IconButton(
           onPressed: () {
             launchUrl(
-              Uri.parse("https://maps.app.goo.gl/Wa1EP6fwMdep2vYn7"),
+              Uri.parse(store?.location ?? ''),
               mode: LaunchMode.externalApplication,
             );
           },
           icon: const Icon(Icons.location_on_sharp),
+        ),
+        //share
+        IconButton(
+          onPressed: () {
+            Share.shareUri(Uri.parse("https://openzo.in/store/${store!.id}"));
+          },
+          icon: const Icon(Icons.share),
         ),
       ],
     );
   }
 
   Widget _buildBody() {
-    final Sale cart =
-        Provider.of<SalesProvider>(context).getSaleByStoreId(widget.storeId);
-
     return FutureBuilder<List<Product>>(
       future: productData,
       builder: (context, snapshot) {
@@ -290,7 +293,13 @@ class _StorePageState extends State<StorePage>
           return TabBarView(
             controller: _tabController,
             children: [
-              _buildProductsList(cart),
+              // _buildProductsList(cart),
+              // Consumer<SalesProvider>(
+              //   builder: (context, value, child) {
+              //     final cart = value.getSaleByStoreId(widget.storeId);
+              //   },
+              // ),
+               _buildProductsList(),
               ReviewsList(
                 storeId: widget.storeId,
                 storeData: storeData,
@@ -305,32 +314,14 @@ class _StorePageState extends State<StorePage>
     );
   }
 
-  Widget _buildProductsList(Sale cart) {
-    return FutureBuilder<Store>(
-      future: storeData,
-      builder: (context, storeSnapshot) {
-        if (storeSnapshot.connectionState == ConnectionState.waiting) {
-          return const ProductListSkeleton();
-        } else if (storeSnapshot.hasError) {
-          return Center(child: Text('Error: ${storeSnapshot.error}'));
-        } else if (storeSnapshot.hasData) {
-          storeType = GlobalConsts.categories
-              .firstWhere(
-                (element) => element.name == storeSnapshot.data!.category,
-                orElse: () => GlobalConsts.categories[0],
-              )
-              .type;
-          return ProductsList(
-            // categories: categories,
-            storeType: storeType,
-            cart: cart,
-            addableToCart: storeSnapshot.data!.selfDeliveryService &&
-                cart.status == "not_placed",
-          );
-        } else {
-          return const Center(child: Text('No store data available'));
-        }
-      },
+  Widget _buildProductsList() {
+    return ProductsList(
+      // categories: categories,
+      storeType: storeType,
+      store: store,
+      // cart: cart,
+      addableToCart:
+          (store?.selfDeliveryService ?? false),
     );
   }
 

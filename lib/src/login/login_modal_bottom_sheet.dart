@@ -35,10 +35,6 @@ class _LoginModalBottomSheetState extends State<LoginModalBottomSheet> {
     try {
       await handleUserData(context);
 
-      // FirebaseAnalytics.instance.setUserId(id:);
-      // await FirebaseAnalytics.instance
-      //     .logEvent(name: 'login', parameters: {'phone_number': phoneNumber});
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Welcome back!')),
       );
@@ -59,6 +55,7 @@ class _LoginModalBottomSheetState extends State<LoginModalBottomSheet> {
   Future<void> _fetchOrdersAndNavigate() async {
     try {
       await Provider.of<SalesProvider>(context, listen: false).getOrders();
+      Navigator.of(context).pop();
       context.go('/');
     } catch (error) {
       print('Error fetching orders: $error');
@@ -120,7 +117,11 @@ class _LoginModalBottomSheetState extends State<LoginModalBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.5,
+      // height: MediaQuery.of(context).size.height * 0.5,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.5,
+        // maxHeight: MediaQuery.of(context).size.height * 0.8,
+      ),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(

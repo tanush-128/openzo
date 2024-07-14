@@ -1,17 +1,5 @@
-// import 'package
-// /material.dart';
-// import 'package
-// /models/product.dart';
-// import 'package
-// /models/store.dart';
-// import 'package
-// /src/home_page/store_card.dart';
-// import 'package
-// /src/store_page/widgets/product_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:openzo_frontend/components/search_results_page.dart';
-import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/src/home_page/widgets/store_card.dart';

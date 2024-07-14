@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,8 +49,6 @@ class Review {
   }
 
   static Future<Review> createReview(Review review) async {
-    print(review.review);
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
@@ -70,7 +69,6 @@ class Review {
       Review review = Review.fromJson(jsonDecode(response.body));
       return review;
     } else {
-      print(response.body);
       throw Exception('Failed to create review');
     }
   }
@@ -85,9 +83,7 @@ class Review {
 
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
-      body.forEach((element) {
-        print(element);
-      });
+
       List<Review> reviews =
           body.map((dynamic item) => Review.fromJson(item)).toList();
       return reviews;

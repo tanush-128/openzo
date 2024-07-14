@@ -1,13 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/components/separator.dart';
 import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/models/user.dart';
-
 import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/src/home_page/widgets/ad_carousel.dart';
 import 'package:openzo_frontend/src/home_page/widgets/main_categories.dart';
@@ -21,6 +17,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: CustomScrollView(
         slivers: [
           _builSliverAppBar(context),
@@ -51,34 +48,6 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
-  // FutureBuilder<List<Store>> _buildStoresList() {
-  //   return FutureBuilder(
-  //     future:
-  //     builder: (context, snapshot) {
-  //       if (snapshot.connectionState == ConnectionState.waiting) {
-  //         return const Center(
-  //           child: CircularProgressIndicator(),
-  //         );
-  //       }
-  //       if (snapshot.hasError) {
-  //         return Center(
-  //           child: Text(snapshot.error.toString(),
-  //               style: const TextStyle(color: Colors.red)),
-  //         );
-  //       }
-  //       if (snapshot.data!.isEmpty) {
-  //         return const Center(
-  //           child: Text('No stores found'),
-  //         );
-  //       }
-  //       return Column(
-  //         children:
-  //             snapshot.data!.map((store) => StoreCard(store: store)).toList(),
-  //       );
-  //     },
-  //   );
-  // }
 
   SliverAppBar _builSliverAppBar(BuildContext context) {
     return SliverAppBar(
@@ -153,6 +122,7 @@ class HomePage extends StatelessWidget {
                     } else {
                       showModalBottomSheet(
                         context: context,
+                        isScrollControlled: true,
                         builder: (context) {
                           return const LoginModalBottomSheet();
                         },

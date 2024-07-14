@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/components/skeleton.dart';
 import 'package:openzo_frontend/constants/styles.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class StoreDetailsSkeleton extends StatelessWidget {
   const StoreDetailsSkeleton({super.key});
@@ -25,17 +24,7 @@ class StoreDetailsSkeleton extends StatelessWidget {
             alignment: Alignment.center,
             child: Icon(Icons.photo, color: Colors.grey.shade300, size: 32),
           ),
-          // Text(
-          //   store.name,
-          //   textAlign: TextAlign.center,
-          //   // overflow: TextOverflow.ellipsis,
-          //   style: GoogleFonts.poppins(
-          //     fontSize: 24,
-          //     fontWeight: FontWeight.bold,
-          //   ),
-          // ),
           const SizedBox(height: 5),
-
           Skeleton(
             height: 24,
           ),
@@ -43,18 +32,7 @@ class StoreDetailsSkeleton extends StatelessWidget {
           Skeleton(
             height: 20,
           ),
-          // Text(
-          //   store.storeType.name,
-          //   textAlign: TextAlign.center,
-          //   overflow: TextOverflow.ellipsis,
-          //   style: GoogleFonts.poppins(
-          //     fontSize: 16,
-          //     fontWeight: FontWeight.w400,
-          //     color: Colors.grey,
-          //   ),
-          // ),
           const SizedBox(height: 5),
-
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(

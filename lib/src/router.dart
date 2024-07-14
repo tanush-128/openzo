@@ -2,14 +2,14 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/src/booking/bookingPage.dart';
-import 'package:openzo_frontend/src/bottomNavigationBar.dart';
+import 'package:openzo_frontend/src/bottom_navigation_bar.dart';
 import 'package:openzo_frontend/src/cart/cart_page.dart';
 import 'package:openzo_frontend/src/categories_page.dart';
-import 'package:openzo_frontend/src/comingSoonPage.dart';
+import 'package:openzo_frontend/src/coming_soon_page.dart';
 import 'package:openzo_frontend/src/login/loginPage.dart';
 import 'package:openzo_frontend/src/product/productPage/product_page.dart';
 import 'package:openzo_frontend/src/store_page/store_page.dart';
-import 'package:openzo_frontend/src/stores_of_category/storesByCategory.dart';
+import 'package:openzo_frontend/src/stores_of_category/stores_by_category.dart';
 import 'package:openzo_frontend/src/user/account_page.dart';
 import 'package:openzo_frontend/src/webview/web_view.dart';
 
@@ -23,6 +23,15 @@ class AppRouter {
           observers: [
             FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance)
           ],
+
+          redirect: (context, state) {
+            print(state.uri);
+            if (state.uri.pathSegments.isEmpty) {
+              return '/';
+            }
+            return state.path;
+          },
+
           routes: <RouteBase>[
             GoRoute(
               path: '/',

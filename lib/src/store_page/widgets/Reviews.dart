@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:openzo_frontend/models/Review.dart';
+import 'package:openzo_frontend/models/review.dart';
 import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/utils/capitalize.dart';

@@ -53,7 +53,7 @@ Future<void> main() async {
           channelShowBadge: true,
 
           defaultRingtoneType: DefaultRingtoneType.Notification,
-          // icon: 'resource://drawable/ic_notification',
+          icon: 'resource://drawable/ic_notification',
           playSound: true,
           enableVibration: true,
           vibrationPattern: Int64List.fromList([1000, 1000, 2000, 1000, 3000]),
@@ -65,8 +65,9 @@ Future<void> main() async {
       // Channel groups are only visual and are not required
       channelGroups: [
         NotificationChannelGroup(
-            channelGroupKey: 'basic_channel_group',
-            channelGroupName: 'Basic group')
+          channelGroupKey: 'basic_channel_group',
+          channelGroupName: 'Basic group',
+        )
       ],
       debug: true);
   AwesomeNotifications().isNotificationAllowed().then((isAllowed) {

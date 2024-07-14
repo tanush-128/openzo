@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:go_router/go_router.dart';
@@ -40,12 +41,22 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
         const SnackBar(content: Text('Welcome back!')),
       );
 
+      FirebaseAnalytics.instance.logLogin();
+      FirebaseAnalytics.instance.setUserProperty(
+        name: 'phone_number',
+        value: _phoneController.text,
+      );
+
       _fetchOrdersAndNavigate();
     } catch (error) {
       print('Error handling user authentication: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to handle user authentication: $error')),
       );
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.remove('token');
+
+      _handleUserAuthentication();
     } finally {
       setState(() {
         // _isLoading = false; // Hide loading indicator

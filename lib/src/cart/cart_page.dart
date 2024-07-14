@@ -38,10 +38,6 @@ class _CartPageState extends State<CartPage> {
       });
     });
 
-    print(cart.customer!.address);
-    print(cart.customer!.phone);
-    print(cart.customer!.userDataId);
-
     if (cart.customer!.address == "") {
       final User user = Provider.of<UserProvider>(context, listen: false).user;
       address = user.address ?? "";
@@ -101,10 +97,6 @@ class _CartPageState extends State<CartPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // TextButton(
-                  //   onPressed: () {},
-                  //   child: const Text('Cancel Order'),
-                  // ),
                   Row(
                     children: [
                       ImageIcon(
@@ -455,15 +447,6 @@ class _CartPageState extends State<CartPage> {
                           )
                         ],
                       ),
-                      // const SizedBox(width: 8),
-                      // Text(
-                      //   phone,
-                      //   style: TextStyle(
-                      //     fontWeight: FontWeight.w500,
-                      //     fontSize: 16,
-                      //     color: Colors.grey.shade600,
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
@@ -474,7 +457,6 @@ class _CartPageState extends State<CartPage> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Icon(Icons.blinds_close),
               ImageIcon(
                 const AssetImage('assets/icons/bill.png'),
                 color: Colors.grey.shade500,

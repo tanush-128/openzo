@@ -7,8 +7,8 @@ import 'package:openzo_frontend/models/store.dart';
 
 class PostCard extends StatefulWidget {
   final Product product;
-  StoreBasicDetails? store;
-  PostCard({
+  final StoreBasicDetails? store;
+  const PostCard({
     super.key,
     required this.product,
     this.store,

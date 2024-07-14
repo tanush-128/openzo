@@ -51,7 +51,7 @@ class SalesProvider extends ChangeNotifier {
 
   Future<void> getOrders() async {
     final orders = await Sale.getSalesByUserID();
-    
+
     final orderIds = _onlineOrders.map((order) => order.id).toSet();
 
     for (var element in orders) {

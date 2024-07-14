@@ -47,14 +47,20 @@ class _CartListTileState extends State<CartListTile> {
                 context.go('/cart/${widget.cart.id}');
               },
               child: Row(
-                // crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Image.network(
-                    snapshot.data!.image,
-                    width: 82,
-                    height: 82,
-                    fit: BoxFit.fill,
-                  ),
+                  snapshot.data!.image != ""
+                      ? Image.network(
+                          snapshot.data!.image,
+                          width: 82,
+                          height: 82,
+                          fit: BoxFit.fill,
+                        )
+                      : Container(
+                          width: 82,
+                          height: 82,
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.storefront),
+                        ),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -83,16 +89,6 @@ class _CartListTileState extends State<CartListTile> {
                       ),
                     ),
                   ),
-                  // IconButton(
-                  //   icon: const Icon(
-                  //     Icons.shopping_cart_rounded,
-                  //     color: GlobalStyle.primaryColor,
-                  //   ),
-                  //   onPressed: () {
-                  //     // Provider.of<SalesProvider>(context, listen: false)
-                  //   },
-                  // ),
-
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -116,29 +112,6 @@ class _CartListTileState extends State<CartListTile> {
                   const SizedBox(width: 8)
                 ],
               ),
-
-              // ListTile(
-              //   leading: Image.network(
-              //     snapshot.data!.image,
-              //     width: 50,
-              //     height: 50,
-              //     fit: BoxFit.cover,
-              //   ),
-              //   title: Text(
-              //     snapshot.data!.name,
-              //     style: const TextStyle(
-              //       fontWeight: FontWeight.bold,
-              //     ),
-              //   ),
-              //   subtitle: Text(
-              //       'Total: ${widget.cart.totalAmount.toStringAsFixed(2)}'),
-              //   trailing: IconButton(
-              //     icon: const Icon(Icons.delete),
-              //     onPressed: () {
-              //       // Provider.of<SalesProvider>(context, listen: false)
-              //     },
-              //   ),
-              // ),
             );
           }),
     );

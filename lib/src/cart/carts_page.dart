@@ -10,7 +10,7 @@ class CartsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Carts'),
@@ -19,7 +19,6 @@ class CartsPage extends StatelessWidget {
               Tab(text: 'pending'),
               Tab(text: 'placed'),
               Tab(text: 'completed'),
-              Tab(text: 'all')
             ],
           ),
         ),
@@ -28,7 +27,6 @@ class CartsPage extends StatelessWidget {
             CartList(status: 'not_placed'),
             CartList(status: 'placed'),
             CartList(status: 'delivered'),
-            CartList(status: 'all'),
           ],
         ),
       ),
@@ -46,36 +44,8 @@ class CartList extends StatefulWidget {
 }
 
 class _CartListState extends State<CartList> {
-  // List<Sale> carts = [];
-  // @override
-  // void initState() {
-  //   if (widget.status == 'placed') {
-  //     // carts = salesProvider.placedOrders;
-  //     carts = Provider.of<SalesProvider>(context, listen: false).placedOrders;
-  //   } else if (widget.status == 'delivered') {
-  //     // carts = salesProvider.completedOrders;
-  //     carts =
-  //         Provider.of<SalesProvider>(context, listen: false).completedOrders;
-  //   } else if (widget.status == 'all') {
-  //     // carts = salesProvider.onlineOrders;
-  //     carts = Provider.of<SalesProvider>(context, listen: false).onlineOrders;
-  //   }
-
-  //   // carts.sort((a, b) => a.orderTime!.compareTo(b.orderTime!) * -1);
-  //   super.initState();
-  // }
-
   @override
   Widget build(BuildContext context) {
-    // return Container(
-    //   child: ListView.builder(
-    //     itemCount: carts.length,
-    //     itemBuilder: (context, index) {
-    //       final cart = carts[index];
-    //       return CartListTile(cart: cart);
-    //     },
-    //   ),
-    // );
     return Consumer<SalesProvider>(builder: (context, salesProvider, child) {
       List<Sale> carts = salesProvider.onlineOrders
           .where((sale) => sale.status == widget.status)

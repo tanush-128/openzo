@@ -5,7 +5,6 @@ import 'package:openzo_frontend/components/rating.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/store.dart';
-import 'package:openzo_frontend/src/home_page/widgets/store_card.dart';
 import 'package:openzo_frontend/src/store_page/widgets/storeSetailsSkeleton.dart';
 
 class StoreDetails extends StatelessWidget {
@@ -14,7 +13,6 @@ class StoreDetails extends StatelessWidget {
     required this.storeData,
   });
 
-  // final StorePage widget;
   final Future<Store> storeData;
 
   @override
@@ -265,39 +263,40 @@ class StoreDetails extends StatelessWidget {
                             ],
                           )),
                 const SizedBox(height: 5),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    width: double.infinity,
-                    height: 90,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
+                if (store.description != "")
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      width: double.infinity,
+                      height: 90,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                        gradient: LinearGradient(
+                          colors: [
+                            GlobalStyle.secondaryColor.withOpacity(0.5),
+                            Colors.white
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
                       ),
-                      gradient: LinearGradient(
-                        colors: [
-                          GlobalStyle.secondaryColor.withOpacity(0.5),
-                          Colors.white
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(store.description,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                              )),
+                        ),
                       ),
                     ),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(store.description,
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black,
-                            )),
-                      ),
-                    ),
-                  ),
-                )
+                  )
               ],
             ),
           );

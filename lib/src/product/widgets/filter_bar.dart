@@ -1,25 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:openzo_frontend/providers/products_provider.dart';
 import 'package:provider/provider.dart';
 
 class FilterBar extends StatefulWidget {
-  FilterBar({super.key});
+  const FilterBar({super.key});
 
   @override
   State<FilterBar> createState() => _FilterBarState();
 }
 
 class _FilterBarState extends State<FilterBar> {
-  final TextEditingController searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    searchController.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -283,39 +273,10 @@ class _FilterBarState extends State<FilterBar> {
     );
   }
 
-  // Widget _buildSearchBar(BuildContext context) {
-  //   return Container(
-  //     width: 200,
-  //     padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-  //     decoration: BoxDecoration(
-  //       // color: Colors.grey.shade300,
-  //       borderRadius: BorderRadius.circular(50),
-  //     ),
-  //     child: Row(
-  //       crossAxisAlignment: CrossAxisAlignment.end,
-  //       children: [
-  //         Expanded(
-  //           child: TextField(
-  //             controller: searchController,
-  //             onChanged: (value) {
-  //               context.read<ProductsProvider>().updateSearchQuery(value);
-  //             },
-  //             decoration: const InputDecoration(
-  //                 prefixIcon: Icon(Icons.search),
-  //                 border: InputBorder.none,
-  //                 hintText: "Search ..."),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _buildResetButton(BuildContext context) {
     return TextButton.icon(
       onPressed: () {
         context.read<ProductsProvider>().resetFilters();
-        searchController.clear();
       },
       icon: const Icon(Icons.refresh),
       label: const Text('Reset'),

@@ -1,6 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/models/ad.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AdSpace extends StatefulWidget {
   const AdSpace({super.key});
@@ -73,10 +75,20 @@ class _AdSpaceState extends State<AdSpace> {
               builder: (BuildContext context) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5.0),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                    decoration: BoxDecoration(
+                  child: InkWell(
+                    onTap: () {
+                      if (ad.url.isNotEmpty) {
+                        // open the ad url
+                        launchUrl(Uri.parse(ad.url));
+                      } else if (ad.storeID.isNotEmpty) {
+                        // open the store page
+                        context.go('/store/${ad.storeID}');
+                      }
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                      decoration: BoxDecoration(
                         color: Colors.white,
                         boxShadow: const [
                           BoxShadow(
@@ -88,8 +100,11 @@ class _AdSpaceState extends State<AdSpace> {
                         ],
                         image: DecorationImage(
                             image: NetworkImage(ad.image), fit: BoxFit.cover),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(16))),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(16),
+                        ),
+                      ),
+                    ),
                   ),
                 );
               },
