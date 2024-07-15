@@ -15,18 +15,15 @@ Future<void> handleUserData(BuildContext context) async {
   late User user;
   if (token == null) {
     user = await _createUser(context, null, fcmToken);
+    Provider.of<UserProvider>(context, listen: false).setUser(user);
+    Provider.of<SalesProvider>(context, listen: false).setUser(user);
   } else {
     user = await User.getUserWithJWT();
-    _updateUserData(context, user, fcmToken).then((value) =>
-        Provider.of<SalesProvider>(context, listen: false).setUser(user));
+    _updateUserData(context, user, fcmToken);
   }
-
-  Provider.of<UserProvider>(context, listen: false).setUser(user);
-  Provider.of<SalesProvider>(context, listen: false).setUser(user);
 }
 
-Future<User> _updateUserData(
-    BuildContext context, User user, String fcmToken) async {
+_updateUserData(BuildContext context, User user, String fcmToken) async {
   if (user.notificationToken != fcmToken ||
       user.address == null ||
       user.address == '') {
@@ -44,8 +41,8 @@ Future<User> _updateUserData(
       user = await User.updateUser(user);
     }
   }
-
-  return user;
+  Provider.of<UserProvider>(context, listen: false).setUser(user);
+  Provider.of<SalesProvider>(context, listen: false).setUser(user);
 }
 
 Future<User> _createUser(

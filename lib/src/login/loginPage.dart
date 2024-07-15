@@ -21,7 +21,8 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
   final _phoneController = TextEditingController();
   String? _verificationId;
 
-  bool _isLoading = true; // Loading state
+  bool _isLoading = false; // Loading state
+  String error = '';
 
   @override
   void dispose() {
@@ -41,13 +42,13 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
         const SnackBar(content: Text('Welcome back!')),
       );
 
+      _fetchOrdersAndNavigate();
+
       FirebaseAnalytics.instance.logLogin();
       FirebaseAnalytics.instance.setUserProperty(
         name: 'phone_number',
         value: _phoneController.text,
       );
-
-      _fetchOrdersAndNavigate();
     } catch (error) {
       print('Error handling user authentication: $error');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -55,11 +56,9 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
       );
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.remove('token');
-
-      _handleUserAuthentication();
     } finally {
       setState(() {
-        // _isLoading = false; // Hide loading indicator
+        _isLoading = false; // Hide loading indicator
       });
     }
   }
@@ -79,23 +78,33 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
   Future<void> _sendOTP() async {
     setState(() {
       _isLoading = true;
+      error = ''; // Clear previous error messages
     });
 
-    String _verification_id = await User.generateOTP(_phoneController.text);
-    setState(() {
-      _verificationId = _verification_id;
+    try {
+      String _verification_id = await User.generateOTP(_phoneController.text);
+      setState(() {
+        _verificationId = _verification_id;
+      });
 
-      _isLoading = false;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('OTP sent to ${_phoneController.text}')),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('OTP sent to ${_phoneController.text}')),
+      );
+    } catch (e) {
+      setState(() {
+        error = 'Failed to send OTP: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _verifyOTP(String otp) async {
     setState(() {
       _isLoading = true;
+      error = ''; // Clear previous error messages
     });
 
     try {
@@ -106,34 +115,36 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
         const SnackBar(content: Text('Successfully signed in!')),
       );
     } catch (error) {
-      print('Error verifying OTP: $error');
+      setState(() {
+        this.error = 'Error verifying OTP: $error';
+      });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$error')),
+        SnackBar(content: Text('Error verifying OTP: $error')),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override
   void initState() {
-    SharedPreferences.getInstance().then((prefs) {
-      String? token = prefs.getString('token');
-      if (token != null) {
-        _handleUserAuthentication();
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    });
-
     super.initState();
+    _checkExistingUser();
   }
 
-  String error = '';
+  Future<void> _checkExistingUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token != null) {
+      await _handleUserAuthentication();
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -160,22 +171,25 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                             height: 150,
                             width: 150,
                             decoration: BoxDecoration(
-                                // color: Colors.white,
-                                borderRadius: BorderRadius.circular(40),
-                                image: const DecorationImage(
-                                  image: AssetImage(
-                                      'assets/icons/Openzo User App final.png'),
-                                  fit: BoxFit.contain,
-                                )),
+                              borderRadius: BorderRadius.circular(40),
+                              image: const DecorationImage(
+                                image: AssetImage(
+                                    'assets/icons/Openzo User App final.png'),
+                                fit: BoxFit.contain,
+                              ),
+                            ),
                           ),
                           const Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: Text("Openzo - Super App for your locality",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white)),
+                            child: Text(
+                              "Openzo - Super App for your locality",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -230,7 +244,7 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                                       hintText: 'Enter your number',
                                       border: OutlineInputBorder(),
                                     ),
-                                  )
+                                  ),
                                 ] else
                                   const Text(
                                       "Enter OTP sent to your phone number"),
@@ -242,9 +256,7 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                                           borderRadius:
                                               BorderRadius.circular(10),
                                           numberOfFields: 6,
-
                                           textStyle: const TextStyle(
-                                            // color: Color(0xFFD9D9D9),
                                             fontSize: 20,
                                             fontFamily: 'Gilroy',
                                             fontWeight: FontWeight.w800,
@@ -252,15 +264,12 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                                           ),
                                           focusedBorderColor:
                                               GlobalStyle.primaryColor,
-                                          // borderColor
-
                                           showFieldAsBox: true,
                                           onCodeChanged: (String code) {},
                                           onSubmit: _verifyOTP,
                                         ),
                                       )
                                     : const SizedBox(),
-                                // const SizedBox(height: 16),
                                 _verificationId == null
                                     ? ElevatedButton(
                                         onPressed: () {
@@ -274,7 +283,6 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                                           _sendOTP();
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          // primary: Colors.redAccent,
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 16.0),
                                           shape: RoundedRectangleBorder(
@@ -296,7 +304,6 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                                           _verifyOTP(_verificationId!);
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          // primary: Colors.redAccent,
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 16.0),
                                           shape: RoundedRectangleBorder(
@@ -312,7 +319,6 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                                   style: TextStyle(color: Colors.black54),
                                   textAlign: TextAlign.center,
                                 ),
-                                // const SizedBox(height: 6),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [

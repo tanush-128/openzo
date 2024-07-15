@@ -30,6 +30,13 @@ class _StoreCardState extends State<StoreCard> {
     return InkWell(
       onTap: () {
         context.go('/store/${widget.store.id}');
+        // Navigator.push(context, MaterialPageRoute(
+        //   builder: (context) {
+        //     return WebViewC(
+        //         url:
+        //             "https://lnn7jf70-3000.inc1.devtunnels.ms/store/${widget.store.id}");
+        //   },
+        // ));
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8.0),

@@ -30,6 +30,10 @@ class _StorePageState extends State<StorePage>
   late Future<List<Product>> productData;
   late Future<Store> storeData;
   late TabController _tabController;
+
+  StoreType storeType = StoreType.store;
+  Store? store;
+
   int pageIndex = 0;
 
   @override
@@ -41,6 +45,7 @@ class _StorePageState extends State<StorePage>
     storeData.then((value) {
       setState(() {
         store = value;
+        if (store != null) storeType = store!.storeType;
       });
     });
     _tabController.addListener(() {
@@ -49,9 +54,6 @@ class _StorePageState extends State<StorePage>
       });
     });
   }
-
-  StoreType storeType = StoreType.store;
-  Store? store;
 
   @override
   Widget build(BuildContext context) {
@@ -90,15 +92,9 @@ class _StorePageState extends State<StorePage>
       builder: (context, salesProvider, child) {
         final Sale cart = salesProvider.getSaleByStoreId(widget.storeId);
 
-        storeType = GlobalConsts.categories
-            .firstWhere(
-              (element) => element.name == store?.category,
-              orElse: () => GlobalConsts.categories[0],
-            )
-            .type;
         return pageIndex == 0
             ? storeType == StoreType.service
-                ? _buildContactBottmBar(store?.phone ?? "")
+                ? _buildContactBottmBar(store, cart)
                 : _buildBottomNavigationBar(cart)
             : pageIndex == 1
                 ? AddReviewButton(storeId: widget.storeId)
@@ -161,17 +157,17 @@ class _StorePageState extends State<StorePage>
     );
   }
 
-  Widget _buildContactBottmBar(String mobile) {
+  Widget _buildContactBottmBar(Store? store, Sale cart) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ElevatedButton(
+          TextButton(
             onPressed: () {
               final Uri url = Uri(
                 scheme: 'tel',
-                path: mobile,
+                path: store?.phone,
               );
               launchUrl(
                 url,
@@ -181,14 +177,27 @@ class _StorePageState extends State<StorePage>
             child: const Row(
               children: [
                 Icon(Icons.call),
-                Text(
-                  'Contact Now',
-                ),
                 SizedBox(width: 5),
-                Icon(Icons.arrow_forward_outlined),
+                Text(
+                  'Contact',
+                ),
               ],
             ),
           ),
+          cart.orderItems.isNotEmpty
+              ? ElevatedButton(
+                  onPressed: () {
+                    context.go('/cart/${cart.id}');
+                  },
+                  child: const Row(
+                    children: [
+                      Text('View Booking'),
+                      SizedBox(width: 8),
+                      Icon(Icons.arrow_forward_outlined),
+                    ],
+                  ),
+                )
+              : const SizedBox.shrink(),
         ],
       ),
     );
@@ -299,12 +308,12 @@ class _StorePageState extends State<StorePage>
               //     final cart = value.getSaleByStoreId(widget.storeId);
               //   },
               // ),
-               _buildProductsList(),
+              _buildProductsList(),
               ReviewsList(
                 storeId: widget.storeId,
                 storeData: storeData,
               ),
-              PostList(),
+              const PostList(),
             ],
           );
         } else {
@@ -320,8 +329,7 @@ class _StorePageState extends State<StorePage>
       storeType: storeType,
       store: store,
       // cart: cart,
-      addableToCart:
-          (store?.selfDeliveryService ?? false),
+      addableToCart: (store?.selfDeliveryService ?? false),
     );
   }
 

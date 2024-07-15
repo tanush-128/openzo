@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/src/booking/bookingPage.dart';
 import 'package:openzo_frontend/src/bottom_navigation_bar.dart';
-import 'package:openzo_frontend/src/cart/cart_page.dart';
+import 'package:openzo_frontend/src/cart/cart_page/cart_page.dart';
 import 'package:openzo_frontend/src/categories_page.dart';
 import 'package:openzo_frontend/src/coming_soon_page.dart';
 import 'package:openzo_frontend/src/login/loginPage.dart';

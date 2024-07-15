@@ -28,6 +28,13 @@ ThemeData appTheme(BuildContext context) {
         ),
       ),
     ),
+    dialogTheme: DialogTheme(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+    ),
     // inputDecorationTheme: inputDecorationTheme,
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,

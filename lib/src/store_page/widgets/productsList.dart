@@ -13,14 +13,14 @@ import 'package:openzo_frontend/src/product/widgets/vertical_product_card.dart';
 import 'package:provider/provider.dart';
 
 class ProductsList extends StatefulWidget {
-  const ProductsList({
+  ProductsList({
     super.key,
     this.storeType,
     this.store,
     this.addableToCart = false,
   });
 
-  final StoreType? storeType;
+  StoreType? storeType;
   final Store? store;
   final bool addableToCart;
 
@@ -157,7 +157,13 @@ class _ProductsListState extends State<ProductsList> {
                 ));
       case StoreType.service:
         return _buildListView(
-            products, (product) => ServiceCard(product: product));
+          products,
+          // (product) => ServiceCard(product: product),
+          (product) => ServiceCard(
+            product: product,
+            // addableToCart: false,
+          ),
+        );
       default:
         return _buildGridView(products);
     }

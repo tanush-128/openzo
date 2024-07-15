@@ -23,7 +23,8 @@ class SalesProvider extends ChangeNotifier {
       if (order.status != "not_placed" &&
           order.status != "delivered" &&
           order.status != "rejected" &&
-          order.status != "cancelled") {
+          order.status != "cancelled" &&
+          order.status != "completed") {
         _placedOrders.add(order);
       }
 
@@ -43,7 +44,8 @@ class SalesProvider extends ChangeNotifier {
       .where((element) =>
           element.status == "delivered" ||
           element.status == "cancelled" ||
-          element.status == "rejected")
+          element.status == "rejected" ||
+          element.status == "completed")
       .toList();
 
   bool _fetching = true;
@@ -123,7 +125,8 @@ class SalesProvider extends ChangeNotifier {
   }
 
   Future<void> updateSaleOrderItems(Product product, SizeVariant? sizeVariant,
-      ColorVariant? colorVariant, int quantity) async {
+      ColorVariant? colorVariant, int quantity,
+      {bool isService = false}) async {
     if (quantity < 0) {
       return;
     }
@@ -133,18 +136,21 @@ class SalesProvider extends ChangeNotifier {
             .map((e) => e.storeId)
             .contains(product.storeID) ==
         false) {
-      await addSale(Sale(
-        orderItems: [
-          OrderItem(
-            productId: product.id,
-            quantity: quantity,
-            colorVariantId: colorVariant?.id,
-            sizeVariantId: sizeVariant?.id,
-          )
-        ],
-        totalAmount: product.discountPrice * quantity * 1.0,
-        storeId: product.storeID,
-      ));
+      await addSale(
+        Sale(
+          orderItems: [
+            OrderItem(
+              productId: product.id,
+              quantity: quantity,
+              colorVariantId: colorVariant?.id,
+              sizeVariantId: sizeVariant?.id,
+            )
+          ],
+          totalAmount: product.discountPrice * quantity * 1.0,
+          storeId: product.storeID,
+          type: isService ? "booking" : "online_order",
+        ),
+      );
       return;
     }
 
@@ -185,7 +191,8 @@ class SalesProvider extends ChangeNotifier {
         (element) => (element.storeId == storeId &&
             element.status != "delivered" &&
             element.status != "cancelled" &&
-            element.status != "rejected"),
+            element.status != "rejected" &&
+            element.status != "completed"),
         orElse: () => Sale(storeId: storeId));
   }
 

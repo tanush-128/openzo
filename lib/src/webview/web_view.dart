@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewC extends StatefulWidget {
-  const WebViewC({super.key});
+  String? url;
+  WebViewC({
+    super.key,
+    this.url,
+  });
 
   @override
   State<WebViewC> createState() => _WebViewCState();
@@ -63,7 +67,7 @@ class _WebViewCState extends State<WebViewC> {
       ),
     );
     controller.loadRequest(
-      Uri.parse('https://www.openzo.in'),
+      Uri.parse(widget.url ?? 'https://www.openzo.in'),
     );
   }
 

@@ -26,6 +26,7 @@ class Sale {
   String? tableId;
   int? occupants;
   String? note;
+  DateTime? bookingTime;
 
   Sale({
     this.id = "",
@@ -42,6 +43,7 @@ class Sale {
     this.tableId,
     this.occupants,
     this.note,
+    this.bookingTime,
   });
 
   Map<String, dynamic> toJson() {
@@ -61,6 +63,7 @@ class Sale {
       'table_id': tableId,
       'occupants': occupants,
       'note': note,
+      // 'booking_time': bookingTime?.to,
     };
   }
 
@@ -85,6 +88,7 @@ class Sale {
       tableId: json['table_id'],
       occupants: json['occupants'],
       note: json['note'],
+      bookingTime: DateTime.tryParse(json['booking_time'] ?? ""),
     );
   }
 
@@ -191,6 +195,9 @@ class Sale {
 
   static Future<Sale> updateSale(Sale sale) async {
     sale.orderTime = DateTime.now();
+    if (sale.bookingTime == null) {
+      sale.bookingTime = DateTime.now();
+    }
     final response = await http.put(
       Uri.parse('$endpoint/'),
       headers: <String, String>{

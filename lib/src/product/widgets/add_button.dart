@@ -46,6 +46,7 @@ class _AddButtonState extends State<AddButton> {
         selectedSize,
         selectedColor,
         quantity,
+        isService: widget.product.type == "service",
       );
     });
   }
@@ -57,64 +58,77 @@ class _AddButtonState extends State<AddButton> {
     if (addable) {
       return Row(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-            decoration: BoxDecoration(
-              border: Border.all(color: GlobalStyle.primaryColor, width: 0.75),
-              color: const Color.fromARGB(167, 245, 152, 172).withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: quantity != 0
-                ? Row(
-                    children: [
-                      InkWell(
-                        onTap: () => _updateQuantity(quantity - 1),
-                        child: const Padding(
-                          padding: EdgeInsets.only(
-                              top: 2, bottom: 2, right: 12, left: 2),
-                          child: Icon(
-                            Icons.remove,
-                            color: GlobalStyle.primaryColor,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                      Text('$quantity',
-                          style: const TextStyle(
-                            // color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          )),
-                      InkWell(
-                        onTap: () => _updateQuantity(quantity + 1),
-                        child: const Padding(
-                          padding: EdgeInsets.only(
-                              top: 2, bottom: 2, right: 2, left: 12),
-                          child: Icon(
-                            Icons.add,
-                            color: GlobalStyle.primaryColor,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                : InkWell(
-                    onTap: () => _updateQuantity(quantity + 1),
-                    child: const Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 2, horizontal: 12),
-                      child: Text(
-                        'ADD',
-                        style: TextStyle(
-                          color: GlobalStyle.primaryColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+          (quantity != 0 && widget.product.type == "service")
+              ? TextButton(
+                  onPressed: () {
+                    _updateQuantity(0);
+                  },
+                  child: const Text(
+                    "Selected",
+                    style: TextStyle(color: GlobalStyle.primaryColor),
+                  ))
+              : Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                        color: GlobalStyle.primaryColor, width: 0.75),
+                    color: const Color.fromARGB(167, 245, 152, 172)
+                        .withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-          ),
+                  child: quantity != 0
+                      ? Row(
+                          children: [
+                            InkWell(
+                              onTap: () => _updateQuantity(quantity - 1),
+                              child: const Padding(
+                                padding: EdgeInsets.only(
+                                    top: 2, bottom: 2, right: 12, left: 2),
+                                child: Icon(
+                                  Icons.remove,
+                                  color: GlobalStyle.primaryColor,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                            Text('$quantity',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                )),
+                            InkWell(
+                              onTap: () => _updateQuantity(quantity + 1),
+                              child: const Padding(
+                                padding: EdgeInsets.only(
+                                    top: 2, bottom: 2, right: 2, left: 12),
+                                child: Icon(
+                                  Icons.add,
+                                  color: GlobalStyle.primaryColor,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : InkWell(
+                          onTap: () => _updateQuantity(quantity + 1),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 2, horizontal: 12),
+                            child: Text(
+                              widget.product.type != "service"
+                                  ? 'ADD'
+                                  : "SELECT",
+                              style: const TextStyle(
+                                color: GlobalStyle.primaryColor,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                ),
         ],
       );
     } else {

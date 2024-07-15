@@ -1,0 +1,630 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:openzo_frontend/constants/constants.dart';
+import 'package:openzo_frontend/models/product.dart';
+import 'package:openzo_frontend/models/sale.dart';
+import 'package:openzo_frontend/models/store.dart';
+import 'package:openzo_frontend/models/user.dart';
+import 'package:openzo_frontend/providers/sales_provider.dart';
+import 'package:openzo_frontend/providers/user_provider.dart';
+import 'package:openzo_frontend/src/cart/cart_item.dart';
+import 'package:openzo_frontend/src/cart/cart_page/AddressBottomSheet.dart';
+import 'package:openzo_frontend/src/cart/cart_page/CartDetails.dart';
+import 'package:openzo_frontend/src/cart/cart_page/OrderStatus.dart';
+import 'package:openzo_frontend/src/cart/cart_page/kSeparator.dart';
+import 'package:openzo_frontend/src/cart/cart_page/styles.dart';
+import 'package:provider/provider.dart';
+
+class CartPage extends StatefulWidget {
+  static const String routeName = '/cart';
+  final String id;
+
+  const CartPage({super.key, required this.id});
+
+  @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  List<Product> products = [];
+  Store? store;
+  bool notPlaced = true;
+  String address = "";
+  String phone = "";
+
+  StoreType? storeType;
+  int deliveryCharge = 0;
+  TextEditingController noteController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    final cart = Provider.of<SalesProvider>(context, listen: false)
+        .onlineOrders
+        .firstWhere((element) => element.id == widget.id);
+
+    noteController.text = cart.note ?? "";
+
+    notPlaced = cart.status == 'not_placed';
+    Store.fetchStore(cart.storeId).then((value) {
+      setState(() {
+        store = value;
+
+        storeType = GlobalConsts.categories
+            .where((element) => element.name == store?.category)
+            .firstOrNull
+            ?.type;
+      });
+    });
+
+    if (cart.customer!.address == "") {
+      final User user = Provider.of<UserProvider>(context, listen: false).user;
+      address = user.address ?? "";
+      phone = user.phone;
+    } else {
+      address = cart.customer!.address;
+      phone = cart.customer!.phone;
+    }
+    Product.fetchMany(cart.storeId).then((value) {
+      setState(() {
+        products = value
+            .where((element) =>
+                cart.orderItems.map((e) => e.productId).contains(element.id))
+            .toList();
+      });
+    });
+  }
+
+  void editAddress(Sale cart) {
+    showAddressBottomSheet(context, address, phone, cart).then((value) {
+      if (value == null) return;
+      address = value['address'];
+      phone = value['phone'];
+      setState(() {});
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cart = Provider.of<SalesProvider>(context)
+        .onlineOrders
+        .firstWhere((element) => element.id == widget.id);
+
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      backgroundColor: Colors.grey.shade50,
+      appBar: AppBar(
+        title: Text(store?.name ?? ""),
+        centerTitle: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      bottomNavigationBar: _buildBottomBar(context, cart, notPlaced, store),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            OrderStatus(cart: cart, storeType: storeType),
+            _buildCanceledOrRejected(cart),
+            _buildStoreDetails(context),
+            _buildOrderItems(cart),
+            const SizedBox(height: 10),
+            _buildAddressDetails(cart, context),
+            _buildAddNote(context, cart),
+            if (store != null && store!.selfDeliveryService == false)
+              Container(
+                margin: const EdgeInsets.all(8),
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                decoration: kBoxDecoration,
+                child: const Center(
+                  child: Row(
+                    children: [
+                      Icon(Icons.error, color: Colors.red),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'This store does not provide delivery service',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            _buildDeleteButton(context, cart)
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddNote(BuildContext context, Sale cart) {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+      decoration: kBoxDecoration,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Add Note',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          // SizedBox(height: 6),
+          TextField(
+            minLines: 3,
+            controller: noteController,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              hintText: 'Add a note to your order',
+              border: OutlineInputBorder(
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 10),
+          TextButton(
+            onPressed: () {
+              cart.note = noteController.text;
+              Provider.of<SalesProvider>(context, listen: false)
+                  .updateSale(cart);
+            },
+            child: const Text("Save"),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeleteButton(BuildContext context, Sale cart) {
+    if (cart.status != "not_placed") {
+      return Container();
+    }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        TextButton.icon(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text("Delete Cart"),
+                    content: const Text(
+                        "Are you sure you want to delete this cart?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Provider.of<SalesProvider>(context, listen: false)
+                              .deleteSale(cart.id)
+                              .then((value) {});
+                          Navigator.pop(context);
+                          context.go("/");
+                        },
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            icon: const Icon(Icons.delete),
+            label: const Text("Delete Cart")),
+      ],
+    );
+  }
+
+  Container _buildOrderItems(Sale cart) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: kBoxDecoration,
+      clipBehavior: Clip.antiAlias,
+      child: ListView.builder(
+        itemCount: products.length,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          return CartItem(
+            product: products[index],
+            cart: cart,
+            addable: cart.status == 'not_placed',
+          );
+        },
+      ),
+    );
+  }
+
+  Container _buildStoreDetails(BuildContext context) {
+    return Container(
+      decoration: kBoxDecoration,
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(store?.name ?? "",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  )),
+              TextButton(
+                onPressed: () {
+                  context.go('/store/${store?.id}');
+                },
+                child: Text(notPlaced ? "Add More" : "View More"),
+              )
+            ],
+          ),
+          if (store != null &&
+              store?.phone != null &&
+              store?.phone != "" &&
+              notPlaced == false)
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      ImageIcon(
+                        const AssetImage('assets/icons/phone.png'),
+                        color: Colors.grey.shade700,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        "+91 ${store!.phone}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            )
+        ],
+      ),
+    );
+  }
+
+  Container _buildCanceledOrRejected(Sale cart) {
+    if (cart.status != "rejected" || cart.status != "cancelled") {
+      return Container();
+    }
+    return Container(
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+      decoration: kBoxDecoration.copyWith(
+        color: Colors.red,
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error, color: Colors.white),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              storeType != StoreType.service
+                  ? 'We are sorry , Store has cancelled the order'
+                  : 'We are sorry , Store has rejected the booking',
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget? _buildBottomBar(
+      BuildContext context, Sale cart, bool notPlaced, Store? store) {
+    if (cart.status != "not_placed") return null;
+
+    askForConfirmation() {
+      showDialog(
+        context: context,
+        builder: (context) {
+          // for order or booking confirmation
+          return AlertDialog(
+            title: Text(storeType != StoreType.service
+                ? 'Order Confirmation'
+                : 'Booking Confirmation'),
+            content: Text(storeType != StoreType.service
+                ? 'Are you sure you want to place this order?'
+                : 'Are you sure you want to book this service?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  cart.status = 'placed';
+
+                  Provider.of<SalesProvider>(context, listen: false)
+                      .updateSale(cart);
+
+                  setState(() {
+                    notPlaced = false;
+                  });
+                  Navigator.pop(context);
+                },
+                child: const Text('Confirm'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.all(10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              ImageIcon(
+                const AssetImage('assets/icons/bill.png'),
+                color: Colors.grey.shade500,
+                size: 18,
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                "Total Bill   ",
+                style: TextStyle(
+                  color: Colors.grey,
+                ),
+              ),
+              Text(
+                "₹${cart.totalAmount + deliveryCharge}",
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          if (store != null && store.selfDeliveryService)
+            storeType != StoreType.service
+                ? ElevatedButton(
+                    onPressed: () {
+                      if (phone == "" || address == "") {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                'Please enter your phone number and address'),
+                          ),
+                        );
+                        return;
+                      }
+
+                      askForConfirmation();
+                    },
+                    child: const Row(
+                      children: [
+                        Text('Place Order'),
+                        SizedBox(width: 10),
+                        Icon(Icons.arrow_forward),
+                      ],
+                    ),
+                  )
+                : ElevatedButton(
+                    onPressed: () {
+                      if (phone == "") {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please enter your phone number '),
+                          ),
+                        );
+                        return;
+                      }
+
+                      askForConfirmation();
+                    },
+                    child: const Row(
+                      children: [
+                        Text('Request Booking'),
+                      ],
+                    ),
+                  ),
+        ],
+      ),
+    );
+  }
+
+  Container _buildAddressDetails(Sale cart, BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
+      decoration: kBoxDecoration,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (storeType != StoreType.service)
+            Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ImageIcon(
+                      const AssetImage('assets/icons/Home.png'),
+                      color: Colors.grey.shade700,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          editAddress(cart);
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                Text(
+                                  "Delivery At :",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 18,
+                                  color: Colors.grey,
+                                  fill: 1,
+                                )
+                              ],
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              address,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const kSeparator(),
+              ],
+            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ImageIcon(
+                const AssetImage('assets/icons/phone.png'),
+                color: Colors.grey.shade700,
+                size: 18,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    editAddress(cart);
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "+91 $phone",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 18,
+                            color: Colors.grey,
+                            fill: 1,
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const kSeparator(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ImageIcon(
+                const AssetImage('assets/icons/bill.png'),
+                color: Colors.grey.shade500,
+                size: 18,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    showModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return CartDetails(cart: cart);
+                        });
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const Text(
+                              "Total Bill   ",
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                            Text(
+                              "₹${cart.totalAmount + deliveryCharge}",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 18,
+                        color: Colors.grey,
+                        fill: 1,
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

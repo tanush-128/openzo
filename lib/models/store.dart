@@ -108,6 +108,14 @@ class Store {
     this.reviewCount = 0,
   });
 
+  StoreType get storeType {
+    return GlobalConsts.categories
+            .where((element) => element.name == category)
+            .firstOrNull
+            ?.type ??
+        StoreType.service;
+  }
+
   static String endpoint = '${GlobalConsts.backend_url}/stores';
   // static String endpoint = 'https://lnn7jf70-8080.inc1.devtunnels.ms';
 
