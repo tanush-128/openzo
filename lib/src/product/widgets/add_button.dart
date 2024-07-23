@@ -9,10 +9,12 @@ import 'package:provider/provider.dart';
 class AddButton extends StatefulWidget {
   final Product product;
   final bool addableToCart;
-  const AddButton({
+  Sale? cart;
+  AddButton({
     super.key,
     required this.product,
     this.addableToCart = true,
+    this.cart,
   });
 
   @override
@@ -28,9 +30,14 @@ class _AddButtonState extends State<AddButton> {
   @override
   void initState() {
     super.initState();
+    late Sale cart;
+    if (widget.cart == null) {
+      cart = Provider.of<SalesProvider>(context, listen: false)
+          .getSaleByStoreId(widget.product.storeID);
+    } else {
+      cart = widget.cart!;
+    }
 
-    Sale cart = Provider.of<SalesProvider>(context, listen: false)
-        .getSaleByStoreId(widget.product.storeID);
     quantity = cart.orderItems
             .firstWhereOrNull((item) => item.productId == widget.product.id)
             ?.quantity ??

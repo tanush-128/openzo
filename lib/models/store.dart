@@ -116,6 +116,11 @@ class Store {
         StoreType.service;
   }
 
+  bool get campusDeliveryService {
+    return primaryCuisine == 'MIT Campus Only' ||
+        secondaryCuisine == 'MIT Campus Only';
+  }
+
   static String endpoint = '${GlobalConsts.backend_url}/stores';
   // static String endpoint = 'https://lnn7jf70-8080.inc1.devtunnels.ms';
 

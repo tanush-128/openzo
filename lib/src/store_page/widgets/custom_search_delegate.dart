@@ -30,10 +30,7 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    final List<Product> searchList = _list
-        .where((element) =>
-            element.name.toLowerCase().contains(query.toLowerCase()))
-        .toList();
+    final List<Product> searchList = getSearchResults();
     return ListView.builder(
       itemCount: searchList.length,
       itemBuilder: (context, index) {
@@ -44,15 +41,32 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final List<Product> searchList = _list
-        .where((element) =>
-            element.name.toLowerCase().contains(query.toLowerCase()))
-        .toList();
+    final List<Product> searchList = getSearchResults();
     return ListView.builder(
       itemCount: searchList.length,
       itemBuilder: (context, index) {
         return ProductCard(product: searchList[index]);
       },
     );
+  }
+
+  List<Product> getSearchResults() {
+    final fromNames = _list
+        .where((element) =>
+            element.name.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    final fromDescriptions = _list
+        .where((element) =>
+            element.description.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    final fromCategory = _list
+        .where((element) =>
+            element.category.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    final searchList = [...fromNames, ...fromDescriptions, ...fromCategory];
+    return searchList;
   }
 }

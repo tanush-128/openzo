@@ -124,7 +124,7 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                                 '₹ ${widget.product.mrp}',
                                 style: const TextStyle(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                       ],

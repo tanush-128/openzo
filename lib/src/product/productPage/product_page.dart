@@ -154,6 +154,7 @@ https://openzo.in/store/${product.storeID}/product/${product.id}
 
                   // Product Name
                   Container(
+                    width: MediaQuery.of(context).size.width,
                     padding: const EdgeInsets.all(16),
                     color: Colors.white,
                     child: Column(
@@ -168,12 +169,13 @@ https://openzo.in/store/${product.storeID}/product/${product.id}
                         const SizedBox(height: 6),
 
                         // Product Description
-                        Text(
-                          product.description,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-
-                        const SizedBox(height: 16),
+                        if (product.description != "") ...[
+                          Text(
+                            product.description,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
 
                         // Price
                         product.mrp != product.discountPrice
@@ -280,12 +282,10 @@ https://openzo.in/store/${product.storeID}/product/${product.id}
                   const Divider(),
 
                   const SizedBox(height: 4),
-                  SimilarProducts(
-                    product: product,
-                  ),
-                  const SizedBox(height: 4),
-
                   MoreBySameSeller(product: product),
+                  const SizedBox(height: 4),
+                  SimilarProducts(product: product),
+
                   const SizedBox(height: 16),
                 ],
               ),

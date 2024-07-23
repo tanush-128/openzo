@@ -22,7 +22,7 @@ class MainCategories extends StatelessWidget {
         const MainCategoryTile(title: 'Services', route: '/home-services'),
         const MainCategoryTile(title: 'Hotel rooms', route: '/hotel-rooms'),
         // const MainCategoryTile(title: 'Food'),
-        const MainCategoryTile(title: 'Ride hire', route: '/ride-hire'),
+        const MainCategoryTile(title: 'MIT Campus only', route: '/campus-only'),
         InkWell(
           onTap: () {
             context.go('/category');

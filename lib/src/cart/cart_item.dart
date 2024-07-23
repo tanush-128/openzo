@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
+import 'package:openzo_frontend/providers/sales_provider.dart';
 import 'package:openzo_frontend/src/product/widgets/add_button.dart';
+import 'package:provider/provider.dart';
 
 class CartItem extends StatefulWidget {
   final Product product;
@@ -23,12 +25,21 @@ class CartItem extends StatefulWidget {
 }
 
 class _CartItemState extends State<CartItem> {
-  int quantity = 0;
   SizeVariant? selectedSize;
   ColorVariant? selectedColor;
 
   @override
   Widget build(BuildContext context) {
+    int quantity = Provider.of<SalesProvider>(context)
+            .onlineOrders
+            .where((element) => element.id == widget.cart?.id)
+            .first
+            .orderItems
+            .where((element) => element.productId == widget.product.id)
+            .firstOrNull
+            ?.quantity ??
+        0;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -82,8 +93,8 @@ class _CartItemState extends State<CartItem> {
                             if (widget.product.type != "food")
                               AddButton(
                                 product: widget.product,
-                               
-                                addableToCart: widget.addableToCart,
+
+                                // addableToCart: widget.addable,
                               ),
                           ],
                         ),
@@ -99,8 +110,8 @@ class _CartItemState extends State<CartItem> {
                     children: [
                       AddButton(
                         product: widget.product,
-                       
-                        addableToCart: widget.addableToCart,
+                        cart: widget.cart,
+                        // addableToCart: widget.addable,
                       ),
                       const SizedBox(height: 8),
                       Text(

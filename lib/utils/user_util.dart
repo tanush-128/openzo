@@ -28,10 +28,7 @@ _updateUserData(BuildContext context, User user, String fcmToken) async {
       user.address == null ||
       user.address == '') {
     Position? position = await getLocation(context);
-    if (position == null) {
-      print('Location permission not granted');
-      position = await showLocationPermissionBottomSheet(context);
-    }
+    position ??= await showLocationPermissionBottomSheet(context);
 
     user.notificationToken = fcmToken;
 
@@ -48,10 +45,7 @@ _updateUserData(BuildContext context, User user, String fcmToken) async {
 Future<User> _createUser(
     BuildContext context, String? phone, String fcmToken) async {
   Position? position = await getLocation(context);
-  if (position == null) {
-    print('Location permission not granted');
-    position = await showLocationPermissionBottomSheet(context);
-  }
+  position ??= await showLocationPermissionBottomSheet(context);
   if (position != null) {
     User user = User(
       id: '',

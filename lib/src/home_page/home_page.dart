@@ -34,7 +34,7 @@ class HomePage extends StatelessWidget {
                   const SizedBox(height: 10),
                   const Separator(title: "RECOMMENDED STORES"),
                   const SizedBox(height: 20),
-                  // _buildStoresList(),
+
                   StoresList(
                     future: Store.getStoresWithPincode("123456"),
                   ),

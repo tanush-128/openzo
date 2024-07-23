@@ -120,7 +120,7 @@ class User {
   }
 
   static Future<String> verifyOTP(
-      String mobile, String verification_id, String otp, String used_id) async {
+      String mobile, String verificationID, String otp, String userID) async {
     http.Response res = await http.post(Uri.parse('$endpoint/otp/verify'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -128,8 +128,8 @@ class User {
         body: jsonEncode({
           'phone_no': mobile,
           'otp': otp,
-          'verification_id': verification_id,
-          'user_id': used_id,
+          'verification_id': verificationID,
+          'user_id': userID,
         }));
     if (res.statusCode == 200) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -172,6 +172,7 @@ class User {
       'country': country,
       'notification_token': notificationToken,
       'is_verified': isVerified,
+      'password': '',
     };
   }
 }

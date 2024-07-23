@@ -30,7 +30,7 @@ class _SimilarProductsState extends State<SimilarProducts> {
             ),
           ),
           Container(
-            height: 355,
+            height: MediaQuery.of(context).size.width * 0.5 + 100,
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
             ),

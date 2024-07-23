@@ -127,6 +127,19 @@ class AppRouter {
                       );
                     }),
                 GoRoute(
+                  path: 'campus-only',
+                  builder: (context, state) {
+                    return StoresByCategory(
+                      category: GlobalConsts.categories.firstWhere(
+                          (element) => element.name == 'Food',
+                          orElse: () => GlobalConsts.categories.first),
+                      deliveryOnly: true,
+                      showSubCategories: false,
+                      campusOnly: true,
+                    );
+                  },
+                ),
+                GoRoute(
                   path: 'cart/:storeID',
                   builder: (context, state) =>
                       CartPage(id: state.pathParameters['storeID'] ?? ''),

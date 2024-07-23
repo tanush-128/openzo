@@ -23,9 +23,10 @@ import 'src/app.dart';
 // used to pass messages from event handler to the UI
 final messageStreamController = BehaviorSubject<RemoteMessage>();
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  // showNotification(message);
 
   if (kDebugMode) {
+    print("Handler in main.dart");
     print("Handling a background message: ${message.messageId}");
     print('Message data: ${message.data}');
     print('Message notification: ${message.notification?.title}');
@@ -38,6 +39,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   AwesomeNotifications().initialize(
       null,
@@ -59,7 +61,7 @@ Future<void> main() async {
           vibrationPattern: Int64List.fromList([1000, 1000, 2000, 1000, 3000]),
           // soundSource: "resource://raw/res_custom_notification",
           // playSound: true,
-          // enableVibration: true,
+          // enableVibration: true,ss
         )
       ],
       // Channel groups are only visual and are not required
@@ -75,7 +77,14 @@ Future<void> main() async {
       AwesomeNotifications().requestPermissionToSendNotifications();
     }
   });
+
   final messaging = FirebaseMessaging.instance;
+
+  messaging.setForegroundNotificationPresentationOptions(
+    alert: true, // Required to display a heads up notification
+    badge: true,
+    sound: true,
+  );
 
   String? token = await messaging.getToken();
   log('Token: $token');
@@ -84,8 +93,6 @@ Future<void> main() async {
   if (kDebugMode) {
     print('Registration Token=$token');
   }
-
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(MultiProvider(
     providers: [

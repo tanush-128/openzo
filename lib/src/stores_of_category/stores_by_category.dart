@@ -3,7 +3,8 @@ import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/store.dart';
-import 'package:openzo_frontend/src/home_page/widgets/stores_list.dart';
+import 'package:openzo_frontend/src/home_page/widgets/store_card.dart';
+import 'package:openzo_frontend/src/home_page/widgets/store_card_skeleton.dart';
 
 class StoresByCategory extends StatefulWidget {
   Category category;
@@ -11,12 +12,15 @@ class StoresByCategory extends StatefulWidget {
   bool showSubCategories = true;
   bool deliveryOnly = false;
   bool delivery = false;
+  bool campusOnly = false;
   StoresByCategory({
     super.key,
     required this.category,
     this.subCategory,
     this.showSubCategories = true,
     this.deliveryOnly = false,
+    this.delivery = false,
+    this.campusOnly = false,
   });
 
   @override
@@ -50,7 +54,7 @@ class _StoresByCategoryState extends State<StoresByCategory> {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              title: GlobalSearchBar(),
+              title: const GlobalSearchBar(),
               leadingWidth: 20,
               pinned: !widget.showSubCategories,
             ),
@@ -100,13 +104,70 @@ class _StoresByCategoryState extends State<StoresByCategory> {
             SliverToBoxAdapter(
               child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: StoresList(
+                  child: FutureBuilder<List<Store>>(
                     future: subCategory != null
                         ? Store.getStoreByPincodeAndSubCategory(
                             '123456', subCategory!.name)
                         : Store.getStoreByPincodeAndCategory(
                             '123456', widget.category.name),
-                  )),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: 5, // Number of skeleton cards
+                          itemBuilder: (context, index) =>
+                              const StoreCardSkeleton(),
+                        );
+                      }
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(snapshot.error.toString(),
+                              style: const TextStyle(color: Colors.red)),
+                        );
+                      }
+                      if (snapshot.data == null || snapshot.data!.isEmpty) {
+                        return const Center(
+                          child: Text('No stores found'),
+                        );
+                      }
+
+                      List<Store> stores = snapshot.data!;
+
+                      if (widget.deliveryOnly) {
+                        stores = stores
+                            .where((element) => element.selfDeliveryService)
+                            .toList();
+                      }
+                      if (widget.campusOnly) {
+                        stores = stores
+                            .where((element) => element.campusDeliveryService)
+                            .toList();
+                      } else {
+                        stores = stores
+                            .where((element) =>
+                                element.campusDeliveryService == false)
+                            .toList();
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: stores.length,
+                        itemBuilder: (context, index) {
+                          return StoreCard(store: stores[index]);
+                        },
+                      );
+                    },
+                  )
+                  //  StoresList(
+                  //   future: subCategory != null
+                  //       ? Store.getStoreByPincodeAndSubCategory(
+                  //           '123456', subCategory!.name)
+                  //       : Store.getStoreByPincodeAndCategory(
+                  //           '123456', widget.category.name),
+                  // ),
+                  ),
             )
           ],
         ),

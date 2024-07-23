@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/main.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
@@ -71,7 +74,9 @@ class NotificationController {
   /// Use this method to detect when the user taps on a notification or action button
   @pragma("vm:entry-point")
   static Future<void> onActionReceivedMethod(
-      ReceivedAction receivedAction) async {}
+      ReceivedAction receivedAction) async {
+    // GoRouter.of(receivedAction.).go('/orders');
+  }
 }
 
 /// The Widget that configures your application.
@@ -88,7 +93,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       showNotification(message);
@@ -97,6 +102,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       }
       messageStreamController.sink.add(message);
     });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      if (kDebugMode) {
+        print('A new onMessageOpenedApp event was published!');
+      }
+      String? orderId = message.data['order_id'];
+      if (orderId != null) {
+        _appRouter.router.go("/cart/$orderId");
+      }
+      messageStreamController.sink.add(message);
+    });
+
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (kDebugMode) {
         print('Handling a foreground message: ${message.messageId}');
@@ -115,14 +132,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       messageStreamController.sink.add(message);
     });
+
     AwesomeNotifications().setListeners(
-        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+        onActionReceivedMethod: (receivedAction) async {
+          String? orderId = receivedAction.payload?["order_id"];
+          log("Order Id :${orderId}");
+          _appRouter.router.go("/cart/$orderId");
+        },
         onNotificationCreatedMethod:
             NotificationController.onNotificationCreatedMethod,
         onNotificationDisplayedMethod:
             NotificationController.onNotificationDisplayedMethod,
         onDismissActionReceivedMethod:
             NotificationController.onDismissActionReceivedMethod);
+
     super.initState();
   }
 
