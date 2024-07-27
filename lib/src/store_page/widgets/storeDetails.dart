@@ -125,8 +125,10 @@ class StoreDetails extends StatelessWidget {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          Image.asset('lib/icons/schedule.png',
-                                              width: 20, height: 20),
+                                          Image.asset(
+                                              'assets/icons/schedule.png',
+                                              width: 20,
+                                              height: 20),
                                           const SizedBox(width: 5),
                                           Text(
                                             '${store.openingTime} - ${store.closingTime}',

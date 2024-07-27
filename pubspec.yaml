@@ -4,7 +4,7 @@ description: A new Flutter project.
 # Prevent accidental publishing to pub.dev.
 publish_to: "none"
 
-version: 1.0.0+7
+version: 1.0.0+8
 
 environment:
   sdk: ">=3.1.1 <4.0.0"
@@ -89,7 +89,7 @@ flutter:
     - assets/images/Categories page/Stores/
     - assets/images/Categories page/Explore/
     
-    - lib/icons/
+    
     # - assets/images/Categories page/
     
 

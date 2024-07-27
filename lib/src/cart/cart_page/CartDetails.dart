@@ -3,7 +3,7 @@ import 'package:openzo_frontend/models/sale.dart';
 
 class CartDetails extends StatefulWidget {
   final Sale cart;
-  CartDetails({super.key, required this.cart});
+  const CartDetails({super.key, required this.cart});
 
   @override
   State<CartDetails> createState() => _CartDetailsState();

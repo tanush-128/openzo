@@ -13,6 +13,7 @@ import 'package:openzo_frontend/src/cart/cart_page/CartDetails.dart';
 import 'package:openzo_frontend/src/cart/cart_page/OrderStatus.dart';
 import 'package:openzo_frontend/src/cart/cart_page/kSeparator.dart';
 import 'package:openzo_frontend/src/cart/cart_page/styles.dart';
+import 'package:openzo_frontend/src/cart/cart_page/succes_page.dart';
 import 'package:provider/provider.dart';
 
 class CartPage extends StatefulWidget {
@@ -348,7 +349,7 @@ class _CartPageState extends State<CartPage> {
     askForConfirmation() {
       showDialog(
         context: context,
-        builder: (context) {
+        builder: (context2) {
           // for order or booking confirmation
           return AlertDialog(
             title: Text(storeType != StoreType.service
@@ -360,7 +361,7 @@ class _CartPageState extends State<CartPage> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context2);
                 },
                 child: const Text('Cancel'),
               ),
@@ -374,7 +375,10 @@ class _CartPageState extends State<CartPage> {
                   setState(() {
                     notPlaced = false;
                   });
-                  Navigator.pop(context);
+                  Navigator.pop(context2);
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return SuccessPage(sale: cart);
+                  }));
                 },
                 child: const Text('Confirm'),
               ),
@@ -414,6 +418,7 @@ class _CartPageState extends State<CartPage> {
               ),
             ],
           ),
+          const SizedBox(width: 10),
           if (store != null && store.selfDeliveryService)
             storeType != StoreType.service
                 ? ElevatedButton(

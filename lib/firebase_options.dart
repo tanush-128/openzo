@@ -85,5 +85,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'openzo-rt.appspot.com',
     measurementId: 'G-KX7YVEY757',
   );
-
 }

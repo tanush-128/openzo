@@ -319,20 +319,6 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                                   style: TextStyle(color: Colors.black54),
                                   textAlign: TextAlign.center,
                                 ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text('Skip for now'),
-                                    TextButton(
-                                      onPressed: () async {
-                                        await _handleUserAuthentication();
-                                      },
-                                      child: const Text(
-                                        'Continue as guest',
-                                      ),
-                                    ),
-                                  ],
-                                ),
                                 const SizedBox(height: 20),
                               ],
                             ),

@@ -14,7 +14,6 @@ class MainCategories extends StatelessWidget {
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4, mainAxisSpacing: 15),
       children: [
-        
         const MainCategoryTile(title: 'Food delivery', route: '/food-delivery'),
         const MainCategoryTile(title: 'Service stores', route: '/services'),
         const MainCategoryTile(title: 'Stores', route: '/stores'),
@@ -22,7 +21,6 @@ class MainCategories extends StatelessWidget {
             title: 'Grocery delivery', route: '/grocery-delivery'),
         const MainCategoryTile(title: 'Services', route: '/home-services'),
         const MainCategoryTile(title: 'Hotel rooms', route: '/hotel-rooms'),
-        // const MainCategoryTile(title: 'Food'),
         const MainCategoryTile(title: 'MIT Campus only', route: '/campus-only'),
         InkWell(
           onTap: () {
