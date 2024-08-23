@@ -26,18 +26,42 @@ class HomePage extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate(
                 [
-                  const Separator(title: "EXPLORE"),
+                  const Separator(
+                    title: "EXPLORE",
+                    padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                  ),
                   const MainCategories(),
-                  const SizedBox(height: 20),
+                  // const SizedBox(height: 20),
+
+                  const Separator(title: "Services you might like"),
+                  const SizedBox(height: 10),
+
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildBanner(
+                            '/food-delivery', "Food Delivery.GS", context),
+                        _buildBanner('/grocery-delivery', "Grocery Delivery.GS",
+                            context),
+                        _buildBanner(
+                            '/home-services', "Home Services.GS", context),
+                        _buildBanner('/campus-only', "MIT.GS", context),
+                        _buildBanner('/stores', "Shop.GS", context),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
                   const Separator(title: "ADS"),
                   const AdSpace(),
-                  const SizedBox(height: 10),
-                  const Separator(title: "RECOMMENDED STORES"),
+                  // const Separator(title: "RECOMMENDED STORES"),
+                  // const SizedBox(height: 20),
                   const SizedBox(height: 20),
-
                   StoresList(
-                    future: Store.getStoresWithPincode("123456"),
+                    future: Store.getStoresWithPincode("576104"),
                   ),
+
                   const SizedBox(height: 20),
                   const Separator(title: "END OF HOME"),
                 ],
@@ -49,17 +73,46 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  Widget _buildBanner(String route, String image, BuildContext context) {
+    return InkWell(
+      onTap: () {
+        context.go(route);
+      },
+      child: Container(
+        height: MediaQuery.of(context).size.width * 0.6,
+        width: MediaQuery.of(context).size.width * 0.6,
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/Graphic Slides/$image.png"),
+              fit: BoxFit.cover,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 7,
+                offset: const Offset(0, 3), // changes position of shadow
+              ),
+            ]),
+      ),
+    );
+  }
+
   SliverAppBar _builSliverAppBar(BuildContext context) {
     return SliverAppBar(
       leadingWidth: 0,
-      expandedHeight: 200,
+      expandedHeight: 140,
       pinned: true,
       centerTitle: true,
-      collapsedHeight: 80,
+      collapsedHeight: 70,
       flexibleSpace: FlexibleSpaceBar(
         title: const GlobalSearchBar(),
         centerTitle: true,
-        titlePadding: const EdgeInsets.all(12),
+        titlePadding:
+            const EdgeInsets.only(left: 12, right: 12, bottom: 12, top: 4),
         expandedTitleScale: 1,
         background: Container(
           decoration: const BoxDecoration(
@@ -91,7 +144,7 @@ class HomePage extends StatelessWidget {
                                   "Explore your locality",
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 22,
+                                    fontSize: 20,
                                     fontWeight: FontWeight.w900,
                                   ),
                                 ),

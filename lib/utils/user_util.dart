@@ -19,7 +19,7 @@ Future<void> handleUserData(BuildContext context) async {
     Provider.of<SalesProvider>(context, listen: false).setUser(user);
   } else {
     user = await User.getUserWithJWT();
-    _updateUserData(context, user, fcmToken);
+    await _updateUserData(context, user, fcmToken);
   }
 }
 

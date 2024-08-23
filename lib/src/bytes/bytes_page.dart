@@ -17,7 +17,7 @@ class _BytesPageState extends State<BytesPage> {
         title: const Text('Local Bytes'),
       ),
       body: FutureBuilder(
-          future: Product.fetchPostByPincode("123456"),
+          future: Product.fetchPostByPincode("576104"),
           builder: (BuildContext context, AsyncSnapshot<List<Post>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(

@@ -73,7 +73,7 @@ class Store {
   int? tableCount;
   int? seatingCapacity;
   bool? reserveTableOnline;
-
+  int deliveryCharge;
   double rating;
   int reviewCount;
 
@@ -106,6 +106,7 @@ class Store {
     this.reserveTableOnline,
     this.rating = 0.0,
     this.reviewCount = 0,
+    this.deliveryCharge = 0,
   });
 
   StoreType get storeType {
@@ -147,7 +148,7 @@ class Store {
 
   static Future<List<Store>> getStoresWithPincode(String pincode) async {
     var response = await http
-        .get(Uri.parse('$endpoint/pincode/123456'), headers: <String, String>{
+        .get(Uri.parse('$endpoint/pincode/576104'), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     });
 // 'Authorization': GlobalConsts.token,
@@ -183,7 +184,6 @@ class Store {
       return [];
     }
   }
-  // router.GET("/pincode/:pincode/subcategory/:sub_category", handler.GetStoresByPincodeAndSubCategory)
 
   static Future<List<Store>> getStoreByPincodeAndSubCategory(
       String pincode, String subCategory) async {
@@ -251,6 +251,7 @@ class Store {
       reserveTableOnline: json['reserve_table_online'],
       rating: double.parse(json['rating'].toString()),
       reviewCount: int.parse(json['review_count'].toString()),
+      deliveryCharge: json['delivery_charge'] ?? 0,
     );
   }
 }

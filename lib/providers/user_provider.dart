@@ -15,6 +15,8 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  bool get loggedIn => _user.id.isNotEmpty;
+
   Future<void> logout() async {
     _user = User(
       id: "",

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/user.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
+import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/src/login/loading_screen.dart';
 import 'package:openzo_frontend/utils/user_util.dart';
 import 'package:provider/provider.dart';
@@ -52,7 +53,7 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
     } catch (error) {
       print('Error handling user authentication: $error');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to handle user authentication: $error')),
+        const SnackBar(content: Text('There was an error signing in')),
       );
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.remove('token');
@@ -66,11 +67,19 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
   _fetchOrdersAndNavigate() {
     try {
       Provider.of<SalesProvider>(context, listen: false).getOrders();
-      context.go('/');
+      User user = Provider.of<UserProvider>(context, listen: false).user;
+
+      if (user.id.isNotEmpty) {
+        if (user.name == null || user.name!.isEmpty) {
+          context.go('/name-reg');
+        } else {
+          context.go('/');
+        }
+      }
     } catch (error) {
       print('Error fetching orders: $error');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to fetch orders: $error')),
+        const SnackBar(content: Text('Failed to fetch orders')),
       );
     }
   }
@@ -119,7 +128,7 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
         this.error = 'Error verifying OTP: $error';
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error verifying OTP: $error')),
+        const SnackBar(content: Text('Error verifying OTP')),
       );
     } finally {
       setState(() {
@@ -130,6 +139,7 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
     _checkExistingUser();
   }
@@ -140,14 +150,21 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
     if (token != null) {
       await _handleUserAuthentication();
     } else {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    User user = Provider.of<UserProvider>(context).user;
+
+    if (user.id.isNotEmpty) {
+      if (user.name == null || user.name!.isEmpty) {
+        context.go('/name-reg');
+      } else {
+        context.go('/');
+      }
+    }
     return _isLoading
         ? const LoadingScreen()
         : Scaffold(
@@ -240,14 +257,23 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                                     controller: _phoneController,
                                     keyboardType: TextInputType.phone,
                                     decoration: const InputDecoration(
+                                      prefix: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 8.0),
+                                        child: Text('+91'),
+                                      ),
                                       labelText: 'Phone Number',
                                       hintText: 'Enter your number',
                                       border: OutlineInputBorder(),
                                     ),
                                   ),
                                 ] else
-                                  const Text(
-                                      "Enter OTP sent to your phone number"),
+                                  Text(
+                                      "Enter OTP sent to +91 ${_phoneController.text}",
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      )),
                                 const SizedBox(height: 16),
                                 _verificationId != null
                                     ? Padding(
@@ -255,7 +281,7 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                                         child: OtpTextField(
                                           borderRadius:
                                               BorderRadius.circular(10),
-                                          numberOfFields: 6,
+                                          numberOfFields: 4,
                                           textStyle: const TextStyle(
                                             fontSize: 20,
                                             fontFamily: 'Gilroy',
@@ -313,12 +339,6 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                                         ),
                                         child: const Text('Verify OTP'),
                                       ),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  'OR',
-                                  style: TextStyle(color: Colors.black54),
-                                  textAlign: TextAlign.center,
-                                ),
                                 const SizedBox(height: 20),
                               ],
                             ),

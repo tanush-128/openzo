@@ -93,8 +93,6 @@ class _CartItemState extends State<CartItem> {
                             if (widget.product.type != "food")
                               AddButton(
                                 product: widget.product,
-
-                                // addableToCart: widget.addable,
                               ),
                           ],
                         ),

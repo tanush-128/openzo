@@ -31,12 +31,9 @@ class _AddButtonState extends State<AddButton> {
   void initState() {
     super.initState();
     late Sale cart;
-    if (widget.cart == null) {
-      cart = Provider.of<SalesProvider>(context, listen: false)
-          .getSaleByStoreId(widget.product.storeID);
-    } else {
-      cart = widget.cart!;
-    }
+
+    cart = Provider.of<SalesProvider>(context, listen: false)
+        .getSaleByStoreId(widget.product.storeID);
 
     quantity = cart.orderItems
             .firstWhereOrNull((item) => item.productId == widget.product.id)
@@ -60,6 +57,22 @@ class _AddButtonState extends State<AddButton> {
 
   @override
   Widget build(BuildContext context) {
+    late Sale cart;
+    if (widget.cart != null && widget.cart!.id.isNotEmpty) {
+      cart = Provider.of<SalesProvider>(context, listen: false)
+          .onlineOrders
+          .where((element) => element.id == widget.cart?.id)
+          .first;
+    } else {
+      cart = Provider.of<SalesProvider>(context, listen: false)
+          .getSaleByStoreId(widget.product.storeID);
+    }
+
+    quantity = cart.orderItems
+            .firstWhereOrNull((item) => item.productId == widget.product.id)
+            ?.quantity ??
+        0;
+    addable = cart.status == "not_placed";
     if (!widget.addableToCart) return const SizedBox();
 
     if (addable) {

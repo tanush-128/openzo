@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/models/user.dart';
 import 'package:openzo_frontend/providers/user_provider.dart';
+import 'package:openzo_frontend/src/user/all_orders.dart';
 import 'package:provider/provider.dart';
 
 class AccountPage extends StatefulWidget {
@@ -96,14 +97,14 @@ class _AccountPageState extends State<AccountPage> {
                             ),
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.edit,
-                            size: 18,
-                            color: Colors.grey.shade500,
-                          ),
-                          onPressed: () {},
-                        ),
+                        // IconButton(
+                        //   icon: Icon(
+                        //     Icons.edit,
+                        //     size: 18,
+                        //     color: Colors.grey.shade500,
+                        //   ),
+                        //   onPressed: () {},
+                        // ),
                       ],
                     )),
               ),
@@ -128,15 +129,20 @@ class _AccountPageState extends State<AccountPage> {
                     children: [
                       //orders
                       _buildInfoRow(
-                          const Icon(
-                            Icons.shopping_bag_outlined,
-                          ),
-                          "Your Orders"),
-                      _buildInfoRow(
-                          const Icon(
-                            Icons.add_location_alt_outlined,
-                          ),
-                          "Address Book"),
+                        const Icon(
+                          Icons.shopping_bag_outlined,
+                        ),
+                        "Your Orders",
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const AllOrdersPage()));
+                        },
+                      ),
+                      // _buildInfoRow(
+                      //     const Icon(
+                      //       Icons.add_location_alt_outlined,
+                      //     ),
+                      //     "Address Book"),
                     ],
                   ),
                 ),

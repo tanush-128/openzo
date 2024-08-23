@@ -46,8 +46,13 @@ class GlobalSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    Product.searchProducts("123456", query).then((value) => products = value);
-    Store.searchStores("123456", query).then((value) => stores = value);
+    if (query != '' &&
+        query.isNotEmpty &&
+        query.length > 2 &&
+        query.trim().length > 2) {
+      Product.searchProducts("576104", query).then((value) => products = value);
+      Store.searchStores("576104", query).then((value) => stores = value);
+    }
 
     return products.isNotEmpty || stores.isNotEmpty
         ? Container(

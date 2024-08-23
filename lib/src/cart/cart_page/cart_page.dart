@@ -59,7 +59,7 @@ class _CartPageState extends State<CartPage> {
 
     if (cart.customer!.address == "") {
       final User user = Provider.of<UserProvider>(context, listen: false).user;
-      address = user.address ?? "";
+      // address = user.address ?? "";
       phone = user.phone;
     } else {
       address = cart.customer!.address;
@@ -238,17 +238,21 @@ class _CartPageState extends State<CartPage> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: kBoxDecoration,
       clipBehavior: Clip.antiAlias,
-      child: ListView.builder(
-        itemCount: products.length,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemBuilder: (context, index) {
-          return CartItem(
-            product: products[index],
-            cart: cart,
-            addable: cart.status == 'not_placed',
-          );
-        },
+      child: Column(
+        children: [
+          ListView.builder(
+            itemCount: products.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              return CartItem(
+                product: products[index],
+                cart: cart,
+                addable: cart.status == "not_placed",
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -379,6 +383,10 @@ class _CartPageState extends State<CartPage> {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return SuccessPage(sale: cart);
                   }));
+
+                  setState(() {
+                    notPlaced = false;
+                  });
                 },
                 child: const Text('Confirm'),
               ),
@@ -409,7 +417,7 @@ class _CartPageState extends State<CartPage> {
                 ),
               ),
               Text(
-                "₹${cart.totalAmount + deliveryCharge}",
+                "₹${cart.totalAmount + (store?.deliveryCharge ?? 0)}",
                 style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 15,
@@ -456,6 +464,8 @@ class _CartPageState extends State<CartPage> {
 
                       askForConfirmation();
                     },
+                    style:
+                        ElevatedButton.styleFrom(padding: EdgeInsets.all(12)),
                     child: const Row(
                       children: [
                         Text('Request Booking'),
@@ -590,7 +600,10 @@ class _CartPageState extends State<CartPage> {
                     showModalBottomSheet(
                         context: context,
                         builder: (context) {
-                          return CartDetails(cart: cart);
+                          return CartDetails(
+                            cart: cart,
+                            deliveryCharge: store?.deliveryCharge ?? 0,
+                          );
                         });
                   },
                   child: Row(
@@ -606,7 +619,7 @@ class _CartPageState extends State<CartPage> {
                               ),
                             ),
                             Text(
-                              "₹${cart.totalAmount + deliveryCharge}",
+                              "₹${cart.totalAmount + (store?.deliveryCharge ?? 0)}",
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,

@@ -18,18 +18,20 @@ Future<dynamic> showAddressBottomSheet(
     builder: (context) {
       return NewWidget(
           addressController: addressController,
-          phoneController: phoneController);
+          phoneController: phoneController,
+          cart: cart);
     },
   );
 }
 
 class NewWidget extends StatefulWidget {
-  const NewWidget({
+  NewWidget({
     super.key,
     required this.addressController,
     required this.phoneController,
+    required this.cart,
   });
-
+  Sale cart;
   final TextEditingController addressController;
   final TextEditingController phoneController;
 
@@ -90,6 +92,7 @@ class _NewWidgetState extends State<NewWidget> {
 
   @override
   Widget build(BuildContext context) {
+    bool editable = widget.cart.status == "not_placed";
     return Theme(
       data: Theme.of(context).copyWith(
         inputDecorationTheme: inputDecorationTheme,
@@ -138,6 +141,8 @@ class _NewWidgetState extends State<NewWidget> {
                   children: [
                     TextField(
                       controller: widget.phoneController,
+                      // enabled: editable,
+                      enabled: false,
                       keyboardType: TextInputType.phone,
                       decoration: const InputDecoration(
                           labelText: 'Recipient\'s Phone Number *',
@@ -176,17 +181,19 @@ class _NewWidgetState extends State<NewWidget> {
                     const SizedBox(height: 20.0),
                     TextField(
                       controller: widget.addressController,
+                      enabled: editable,
                       decoration: const InputDecoration(
                         labelText: 'Flat / House No / Floor / Building *',
                         hintText: 'Enter your address *',
                       ),
                     ),
                     const SizedBox(height: 16.0),
-                    const TextField(
-                      decoration: InputDecoration(
+                    TextField(
+                      decoration: const InputDecoration(
                         labelText: 'Nearby Landmark',
                         hintText: 'Enter nearby landmark',
                       ),
+                      enabled: editable,
                     ),
                     const SizedBox(height: 16.0),
                   ],
@@ -201,6 +208,9 @@ class _NewWidgetState extends State<NewWidget> {
                   });
                 },
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: !editable
+                      ? Colors.grey.shade300
+                      : Theme.of(context).primaryColor,
                   padding: const EdgeInsets.symmetric(
                       horizontal: 24.0, vertical: 16.0),
                   textStyle: const TextStyle(fontSize: 16.0),

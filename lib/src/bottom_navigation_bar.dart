@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/src/bytes/bytes_page.dart';
 import 'package:openzo_frontend/src/cart/carts_page.dart';
 import 'package:openzo_frontend/src/categories_page.dart';
 import 'package:openzo_frontend/src/home_page/home_page.dart';
 import 'package:openzo_frontend/src/marketplace/marketplacePage.dart';
+import 'package:provider/provider.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
@@ -21,6 +24,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
     const CartsPage(),
     MarketplacePage(),
   ];
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

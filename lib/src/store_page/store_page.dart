@@ -126,7 +126,7 @@ class _StorePageState extends State<StorePage>
                       ),
                     ),
                     Text(
-                      "₹${cart.totalAmount + 40}",
+                      "₹${cart.totalAmount + (store != null ? store!.deliveryCharge : 0)}",
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,

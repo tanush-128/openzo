@@ -107,9 +107,9 @@ class _StoresByCategoryState extends State<StoresByCategory> {
                   child: FutureBuilder<List<Store>>(
                     future: subCategory != null
                         ? Store.getStoreByPincodeAndSubCategory(
-                            '123456', subCategory!.name)
+                            '576104', subCategory!.name)
                         : Store.getStoreByPincodeAndCategory(
-                            '123456', widget.category.name),
+                            '576104', widget.category.name),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return ListView.builder(
@@ -163,9 +163,9 @@ class _StoresByCategoryState extends State<StoresByCategory> {
                   //  StoresList(
                   //   future: subCategory != null
                   //       ? Store.getStoreByPincodeAndSubCategory(
-                  //           '123456', subCategory!.name)
+                  //           '576104', subCategory!.name)
                   //       : Store.getStoreByPincodeAndCategory(
-                  //           '123456', widget.category.name),
+                  //           '576104', widget.category.name),
                   // ),
                   ),
             )

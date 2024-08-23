@@ -27,25 +27,30 @@ class _StoreCardState extends State<StoreCard> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        context.go('/store/${widget.store.id}');
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
-          border: Border.all(
-            color: Colors.grey.shade200,
-            width: 1.5,
+    return Container(
+      height: 300,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      width: MediaQuery.of(context).size.width * 0.8,
+      child: InkWell(
+        onTap: () {
+          context.go('/store/${widget.store.id}');
+        },
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 8.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16.0),
+            border: Border.all(
+              color: Colors.grey.shade200,
+              width: 1.5,
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            _buildImage(),
-            _buildDetails(context),
-          ],
+          child: Column(
+            children: [
+              _buildImage(),
+              _buildDetails(context),
+            ],
+          ),
         ),
       ),
     );
@@ -200,6 +205,8 @@ class _StoreCardState extends State<StoreCard> {
   Widget _buildDescription() {
     return Text(
       widget.store.description,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: const TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w400,
@@ -220,14 +227,14 @@ class _StoreCardState extends State<StoreCard> {
             color: Colors.grey,
           ),
         ),
-        Text(
-          "₹${widget.store.avgPricePerPerson} for one",
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: Colors.grey,
-          ),
-        ),
+        // Text(
+        //   "₹${widget.store.avgPricePerPerson} for one",
+        //   style: const TextStyle(
+        //     fontSize: 14,
+        //     fontWeight: FontWeight.w400,
+        //     color: Colors.grey,
+        //   ),
+        // ),
       ],
     );
   }

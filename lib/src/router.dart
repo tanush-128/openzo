@@ -1,42 +1,73 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/constants.dart';
+import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/src/booking/bookingPage.dart';
 import 'package:openzo_frontend/src/bottom_navigation_bar.dart';
 import 'package:openzo_frontend/src/cart/cart_page/cart_page.dart';
 import 'package:openzo_frontend/src/categories_page.dart';
 import 'package:openzo_frontend/src/coming_soon_page.dart';
 import 'package:openzo_frontend/src/login/loginPage.dart';
+import 'package:openzo_frontend/src/login/name_reg.dart';
 import 'package:openzo_frontend/src/product/productPage/product_page.dart';
 import 'package:openzo_frontend/src/store_page/store_page.dart';
 import 'package:openzo_frontend/src/stores_of_category/stores_by_category.dart';
 import 'package:openzo_frontend/src/user/account_page.dart';
 import 'package:openzo_frontend/src/webview/web_view.dart';
+import 'package:provider/provider.dart';
+
+class AppRouterListenable extends ChangeNotifier {
+  AppRouterListenable();
+}
 
 class AppRouter {
   final GoRouter router;
 
   AppRouter()
       : router = GoRouter(
-          initialLocation: '/login',
-          // initialLocation: '/webview',
+          initialLocation: '/',
           observers: [
             FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance)
           ],
-
           redirect: (context, state) {
-            print(state.uri);
             if (state.uri.pathSegments.isEmpty) {
               return '/';
             }
             return state.path;
           },
-
+          // redirect: (context, state) async {
+          //   final user = Provider.of<UserProvider>(context, listen: false).user;
+          //   final loggedIn = user.id.isNotEmpty;
+          //   final loggingIn = state.matchedLocation == 'login';
+          //   if (!loggedIn) return "/login";
+          //   return null;
+          // },
+          // refreshListenable: ,
           routes: <RouteBase>[
             GoRoute(
               path: '/',
               builder: (context, state) => const BottomNavBar(),
               routes: [
+                GoRoute(
+                  path: 'login',
+                  builder: (context, state) => const PhoneAuthPage(),
+                  onExit: (context) {
+                    final user =
+                        Provider.of<UserProvider>(context, listen: false).user;
+                    final loggedIn = user.id.isNotEmpty;
+                    return loggedIn;
+                  },
+                ),
+                GoRoute(
+                  path: 'name-reg',
+                  builder: (context, state) {
+                    return NameReg();
+                  },
+                ),
                 GoRoute(
                     path: 'coming-soon',
                     builder: (context, state) {
@@ -152,7 +183,6 @@ class AppRouter {
                     path: 'category/:categoryID',
                     builder: (context, state) {
                       final categoryID = state.pathParameters['categoryID']!;
-                      // '/category/${category.name}?subCategory=${e.name}');
                       final category = GlobalConsts.categories.firstWhere(
                           (element) => element.name == categoryID,
                           orElse: () => GlobalConsts.categories.first);
@@ -181,10 +211,10 @@ class AppRouter {
                         },
                       )
                     ]),
-                GoRoute(
-                  path: 'login',
-                  builder: (context, state) => const PhoneAuthPage(),
-                ),
+                // GoRoute(
+                //   path: 'login',
+                //   builder: (context, state) => const PhoneAuthPage(),
+                // ),
                 GoRoute(
                   path: 'booking',
                   builder: (context, state) => const BookingPage(),

@@ -53,15 +53,11 @@ Future<void> main() async {
           ledColor: Colors.white,
           importance: NotificationImportance.High,
           channelShowBadge: true,
-
           defaultRingtoneType: DefaultRingtoneType.Notification,
           icon: 'resource://drawable/ic_notification',
           playSound: true,
           enableVibration: true,
           vibrationPattern: Int64List.fromList([1000, 1000, 2000, 1000, 3000]),
-          // soundSource: "resource://raw/res_custom_notification",
-          // playSound: true,
-          // enableVibration: true,ss
         )
       ],
       // Channel groups are only visual and are not required

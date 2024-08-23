@@ -147,7 +147,10 @@ class ReviewTile extends StatelessWidget {
               ? const Positioned(
                   bottom: 0,
                   right: 0,
-                  child: Icon(Icons.edit),
+                  child: Text(
+                    'You',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 )
               : const SizedBox(),
           Column(
