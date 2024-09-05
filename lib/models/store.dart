@@ -76,6 +76,7 @@ class Store {
   int deliveryCharge;
   double rating;
   int reviewCount;
+  bool busy;
 
   Store({
     required this.id,
@@ -94,6 +95,7 @@ class Store {
     this.category = "",
     this.subCategory = "",
     this.detailsComplete = false,
+    this.busy = false,
 
 //Restuarant specific fields
     this.primaryCuisine,
@@ -148,7 +150,7 @@ class Store {
 
   static Future<List<Store>> getStoresWithPincode(String pincode) async {
     var response = await http
-        .get(Uri.parse('$endpoint/pincode/576104'), headers: <String, String>{
+        .get(Uri.parse('$endpoint/pincode/123456'), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     });
 // 'Authorization': GlobalConsts.token,
@@ -168,6 +170,7 @@ class Store {
 
   static Future<List<Store>> getStoreByPincodeAndCategory(
       String pincode, String category) async {
+    log('pincode: $pincode, category: $category');
     http.Request req = http.Request(
         'GET', Uri.parse('$endpoint/pincode/$pincode/category/$category'));
 
@@ -179,6 +182,7 @@ class Store {
       for (var store in jsonDecode(body)) {
         stores.add(Store.fromJson(store));
       }
+
       return stores;
     } else {
       return [];
@@ -252,6 +256,7 @@ class Store {
       rating: double.parse(json['rating'].toString()),
       reviewCount: int.parse(json['review_count'].toString()),
       deliveryCharge: json['delivery_charge'] ?? 0,
+      busy: json['busy'] ?? false,
     );
   }
 }

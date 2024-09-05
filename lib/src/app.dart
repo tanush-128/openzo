@@ -4,7 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:openzo_frontend/main.dart';
+import 'package:openzo_frontend/models/user.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
+import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/src/router.dart';
 import 'package:openzo_frontend/utils/notification.dart';
 import 'package:openzo_frontend/utils/theme.dart';
@@ -84,6 +86,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   _fetchOrdersAndNavigate() {
     try {
       Provider.of<SalesProvider>(context, listen: false).getOrders();
+      User user = Provider.of<UserProvider>(context, listen: false).user;
+
+      if (user.id.isNotEmpty) {
+        if (user.name == null || user.name!.isEmpty) {
+          // context.go('/name-reg');
+          _appRouter.router.go('/name-reg');
+        }
+      }
     } catch (error) {
       print('Error fetching orders: $error');
       // ScaffoldMessenger.of(context).showSnackBar(
@@ -98,9 +108,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (token != null) {
       await _handleUserAuthentication();
     } else {
-      setState(() {
-        _appRouter.router.go('/login');
-      });
+      _appRouter.router.go('/login');
     }
   }
 

@@ -27,20 +27,20 @@ class _AddButtonState extends State<AddButton> {
   ColorVariant? selectedColor;
   bool addable = false;
 
-  @override
-  void initState() {
-    super.initState();
-    late Sale cart;
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   late Sale cart;
 
-    cart = Provider.of<SalesProvider>(context, listen: false)
-        .getSaleByStoreId(widget.product.storeID);
+  //   cart = Provider.of<SalesProvider>(context, listen: false)
+  //       .getSaleByStoreId(widget.product.storeID);
 
-    quantity = cart.orderItems
-            .firstWhereOrNull((item) => item.productId == widget.product.id)
-            ?.quantity ??
-        0;
-    addable = cart.status == "not_placed";
-  }
+  //   quantity = cart.orderItems
+  //           .firstWhereOrNull((item) => item.productId == widget.product.id)
+  //           ?.quantity ??
+  //       0;
+  //   addable = cart.status == "not_placed";
+  // }
 
   void _updateQuantity(int newQuantity) {
     setState(() {
@@ -57,108 +57,133 @@ class _AddButtonState extends State<AddButton> {
 
   @override
   Widget build(BuildContext context) {
-    late Sale cart;
-    if (widget.cart != null && widget.cart!.id.isNotEmpty) {
-      cart = Provider.of<SalesProvider>(context, listen: false)
-          .onlineOrders
-          .where((element) => element.id == widget.cart?.id)
-          .first;
-    } else {
-      cart = Provider.of<SalesProvider>(context, listen: false)
-          .getSaleByStoreId(widget.product.storeID);
-    }
+    // late Sale cart;
+    // if (widget.cart != null && widget.cart!.id.isNotEmpty) {
+    //   cart = Provider.of<SalesProvider>(context, listen: false)
+    //       .onlineOrders
+    //       .where((element) => element.id == widget.cart?.id)
+    //       .first;
+    // } else {
+    //   cart = Provider.of<SalesProvider>(context, listen: false)
+    //       .getSaleByStoreId(widget.product.storeID);
+    // }
 
-    quantity = cart.orderItems
-            .firstWhereOrNull((item) => item.productId == widget.product.id)
-            ?.quantity ??
-        0;
-    addable = cart.status == "not_placed";
+    // quantity = cart.orderItems
+    //         .firstWhereOrNull((item) => item.productId == widget.product.id)
+    //         ?.quantity ??
+    //     0;
+
     if (!widget.addableToCart) return const SizedBox();
-
-    if (addable) {
-      return Row(
-        children: [
-          (quantity != 0 && widget.product.type == "service")
-              ? TextButton(
-                  onPressed: () {
-                    _updateQuantity(0);
-                  },
-                  child: const Text(
-                    "Selected",
-                    style: TextStyle(color: GlobalStyle.primaryColor),
-                  ))
-              : Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                        color: GlobalStyle.primaryColor, width: 0.75),
-                    color: const Color.fromARGB(167, 245, 152, 172)
-                        .withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: quantity != 0
-                      ? Row(
-                          children: [
-                            InkWell(
-                              onTap: () => _updateQuantity(quantity - 1),
-                              child: const Padding(
-                                padding: EdgeInsets.only(
-                                    top: 2, bottom: 2, right: 12, left: 2),
-                                child: Icon(
-                                  Icons.remove,
-                                  color: GlobalStyle.primaryColor,
-                                  size: 18,
-                                ),
-                              ),
-                            ),
-                            Text('$quantity',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                )),
-                            InkWell(
-                              onTap: () => _updateQuantity(quantity + 1),
-                              child: const Padding(
-                                padding: EdgeInsets.only(
-                                    top: 2, bottom: 2, right: 2, left: 12),
-                                child: Icon(
-                                  Icons.add,
-                                  color: GlobalStyle.primaryColor,
-                                  size: 18,
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : InkWell(
-                          onTap: () => _updateQuantity(quantity + 1),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 2, horizontal: 12),
-                            child: Text(
-                              widget.product.type != "service"
-                                  ? 'ADD'
-                                  : "SELECT",
-                              style: const TextStyle(
-                                color: GlobalStyle.primaryColor,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                ),
-        ],
-      );
-    } else {
+    if (widget.product.outOfStock) {
       return Text(
-        "quantity: $quantity",
+        "Out of stock",
         style: TextStyle(
           fontSize: 15,
           color: Colors.grey.shade400,
         ),
       );
     }
+    return Consumer<SalesProvider>(
+      builder: (context, value, child) {
+        late Sale cart;
+        if (widget.cart != null && widget.cart!.id.isNotEmpty) {
+          cart = value.onlineOrders
+              .where((element) => element.id == widget.cart?.id)
+              .first;
+        } else {
+          cart = value.getSaleByStoreId(widget.product.storeID);
+        }
+        quantity = cart.orderItems
+                .firstWhereOrNull((item) => item.productId == widget.product.id)
+                ?.quantity ??
+            0;
+        addable = cart.status == "not_placed";
+        if (addable) {
+          return Row(
+            children: [
+              (quantity != 0 && widget.product.type == "service")
+                  ? TextButton(
+                      onPressed: () {
+                        _updateQuantity(0);
+                      },
+                      child: const Text(
+                        "Selected",
+                        style: TextStyle(color: GlobalStyle.primaryColor),
+                      ))
+                  : Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 2, horizontal: 2),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: GlobalStyle.primaryColor, width: 0.75),
+                        color: const Color.fromARGB(167, 245, 152, 172)
+                            .withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: quantity != 0
+                          ? Row(
+                              children: [
+                                InkWell(
+                                  onTap: () => _updateQuantity(quantity - 1),
+                                  child: const Padding(
+                                    padding: EdgeInsets.only(
+                                        top: 2, bottom: 2, right: 12, left: 2),
+                                    child: Icon(
+                                      Icons.remove,
+                                      color: GlobalStyle.primaryColor,
+                                      size: 18,
+                                    ),
+                                  ),
+                                ),
+                                Text('$quantity',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                                InkWell(
+                                  onTap: () => _updateQuantity(quantity + 1),
+                                  child: const Padding(
+                                    padding: EdgeInsets.only(
+                                        top: 2, bottom: 2, right: 2, left: 12),
+                                    child: Icon(
+                                      Icons.add,
+                                      color: GlobalStyle.primaryColor,
+                                      size: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : InkWell(
+                              onTap: () => _updateQuantity(quantity + 1),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 2, horizontal: 12),
+                                child: Text(
+                                  widget.product.type != "service"
+                                      ? 'ADD'
+                                      : "SELECT",
+                                  style: const TextStyle(
+                                    color: GlobalStyle.primaryColor,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                    ),
+            ],
+          );
+        } else {
+          return Text(
+            "quantity: $quantity",
+            style: TextStyle(
+              fontSize: 15,
+              color: Colors.grey.shade400,
+            ),
+          );
+        }
+      },
+    );
   }
 }

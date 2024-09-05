@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/product.dart';
@@ -36,6 +37,8 @@ class _CartPageState extends State<CartPage> {
   StoreType? storeType;
   int deliveryCharge = 0;
   TextEditingController noteController = TextEditingController();
+  bool addressConfirmed = false;
+
   @override
   void initState() {
     super.initState();
@@ -75,12 +78,21 @@ class _CartPageState extends State<CartPage> {
     });
   }
 
-  void editAddress(Sale cart) {
+  void editAddress(Sale cart, {bool setAddressConfirmation = false}) {
     showAddressBottomSheet(context, address, phone, cart).then((value) {
       if (value == null) return;
       address = value['address'];
       phone = value['phone'];
-      setState(() {});
+      cart.customer!.address = address;
+      cart.customer!.phone = phone;
+      Provider.of<SalesProvider>(context, listen: false).updateSale(cart);
+      if (address != "" &&
+          phone.length >= 10 &&
+          setAddressConfirmation == true) {
+        setState(() {
+          addressConfirmed = true;
+        });
+      }
     });
   }
 
@@ -109,6 +121,7 @@ class _CartPageState extends State<CartPage> {
           children: [
             const SizedBox(height: 10),
             OrderStatus(cart: cart, storeType: storeType),
+            _buildPaymentReminder(cart),
             _buildCanceledOrRejected(cart),
             _buildStoreDetails(context),
             _buildOrderItems(cart),
@@ -138,14 +151,68 @@ class _CartPageState extends State<CartPage> {
                   ),
                 ),
               ),
-            _buildDeleteButton(context, cart)
+            if (store != null && store!.busy == true)
+              Container(
+                margin: const EdgeInsets.all(8),
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                decoration: kBoxDecoration,
+                child: const Center(
+                  child: Row(
+                    children: [
+                      Icon(Icons.error, color: Colors.red),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'This store is currently busy, please try again later',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            _buildDeleteButton(context, cart),
           ],
         ),
       ),
     );
   }
 
+  // Like pay at the delivery
+  Widget _buildPaymentReminder(Sale cart) {
+    if (cart.status == "not_placed" ||
+        cart.status == "delivered" ||
+        cart.status == "cancelled" ||
+        cart.status == "rejected") {
+      return const SizedBox();
+    }
+    return Container(
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+      decoration: kBoxDecoration,
+      child: const Row(
+        children: [
+          Icon(Icons.payment),
+          SizedBox(width: 8),
+          Expanded(
+              child: Text(
+            "Pay at delivery through Cash/UPI",
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+          ))
+        ],
+      ),
+    );
+  }
+
   Widget _buildAddNote(BuildContext context, Sale cart) {
+    if (cart.status == "delivered" ||
+        cart.status == "cancelled" ||
+        cart.status == "rejected") {
+      return const SizedBox();
+    }
     return Container(
       margin: const EdgeInsets.all(8),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
@@ -261,7 +328,7 @@ class _CartPageState extends State<CartPage> {
     return Container(
       decoration: kBoxDecoration,
       margin: const EdgeInsets.all(8),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       child: Column(
         children: [
           Row(
@@ -274,27 +341,25 @@ class _CartPageState extends State<CartPage> {
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   )),
-              TextButton(
-                onPressed: () {
-                  context.go('/store/${store?.id}');
-                },
-                child: Text(notPlaced ? "Add More" : "View More"),
-              )
+              // TextButton(
+              //   onPressed: () {
+              //     context.go('/store/${store?.id}');
+              //   },
+              //   child: Text(notPlaced ? "Add More" : "View More"),
+              // )
             ],
           ),
-          if (store != null &&
-              store?.phone != null &&
-              store?.phone != "" &&
-              notPlaced == false)
+          if (store != null && store?.phone != null && store?.phone != "")
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.only(bottom: 0),
                   child: Row(
                     children: [
                       ImageIcon(
                         const AssetImage('assets/icons/phone.png'),
-                        color: Colors.grey.shade700,
+                        color: Colors.grey.shade900,
                         size: 18,
                       ),
                       const SizedBox(width: 12),
@@ -303,12 +368,18 @@ class _CartPageState extends State<CartPage> {
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 16,
-                          color: Colors.grey.shade600,
+                          color: Colors.grey.shade900,
                         ),
                       ),
                     ],
                   ),
                 ),
+                Text("To Modify (or) Cancel Order contact the store",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      color: Colors.grey.shade500,
+                    )),
               ],
             )
         ],
@@ -317,8 +388,10 @@ class _CartPageState extends State<CartPage> {
   }
 
   Container _buildCanceledOrRejected(Sale cart) {
-    if (cart.status != "rejected" || cart.status != "cancelled") {
-      return Container();
+    if (cart.status != "rejected" && cart.status != "cancelled") {
+      return Container(
+          // child: Text(cart.status),
+          );
     }
     return Container(
       margin: const EdgeInsets.all(8),
@@ -427,30 +500,54 @@ class _CartPageState extends State<CartPage> {
             ],
           ),
           const SizedBox(width: 10),
-          if (store != null && store.selfDeliveryService)
+          if (store != null && store.selfDeliveryService && store.busy == false)
             storeType != StoreType.service
-                ? ElevatedButton(
-                    onPressed: () {
-                      if (phone == "" || address == "") {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                'Please enter your phone number and address'),
-                          ),
-                        );
-                        return;
-                      }
+                ? addressConfirmed
+                    ? ElevatedButton(
+                        onPressed: () {
+                          if (phone == "" || address == "") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Please enter your phone number and address'),
+                              ),
+                            );
+                            return;
+                          }
 
-                      askForConfirmation();
-                    },
-                    child: const Row(
-                      children: [
-                        Text('Place Order'),
-                        SizedBox(width: 10),
-                        Icon(Icons.arrow_forward),
-                      ],
-                    ),
-                  )
+                          askForConfirmation();
+                        },
+                        child: const Row(
+                          children: [
+                            Text('Place Order'),
+                            SizedBox(width: 10),
+                            Icon(Icons.arrow_forward),
+                          ],
+                        ),
+                      )
+                    : ElevatedButton(
+                        onPressed: () {
+                          if (phone == "" || address == "") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Please enter your phone number and address'),
+                              ),
+                            );
+                            return;
+                          }
+
+                          // askForConfirmation();
+                          editAddress(cart, setAddressConfirmation: true);
+                        },
+                        child: const Row(
+                          children: [
+                            Text('Confirm Address'),
+                            // SizedBox(width: 10),
+                            // Icon(Icons.arrow_forward),
+                          ],
+                        ),
+                      )
                 : ElevatedButton(
                     onPressed: () {
                       if (phone == "") {
@@ -464,8 +561,8 @@ class _CartPageState extends State<CartPage> {
 
                       askForConfirmation();
                     },
-                    style:
-                        ElevatedButton.styleFrom(padding: EdgeInsets.all(12)),
+                    style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.all(12)),
                     child: const Row(
                       children: [
                         Text('Request Booking'),

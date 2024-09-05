@@ -63,7 +63,8 @@ class _CartListState extends State<CartList> {
       final List<Sale> uniqueCarts = [];
 
       for (final cart in carts) {
-        if (uniqueCarts.indexWhere((element) => element.id == cart.id) == -1) {
+        if (uniqueCarts.indexWhere((element) => element.id == cart.id) == -1 &&
+            cart.totalAmount > 0) {
           uniqueCarts.add(cart);
         }
       }

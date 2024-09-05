@@ -107,9 +107,9 @@ class _StoresByCategoryState extends State<StoresByCategory> {
                   child: FutureBuilder<List<Store>>(
                     future: subCategory != null
                         ? Store.getStoreByPincodeAndSubCategory(
-                            '576104', subCategory!.name)
+                            '123456', subCategory!.name)
                         : Store.getStoreByPincodeAndCategory(
-                            '576104', widget.category.name),
+                            '123456', widget.category.name),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return ListView.builder(
@@ -146,7 +146,8 @@ class _StoresByCategoryState extends State<StoresByCategory> {
                       } else {
                         stores = stores
                             .where((element) =>
-                                element.campusDeliveryService == false)
+                                element.campusDeliveryService == false ||
+                                element.storeType != StoreType.food)
                             .toList();
                       }
 
@@ -163,9 +164,9 @@ class _StoresByCategoryState extends State<StoresByCategory> {
                   //  StoresList(
                   //   future: subCategory != null
                   //       ? Store.getStoreByPincodeAndSubCategory(
-                  //           '576104', subCategory!.name)
+                  //           '123456', subCategory!.name)
                   //       : Store.getStoreByPincodeAndCategory(
-                  //           '576104', widget.category.name),
+                  //           '123456', widget.category.name),
                   // ),
                   ),
             )

@@ -126,7 +126,23 @@ class _StoreCardState extends State<StoreCard> {
         children: [
           _buildTitleAndRating(),
           const SizedBox(height: 5),
-          if (storeType != StoreType.food &&
+          if (widget.store.busy)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 8),
+              decoration: BoxDecoration(
+                color: Colors.red.shade100,
+                borderRadius: BorderRadius.circular(5.0),
+              ),
+              child: Text(
+                "Store is Currently Closed",
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  // color: Colors.red,
+                ),
+              ),
+            )
+          else if (storeType != StoreType.food &&
               widget.store.description != "") ...[
             _buildDescription(),
             const SizedBox(height: 5),

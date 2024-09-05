@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:intl/intl.dart';
@@ -76,7 +77,9 @@ class _SuccessPageState extends State<SuccessPage>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Image.asset('assets/images/tick.gif', height: 200),
+                // Image.asset('assets/images/tick.gif', height: 200),
+                Lottie.asset('assets/lotties/tick mark animation.json',
+                    height: 200),
                 const SizedBox(height: 20),
                 Text(
                   widget.sale?.type == "booking"

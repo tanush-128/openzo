@@ -35,7 +35,7 @@ class _SimilarProductsState extends State<SimilarProducts> {
               color: Colors.grey.shade50,
             ),
             child: FutureBuilder(
-                future: Product.searchProducts("576104", widget.product.name),
+                future: Product.searchProducts("123456", widget.product.name),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(

@@ -106,54 +106,83 @@ class _StorePageState extends State<StorePage>
   Widget _buildBottomNavigationBar(Sale cart) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: cart.id.isNotEmpty
-          ? Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+      // height: 60,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (store != null && store!.busy)
+            const Row(
               children: [
-                // Text('Total: ${cart.totalAmount}'),
-                Row(
-                  children: [
-                    ImageIcon(
-                      const AssetImage('assets/icons/bill.png'),
-                      color: Colors.grey.shade500,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      "Total Bill   ",
-                      style: TextStyle(
-                        color: Colors.grey,
-                      ),
-                    ),
-                    Text(
-                      "₹${cart.totalAmount + (store != null ? store!.deliveryCharge : 0)}",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
+                Icon(
+                  Icons.error_outline_outlined,
+                  color: Colors.red,
+                  size: 24,
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    context.go('/cart/${cart.id}');
-                  },
-                  child: Row(
-                    children: [
-                      Text(
-                        cart.status == "not_placed"
-                            ? 'View Cart'
-                            : "View Order",
-                      ),
-                      const SizedBox(width: 5),
-                      const Icon(Icons.arrow_forward_outlined),
-                    ],
+                SizedBox(width: 12),
+                Text(
+                  'Store is Currently Closed',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
-            )
-          : const SizedBox.shrink(),
+            ),
+          Container(
+            child: cart.id.isNotEmpty && cart.totalAmount > 0
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Text('Total: ${cart.totalAmount}'),
+                      Row(
+                        children: [
+                          ImageIcon(
+                            const AssetImage('assets/icons/bill.png'),
+                            color: Colors.grey.shade500,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            "Total Bill   ",
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                          Text(
+                            "₹${cart.totalAmount}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          context.go('/cart/${cart.id}');
+                        },
+                        child: Row(
+                          children: [
+                            Text(
+                              cart.status == "not_placed"
+                                  ? 'View Cart'
+                                  : "View Order",
+                            ),
+                            const SizedBox(width: 5),
+                            const Icon(Icons.arrow_forward_outlined),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+      ),
     );
   }
 

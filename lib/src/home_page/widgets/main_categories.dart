@@ -20,8 +20,8 @@ class MainCategories extends StatelessWidget {
         MainCategoryTile(title: 'Food delivery', route: '/food-delivery'),
         MainCategoryTile(title: 'Service stores', route: '/services'),
         MainCategoryTile(title: 'Stores', route: '/stores'),
-        MainCategoryTile(title: 'Grocery delivery', route: '/grocery-delivery'),
-        MainCategoryTile(title: 'Services', route: '/home-services'),
+        MainCategoryTile(title: 'Grocery delivery', route: '/coming-soon'),
+        MainCategoryTile(title: 'Services', route: '/coming-soon'),
         // const MainCategoryTile(title: 'Hotel rooms', route: '/hotel-rooms'),
         MainCategoryTile(title: 'MIT Campus only', route: '/campus-only'),
         // InkWell(

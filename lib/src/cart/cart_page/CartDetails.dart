@@ -4,7 +4,11 @@ import 'package:openzo_frontend/models/sale.dart';
 class CartDetails extends StatefulWidget {
   final Sale cart;
   final int deliveryCharge;
-  CartDetails({super.key, required this.cart, required this.deliveryCharge});
+  const CartDetails({
+    super.key,
+    required this.cart,
+    required this.deliveryCharge,
+  });
 
   @override
   State<CartDetails> createState() => _CartDetailsState();
@@ -49,12 +53,12 @@ class _CartDetailsState extends State<CartDetails> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Delivery Charge",
+                    const Text("Delivery Charge",
                         style: TextStyle(fontSize: 15, color: Colors.grey)),
                     Text(
                       "₹${widget.deliveryCharge}",
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -72,7 +76,7 @@ class _CartDetailsState extends State<CartDetails> {
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold)),
                       Text(
-                        "₹${widget.cart.totalAmount + 40}",
+                        "₹${widget.cart.totalAmount + widget.deliveryCharge}",
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),

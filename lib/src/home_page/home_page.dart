@@ -40,14 +40,14 @@ class HomePage extends StatelessWidget {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
+                        _buildBanner('/campus-only', "MIT.GS", context),
                         _buildBanner(
                             '/food-delivery', "Food Delivery.GS", context),
-                        _buildBanner('/grocery-delivery', "Grocery Delivery.GS",
-                            context),
-                        _buildBanner(
-                            '/home-services', "Home Services.GS", context),
-                        _buildBanner('/campus-only', "MIT.GS", context),
                         _buildBanner('/stores', "Shop.GS", context),
+                        _buildBanner(
+                            '/coming-soon', "Grocery Delivery.GS", context),
+                        _buildBanner(
+                            '/coming-soon', "Home Services.GS", context),
                       ],
                     ),
                   ),
@@ -59,7 +59,7 @@ class HomePage extends StatelessWidget {
                   // const SizedBox(height: 20),
                   const SizedBox(height: 20),
                   StoresList(
-                    future: Store.getStoresWithPincode("576104"),
+                    future: Store.getStoresWithPincode("123456"),
                   ),
 
                   const SizedBox(height: 20),

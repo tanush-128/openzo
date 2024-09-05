@@ -141,7 +141,7 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _checkExistingUser();
+    // _checkExistingUser();
   }
 
   Future<void> _checkExistingUser() async {
@@ -151,20 +151,12 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
       await _handleUserAuthentication();
     } else {
       setState(() {});
+      context.go("/login");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    User user = Provider.of<UserProvider>(context).user;
-
-    if (user.id.isNotEmpty) {
-      if (user.name == null || user.name!.isEmpty) {
-        context.go('/name-reg');
-      } else {
-        context.go('/');
-      }
-    }
     return _isLoading
         ? const LoadingScreen()
         : Scaffold(
@@ -199,7 +191,7 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                           const Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Text(
-                              "Openzo - Super App for your locality",
+                              "Openzo - Super App for your locality (beta)",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 32,
