@@ -150,7 +150,7 @@ class Store {
 
   static Future<List<Store>> getStoresWithPincode(String pincode) async {
     var response = await http
-        .get(Uri.parse('$endpoint/pincode/123456'), headers: <String, String>{
+        .get(Uri.parse('$endpoint/pincode/576104'), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     });
 // 'Authorization': GlobalConsts.token,

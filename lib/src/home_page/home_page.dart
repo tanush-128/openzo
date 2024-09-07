@@ -59,7 +59,7 @@ class HomePage extends StatelessWidget {
                   // const SizedBox(height: 20),
                   const SizedBox(height: 20),
                   StoresList(
-                    future: Store.getStoresWithPincode("123456"),
+                    future: Store.getStoresWithPincode("576104"),
                   ),
 
                   const SizedBox(height: 20),

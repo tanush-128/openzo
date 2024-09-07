@@ -39,7 +39,7 @@ class _AddButtonState extends State<AddButton> {
   //           .firstWhereOrNull((item) => item.productId == widget.product.id)
   //           ?.quantity ??
   //       0;
-  //   addable = cart.status == "not_placed";
+  //   addable = cart.status == "not_placed";576104
   // }
 
   void _updateQuantity(int newQuantity) {
