@@ -1,7 +1,10 @@
+import 'package:circular_countdown_timer/circular_countdown_timer.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/constants.dart';
+import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/store.dart';
@@ -16,6 +19,7 @@ import 'package:openzo_frontend/src/cart/cart_page/kSeparator.dart';
 import 'package:openzo_frontend/src/cart/cart_page/styles.dart';
 import 'package:openzo_frontend/src/cart/cart_page/succes_page.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CartPage extends StatefulWidget {
   static const String routeName = '/cart';
@@ -96,9 +100,11 @@ class _CartPageState extends State<CartPage> {
     });
   }
 
+  late Sale cart;
+
   @override
   Widget build(BuildContext context) {
-    final cart = Provider.of<SalesProvider>(context)
+    cart = Provider.of<SalesProvider>(context)
         .onlineOrders
         .firstWhere((element) => element.id == widget.id);
 
@@ -124,6 +130,49 @@ class _CartPageState extends State<CartPage> {
             _buildPaymentReminder(cart),
             _buildCanceledOrRejected(cart),
             _buildStoreDetails(context),
+            if (cart.status == "placed" || cart.status == "accepted")
+              Container(
+                decoration: kBoxDecoration,
+                margin: const EdgeInsets.all(8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+                child: Row(
+                  children: [
+                    const Icon(Icons.timer, color: GlobalStyle.primaryColor),
+                    const SizedBox(width: 10),
+                    // CircularCountDownTimer(
+                    //   width: 60,
+                    //   height: 60,
+                    //   duration: 120 -
+                    //       cart.orderTime!.difference(DateTime.now()).inSeconds,
+                    //   fillColor: Colors.red.shade50,
+                    //   ringColor: GlobalStyle.primaryColor,
+                    //   isReverse: true,
+                    // ),
+
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text("Cancel Order in 2 minutes",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.red,
+                              )),
+                          Text(
+                            "If you want to cancel the order, please do it now",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
             _buildOrderItems(cart),
             const SizedBox(height: 10),
             _buildAddressDetails(cart, context),
@@ -359,27 +408,50 @@ class _CartPageState extends State<CartPage> {
                     children: [
                       ImageIcon(
                         const AssetImage('assets/icons/phone.png'),
-                        color: Colors.grey.shade900,
+                        // color: Colors.grey.shade900,
+                        color: Colors.blue.shade800,
+
                         size: 18,
                       ),
                       const SizedBox(width: 12),
-                      Text(
-                        "+91 ${store!.phone}",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                          color: Colors.grey.shade900,
+                      InkWell(
+                        onTap: () {
+                          launchUrl(
+                              Uri(scheme: 'tel', path: "+91 ${store!.phone}"));
+                        },
+                        child: Text(
+                          "+91 ${store!.phone}",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            // color: Colors.blue,
+                            color: Colors.blue.shade800,
+
+                            // color: GlobalStyle.primaryColor,
+                          ),
                         ),
                       ),
+                      const SizedBox(
+                        width: 8,
+                      ),
+                      Icon(
+                        Icons.arrow_forward,
+                        size: 18,
+                        // color: Colors.grey,
+                        color: Colors.blue.shade800,
+
+                        fill: 1,
+                      )
                     ],
                   ),
                 ),
-                Text("To Modify (or) Cancel Order contact the store",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                      color: Colors.grey.shade500,
-                    )),
+                // if (cart.status != "not_placed")
+                //   Text("To Modify (or) Cancel Order contact the store",
+                //       style: TextStyle(
+                //         fontWeight: FontWeight.w500,
+                //         fontSize: 14,
+                //         color: Colors.grey.shade500,
+                //       )),
               ],
             )
         ],
