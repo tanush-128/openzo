@@ -50,8 +50,8 @@ class GlobalSearchDelegate extends SearchDelegate {
         query.isNotEmpty &&
         query.length > 2 &&
         query.trim().length > 2) {
-      Product.searchProducts("123456", query).then((value) => products = value);
-      Store.searchStores("123456", query).then((value) => stores = value);
+      Product.searchProducts("576104", query).then((value) => products = value);
+      Store.searchStores("576104", query).then((value) => stores = value);
     }
 
     return products.isNotEmpty || stores.isNotEmpty

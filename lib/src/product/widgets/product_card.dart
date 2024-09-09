@@ -67,14 +67,15 @@ class _ProductCardState extends State<ProductCard> {
                         ),
                         const SizedBox(height: 4),
                         _buildProductPrice(),
-                        Text(
-                          widget.product.description,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.grey,
+                        if (widget.product.description.isNotEmpty)
+                          Text(
+                            widget.product.description,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.grey,
+                            ),
                           ),
-                        ),
                         const SizedBox(height: 8),
                         // _buildAddButton(),
                         AddButton(
