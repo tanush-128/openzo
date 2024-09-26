@@ -6,11 +6,15 @@ class UserProvider with ChangeNotifier {
   User _user = User(
     id: "",
     phone: "",
+    pincode: "123456",
   );
 
   User get user => _user;
 
   void setUser(User user) {
+    if (user.pincode == "94043") {
+      user.pincode = "123456";
+    }
     _user = user;
     notifyListeners();
   }

@@ -3,6 +3,7 @@ import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/providers/sales_provider.dart';
+import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/src/cart/cart_item.dart';
 import 'package:provider/provider.dart';
 
@@ -39,7 +40,7 @@ class _AddButtonState extends State<AddButton> {
   //           .firstWhereOrNull((item) => item.productId == widget.product.id)
   //           ?.quantity ??
   //       0;
-  //   addable = cart.status == "not_placed";576104
+  //   addable = cart.status == "not_placed";123456
   // }
 
   void _updateQuantity(int newQuantity) {
@@ -57,6 +58,9 @@ class _AddButtonState extends State<AddButton> {
 
   @override
   Widget build(BuildContext context) {
+    String pincode =
+        Provider.of<UserProvider>(context, listen: false).user.pincode ??
+            '123456';
     // late Sale cart;
     // if (widget.cart != null && widget.cart!.id.isNotEmpty) {
     //   cart = Provider.of<SalesProvider>(context, listen: false)
@@ -116,8 +120,8 @@ class _AddButtonState extends State<AddButton> {
                       decoration: BoxDecoration(
                         border: Border.all(
                             color: GlobalStyle.primaryColor, width: 0.75),
-                        color: const Color.fromARGB(167, 245, 152, 172)
-                            .withOpacity(0.2),
+                        color:
+                            const Color.fromARGB(255, 255, 133, 160).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: quantity != 0

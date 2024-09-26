@@ -13,9 +13,9 @@ class MainCategories extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          mainAxisSpacing: 0,
-          crossAxisSpacing: 24,
-          childAspectRatio: 0.86),
+          mainAxisSpacing: 6,
+          crossAxisSpacing: 8,
+          childAspectRatio: 1),
       children: const [
         MainCategoryTile(title: 'Food delivery', route: '/food-delivery'),
         MainCategoryTile(title: 'Service stores', route: '/services'),
@@ -66,22 +66,17 @@ class MainCategoryTile extends StatelessWidget {
           context.go(route!);
         }
       },
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(100.0),
-              color: Colors.white,
-            ),
-            child: Image.asset('assets/images/home page icons/$title.png'),
-          ),
-          // Text(
-          //   title,
-          //   style: const TextStyle(fontSize: 12),
-          //   textAlign: TextAlign.center,
-          // ),
-        ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16.0),
+          color: Colors.white,
+          border: Border.all(color: Colors.grey.shade200, width: 1.5),
+        ),
+        child: Image.asset(
+          'assets/images/home page icons/$title.png',
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }

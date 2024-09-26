@@ -3,8 +3,10 @@ import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/store.dart';
+import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/src/home_page/widgets/store_card.dart';
 import 'package:openzo_frontend/src/home_page/widgets/store_card_skeleton.dart';
+import 'package:provider/provider.dart';
 
 class StoresByCategory extends StatefulWidget {
   Category category;
@@ -49,6 +51,8 @@ class _StoresByCategoryState extends State<StoresByCategory> {
 
   @override
   Widget build(BuildContext context) {
+    String pincode =
+        Provider.of<UserProvider>(context).user.pincode ?? '123456';
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
@@ -107,9 +111,9 @@ class _StoresByCategoryState extends State<StoresByCategory> {
                   child: FutureBuilder<List<Store>>(
                     future: subCategory != null
                         ? Store.getStoreByPincodeAndSubCategory(
-                            '576104', subCategory!.name)
+                            pincode, subCategory!.name)
                         : Store.getStoreByPincodeAndCategory(
-                            '576104', widget.category.name),
+                            pincode, widget.category.name),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return ListView.builder(
@@ -164,9 +168,9 @@ class _StoresByCategoryState extends State<StoresByCategory> {
                   //  StoresList(
                   //   future: subCategory != null
                   //       ? Store.getStoreByPincodeAndSubCategory(
-                  //           '576104', subCategory!.name)
+                  //           '123456', subCategory!.name)
                   //       : Store.getStoreByPincodeAndCategory(
-                  //           '576104', widget.category.name),
+                  //           '123456', widget.category.name),
                   // ),
                   ),
             )

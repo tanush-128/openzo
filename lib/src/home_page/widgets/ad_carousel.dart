@@ -2,6 +2,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/models/ad.dart';
+import 'package:openzo_frontend/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AdSpace extends StatefulWidget {
@@ -14,8 +16,10 @@ class AdSpace extends StatefulWidget {
 class _AdSpaceState extends State<AdSpace> {
   @override
   Widget build(BuildContext context) {
+    String pincode =
+        Provider.of<UserProvider>(context).user.pincode ?? '123456';
     return FutureBuilder(
-      future: Ad.fetchMany("576104"),
+      future: Ad.fetchMany(pincode),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(

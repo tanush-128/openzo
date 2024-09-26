@@ -77,6 +77,7 @@ class Store {
   double rating;
   int reviewCount;
   bool busy;
+  int packingCharge = 0;
 
   Store({
     required this.id,
@@ -109,8 +110,20 @@ class Store {
     this.rating = 0.0,
     this.reviewCount = 0,
     this.deliveryCharge = 0,
+    this.packingCharge = 0,
   });
 
+  // Static in-memory cache
+  static final Map<String, Store> _storeCache = {};
+
+  // Static map to keep track of ongoing fetch requests
+  static final Map<String, Future<Store>> _storeFutures = {};
+
+  // Optional: Cache timestamps for invalidation
+  static final Map<String, DateTime> _storeCacheTimestamps = {};
+
+  // Define cache duration
+  static final Duration cacheDuration = const Duration(hours: 1);
   StoreType get storeType {
     return GlobalConsts.categories
             .where((element) => element.name == category)
@@ -127,32 +140,91 @@ class Store {
   static String endpoint = '${GlobalConsts.backend_url}/stores';
   // static String endpoint = 'https://lnn7jf70-8080.inc1.devtunnels.ms';
 
+  /// Fetch a single store by its ID with caching
   static Future<Store> fetchStore(String storeId) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token == null) {
-      throw Exception('Token not found');
+    // Check if the store is already in the cache and not expired
+    if (_storeCache.containsKey(storeId)) {
+      final cachedTime = _storeCacheTimestamps[storeId];
+      if (cachedTime != null &&
+          DateTime.now().difference(cachedTime) < cacheDuration) {
+        return Future.value(_storeCache[storeId]!);
+      } else {
+        // Cache expired, remove it
+        _storeCache.remove(storeId);
+        _storeCacheTimestamps.remove(storeId);
+      }
     }
 
-    var response = await http
-        .get(Uri.parse('$endpoint/$storeId'), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': '',
+    // If a fetch is already in progress for this storeId, return the existing Future
+    if (_storeFutures.containsKey(storeId)) {
+      return _storeFutures[storeId]!;
+    }
+
+    // Initiate a new fetch and store the Future in _storeFutures
+    final future = _fetchStoreFromApi(storeId).then((store) {
+      _storeCache[storeId] = store; // Store in cache
+      _storeCacheTimestamps[storeId] = DateTime.now(); // Update cache timestamp
+      _storeFutures.remove(storeId); // Remove from ongoing fetches
+      return store;
+    }).catchError((error) {
+      _storeFutures.remove(storeId); // Remove from ongoing fetches on error
+      throw error;
     });
-    if (response.statusCode == 200) {
-      log(Store.fromJson(jsonDecode(response.body)).name);
-      return Store.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load store');
+
+    _storeFutures[storeId] = future;
+
+    return future;
+  }
+
+  /// Internal method to fetch store data from the API
+  static Future<Store> _fetchStoreFromApi(String storeId) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      if (token == null) {
+        throw Exception('Authentication token not found');
+      }
+
+      final response = await http.get(
+        Uri.parse('$endpoint/$storeId'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': token, // Correctly include the token
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final store = Store.fromJson(data);
+        log('Fetched Store: ${store.name}');
+        return store;
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized: Invalid token');
+      } else if (response.statusCode == 404) {
+        throw Exception('Store not found');
+      } else {
+        throw Exception(
+            'Failed to load store: ${response.statusCode} ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      log('Error fetching store: $e');
+      rethrow;
     }
   }
 
+  /// Optional: Method to clear the cache (useful for testing or refreshing data)
+  static void clearCache() {
+    _storeCache.clear();
+    _storeCacheTimestamps.clear();
+    _storeFutures.clear();
+  }
+
   static Future<List<Store>> getStoresWithPincode(String pincode) async {
-    var response = await http
-        .get(Uri.parse('$endpoint/pincode/576104'), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    });
+    var response = await http.get(Uri.parse('$endpoint/pincode/${pincode}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        });
 // 'Authorization': GlobalConsts.token,
     if (response.statusCode == 200) {
       List<Store> stores = [];
@@ -257,6 +329,7 @@ class Store {
       reviewCount: int.parse(json['review_count'].toString()),
       deliveryCharge: json['delivery_charge'] ?? 0,
       busy: json['busy'] ?? false,
+      packingCharge: json['packaging_charge'] ?? 0,
     );
   }
 }

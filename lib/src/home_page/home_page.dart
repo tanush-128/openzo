@@ -16,6 +16,8 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String pincode =
+        Provider.of<UserProvider>(context).user.pincode ?? '123456';
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: CustomScrollView(
@@ -59,7 +61,7 @@ class HomePage extends StatelessWidget {
                   // const SizedBox(height: 20),
                   const SizedBox(height: 20),
                   StoresList(
-                    future: Store.getStoresWithPincode("576104"),
+                    future: Store.getStoresWithPincode(pincode),
                   ),
 
                   const SizedBox(height: 20),
@@ -104,15 +106,15 @@ class HomePage extends StatelessWidget {
   SliverAppBar _builSliverAppBar(BuildContext context) {
     return SliverAppBar(
       leadingWidth: 0,
-      expandedHeight: 140,
+      expandedHeight: 130,
       pinned: true,
       centerTitle: true,
-      collapsedHeight: 70,
+      collapsedHeight: 60,
       flexibleSpace: FlexibleSpaceBar(
         title: const GlobalSearchBar(),
         centerTitle: true,
         titlePadding:
-            const EdgeInsets.only(left: 12, right: 12, bottom: 12, top: 4),
+            const EdgeInsets.only(left: 12, right: 12, bottom: 8, top: 4),
         expandedTitleScale: 1,
         background: Container(
           decoration: const BoxDecoration(
@@ -137,27 +139,65 @@ class HomePage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.6,
-                              child: const FittedBox(
-                                child: Text(
-                                  "Explore your locality",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ),
-                            ),
+                            // SizedBox(
+                            //   width: MediaQuery.of(context).size.width * 0.6,
+                            //   child: const FittedBox(
+                            //     child: Text(
+                            //       "Explore your locality",
+                            //       style: TextStyle(
+                            //         color: Colors.white,
+                            //         fontSize: 16,
+                            //         fontWeight: FontWeight.w900,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
                             if (user.pincode != null &&
                                 user.city != null &&
                                 user.state != null)
-                              Text(
-                                "${user.pincode}-${user.city}, ${user.state}",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
+                              Container(
+                                margin: const EdgeInsets.only(top: 6),
+                                child: InkWell(
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      builder: (context) {
+                                        return ChangePincode(
+                                          user: user,
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.3),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    padding: const EdgeInsets.all(8),
+                                    // width: MediaQuery.of(context).size.width * 0.8,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          "${user.address}".length > 22
+                                              ? "${"${user.address}".substring(0, 22)}..."
+                                              : "${user.address}",
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const Icon(
+                                          Icons.arrow_drop_down_circle,
+                                          color: Colors.white,
+                                        )
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               )
                           ],
@@ -185,12 +225,101 @@ class HomePage extends StatelessWidget {
                   icon: const Icon(
                     Icons.account_circle_outlined,
                     color: Colors.white,
-                    size: 54,
+                    size: 48,
                   ),
                 ),
                 const SizedBox(width: 8),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ChangePincode extends StatefulWidget {
+  User user;
+  ChangePincode({super.key, required this.user});
+
+  @override
+  State<ChangePincode> createState() => _ChangePincodeState();
+}
+
+class _ChangePincodeState extends State<ChangePincode> {
+  late User user;
+  late TextEditingController pincodeController;
+  bool loading = false;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    user = widget.user;
+    pincodeController = TextEditingController(text: user.pincode);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Change Location",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "Enter your pincode",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                decoration: const InputDecoration(
+                  hintText: "Enter your pincode",
+                ),
+                keyboardType: TextInputType.number,
+                controller: pincodeController,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  if (loading) {
+                    return;
+                  }
+                  setState(() {
+                    loading = true;
+                  });
+                  user.pincode = pincodeController.text;
+                  user = await User.updateUser(user);
+                  Provider.of<UserProvider>(context, listen: false)
+                      .setUser(user);
+                  Navigator.pop(context);
+                },
+                child: loading
+                    ? Container(
+                        height: 20,
+                        width: 20,
+                        child: const CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text("Save"),
+              ),
+            ],
           ),
         ),
       ),

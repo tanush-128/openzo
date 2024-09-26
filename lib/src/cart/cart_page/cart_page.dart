@@ -1,7 +1,4 @@
-import 'package:circular_countdown_timer/circular_countdown_timer.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/constants/styles.dart';
@@ -409,7 +406,7 @@ class _CartPageState extends State<CartPage> {
                       ImageIcon(
                         const AssetImage('assets/icons/phone.png'),
                         // color: Colors.grey.shade900,
-                        color: Colors.blue.shade800,
+                        color: Colors.blue.shade400,
 
                         size: 18,
                       ),
@@ -425,7 +422,7 @@ class _CartPageState extends State<CartPage> {
                             fontWeight: FontWeight.w500,
                             fontSize: 16,
                             // color: Colors.blue,
-                            color: Colors.blue.shade800,
+                            color: Colors.blue.shade400,
 
                             // color: GlobalStyle.primaryColor,
                           ),
@@ -772,6 +769,7 @@ class _CartPageState extends State<CartPage> {
                           return CartDetails(
                             cart: cart,
                             deliveryCharge: store?.deliveryCharge ?? 0,
+                            packingCharge: store?.packingCharge ?? 0,
                           );
                         });
                   },

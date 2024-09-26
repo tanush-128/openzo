@@ -1,3 +1,7 @@
+import 'dart:developer';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:openzo_frontend/models/user.dart';
@@ -15,10 +19,12 @@ Future<void> handleUserData(BuildContext context) async {
   late User user;
   if (token == null) {
     user = await _createUser(context, null, fcmToken);
+
     Provider.of<UserProvider>(context, listen: false).setUser(user);
     Provider.of<SalesProvider>(context, listen: false).setUser(user);
   } else {
     user = await User.getUserWithJWT();
+
     await _updateUserData(context, user, fcmToken);
   }
 }
@@ -36,7 +42,10 @@ _updateUserData(BuildContext context, User user, String fcmToken) async {
       user.latitude = position.latitude.toString();
       user.longitude = position.longitude.toString();
       user = await User.updateUser(user);
+      log(user.pincode ?? "");
     }
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    await messaging.subscribeToTopic("pincode_${user.pincode}");
   }
   Provider.of<UserProvider>(context, listen: false).setUser(user);
   Provider.of<SalesProvider>(context, listen: false).setUser(user);
@@ -56,6 +65,8 @@ Future<User> _createUser(
     );
     user = await User.registerUser(user);
 
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    await messaging.subscribeToTopic("pincode_${user.pincode}");
     return user;
   }
 

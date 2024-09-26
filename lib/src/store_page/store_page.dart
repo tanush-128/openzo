@@ -240,6 +240,8 @@ class _StorePageState extends State<StorePage>
       expandedHeight: MediaQuery.of(context).size.width +
           40 +
           (store?.description.isNotEmpty ?? true ? 100 : 0),
+      collapsedHeight: 40,
+      toolbarHeight: 40,
       floating: false,
       pinned: true,
       title: FutureBuilder(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/models/product.dart';
+import 'package:openzo_frontend/providers/user_provider.dart';
 import 'package:openzo_frontend/src/product/widgets/vertical_product_card.dart';
+import 'package:provider/provider.dart';
 
 class SimilarProducts extends StatefulWidget {
   final Product product;
@@ -16,6 +18,8 @@ class SimilarProducts extends StatefulWidget {
 class _SimilarProductsState extends State<SimilarProducts> {
   @override
   Widget build(BuildContext context) {
+    String pincode =
+        Provider.of<UserProvider>(context).user.pincode ?? '123456';
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.all(8),
@@ -35,7 +39,7 @@ class _SimilarProductsState extends State<SimilarProducts> {
               color: Colors.grey.shade50,
             ),
             child: FutureBuilder(
-                future: Product.searchProducts("576104", widget.product.name),
+                future: Product.searchProducts(pincode, widget.product.name),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(

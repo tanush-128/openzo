@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SizeVariant {
   int id;
@@ -86,6 +87,8 @@ class Post {
   });
 }
 
+// product.dart
+
 class Product {
   String id;
   String name;
@@ -103,7 +106,7 @@ class Product {
   String storeID;
   String barcode;
 
-//
+  //
   String? type;
   String? vegType;
   int? servers;
@@ -136,38 +139,222 @@ class Product {
   static String endpoint = '${GlobalConsts.backend_url}/products';
   // static String endpoint = 'https://lnn7jf70-8080.inc1.devtunnels.ms';
 
-  static Future<List<Product>> fetchMany(String storeID) async {
-    List<Product> products = [];
-// fetch products from the server
-    http.Request req =
-        http.Request('GET', Uri.parse('$endpoint/store/$storeID'));
-    http.StreamedResponse res = await req.send();
+  // Static in-memory cache
+  static final Map<String, Product> _productCache = {};
 
-    String body = await res.stream.bytesToString();
+  // Static map to keep track of ongoing fetch requests
+  static final Map<String, Future<Product>> _productFutures = {};
 
-    var products0 = json.decode(body);
-// print(_products);
-    products0.forEach((product) {
-      products = [...products, Product.fromJson(product)];
+  //static in-memory cache for list of products with storeID as key
+
+  static final Map<String, List<Product>> _productCacheByStore = {};
+
+  // Optional: Cache timestamps for invalidation
+  static final Map<String, DateTime> _productCacheTimestamps = {};
+
+  // Define cache duration
+  static final Duration cacheDuration =
+      const Duration(hours: 1); // Adjust as needed
+
+  /// Fetch a single product by its ID with caching
+  static Future<Product> fetchOne(String productID) async {
+    // Check if the product is already in the cache and not expired
+    if (_productCache.containsKey(productID)) {
+      final cachedTime = _productCacheTimestamps[productID];
+      if (cachedTime != null &&
+          DateTime.now().difference(cachedTime) < cacheDuration) {
+        return Future.value(_productCache[productID]!);
+      } else {
+        // Cache expired, remove it
+        _productCache.remove(productID);
+        _productCacheTimestamps.remove(productID);
+      }
+    }
+
+    // If a fetch is already in progress for this productID, return the existing Future
+    if (_productFutures.containsKey(productID)) {
+      return _productFutures[productID]!;
+    }
+
+    // Initiate a new fetch and store the Future in _productFutures
+    final future = _fetchProductFromApi(productID).then((product) {
+      _productCache[productID] = product; // Store in cache
+      _productCacheTimestamps[productID] =
+          DateTime.now(); // Update cache timestamp
+      _productFutures.remove(productID); // Remove from ongoing fetches
+      return product;
+    }).catchError((error) {
+      _productFutures.remove(productID); // Remove from ongoing fetches on error
+      throw error;
     });
 
-    return products;
+    _productFutures[productID] = future;
+
+    return future;
   }
 
-  static Future<Product> fetchOne(String productID) async {
-// fetch products from the server
-    http.Request req = http.Request('GET', Uri.parse('$endpoint/$productID'));
-    http.StreamedResponse res = await req.send();
+  /// Internal method to fetch product data from the API
+  static Future<Product> _fetchProductFromApi(String productID) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
 
-    String body = await res.stream.bytesToString();
+      if (token == null) {
+        throw Exception('Authentication token not found');
+      }
 
-    var product = json.decode(body);
+      final response = await http.get(
+        Uri.parse('$endpoint/$productID'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': token, // Correctly include the token
+        },
+      );
 
-    return Product.fromJson(product);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final product = Product.fromJson(data);
+        log('Fetched Product: ${product.name}');
+        return product;
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized: Invalid token');
+      } else if (response.statusCode == 404) {
+        throw Exception('Product not found');
+      } else {
+        throw Exception(
+            'Failed to load product: ${response.statusCode} ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      log('Error fetching product: $e');
+      rethrow;
+    }
   }
 
-  // router.GET("post/pincode/:pincode", handler.GetPostByPincode)
+  /// Optional: Method to clear the cache (useful for testing or refreshing data)
+  static void clearCache() {
+    _productCache.clear();
+    _productCacheTimestamps.clear();
+    _productFutures.clear();
+  }
 
+  /// Fetch multiple products by storeID with caching
+  static Future<List<Product>> fetchMany(String storeID) async {
+    List<Product> products = [];
+
+    // Implement caching for fetchMany if needed
+    // For simplicity, assuming fetchMany fetches all products for a store and caching individual products
+
+    // Check if the products for this store are already in the cache and not expired
+    if (_productCacheByStore.containsKey(storeID)) {
+      final cachedTime = _productCacheTimestamps[storeID];
+      if (cachedTime != null &&
+          DateTime.now().difference(cachedTime) < cacheDuration) {
+        return Future.value(_productCacheByStore[storeID]!);
+      } else {
+        // Cache expired, remove it
+        _productCacheByStore.remove(storeID);
+        _productCacheTimestamps.remove(storeID);
+      }
+    }
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      if (token == null) {
+        throw Exception('Authentication token not found');
+      }
+
+      http.Request req =
+          http.Request('GET', Uri.parse('$endpoint/store/$storeID'));
+      req.headers['Content-Type'] = 'application/json; charset=UTF-8';
+      req.headers['Authorization'] = token;
+
+      http.StreamedResponse res = await req.send();
+
+      String body = await res.stream.bytesToString();
+
+      if (res.statusCode == 200) {
+        var productsJson = json.decode(body);
+        for (var productJson in productsJson) {
+          Product product = Product.fromJson(productJson);
+          products.add(product);
+          // Cache individual products
+          if (!_productCache.containsKey(product.id)) {
+            _productCache[product.id] = product;
+            _productCacheTimestamps[product.id] = DateTime.now();
+          }
+        }
+        log('Fetched ${products.length} products for storeID "$storeID"');
+
+        // Cache the list of products for this store
+        _productCacheByStore[storeID] = products;
+        _productCacheTimestamps[storeID] = DateTime.now();
+
+        return products;
+      } else if (res.statusCode == 401) {
+        throw Exception('Unauthorized: Invalid token');
+      } else {
+        log('Failed to fetch products for storeID "$storeID": ${res.statusCode} ${res.reasonPhrase}');
+        throw Exception('Failed to load products');
+      }
+    } catch (e) {
+      log('Error in fetchMany: $e');
+      throw e;
+    }
+  }
+
+  /// Search products with caching
+  static Future<List<Product>> searchProducts(
+      String pincode, String nameContains) async {
+    List<Product> products = [];
+    final queryKey = '$pincode|$nameContains';
+
+    // Implement caching for search results if desired
+    // For simplicity, not caching search results as they can be highly variable
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      if (token == null) {
+        throw Exception('Authentication token not found');
+      }
+
+      final res = await http.get(
+        Uri.parse(
+            '${GlobalConsts.backend_url}/search/products/$pincode?term=$nameContains'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      log('Search Products Response: ${res.body}');
+      if (res.statusCode == 200) {
+        for (var productJson in jsonDecode(res.body)) {
+          products.add(Product.fromJson(productJson));
+          // Optionally cache individual products
+          if (!_productCache.containsKey(productJson['id'])) {
+            Product product = Product.fromJson(productJson);
+            _productCache[product.id] = product;
+            _productCacheTimestamps[product.id] = DateTime.now();
+          }
+        }
+        log('Found ${products.length} products matching "$nameContains" in pincode "$pincode"');
+        return products;
+      } else if (res.statusCode == 401) {
+        throw Exception('Unauthorized: Invalid token');
+      } else {
+        log('Failed to search products: ${res.statusCode} ${res.reasonPhrase}');
+        return [];
+      }
+    } catch (e) {
+      log('Error in searchProducts: $e');
+      return [];
+    }
+  }
+
+  /// Fetch posts by pincode with caching for products and stores
   static Future<List<Post>> fetchPostByPincode(String pincode) async {
     final res = await http.get(
       Uri.parse('$endpoint/post/pincode/$pincode'),
@@ -197,48 +384,6 @@ class Product {
     } else {
       print(res.body);
       throw Exception('Failed to load products');
-    }
-  }
-
-  static getItemsByOrderId(int orderId) async {
-    List<Product> products = [];
-    http.Response res = await http.get(
-      Uri.parse('$endpoint/product/?order_id=$orderId'),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': GlobalConsts.token,
-      },
-    );
-    print(res.body);
-    if (res.statusCode == 200) {
-      for (var product in jsonDecode(res.body)) {
-        products.add(Product.fromJson(product));
-      }
-      return products;
-    } else {
-      return null;
-    }
-  }
-
-  static Future<List<Product>> searchProducts(
-      String pincode, String nameContains) async {
-    List<Product> products = [];
-    http.Response res = await http.get(
-      Uri.parse(
-          '${GlobalConsts.backend_url}/search/products/$pincode?term=$nameContains'),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': GlobalConsts.token,
-      },
-    );
-    print(res.body);
-    if (res.statusCode == 200) {
-      for (var product in jsonDecode(res.body)) {
-        products.add(Product.fromJson(product));
-      }
-      return products;
-    } else {
-      return [];
     }
   }
 

@@ -4,10 +4,12 @@ import 'package:openzo_frontend/models/sale.dart';
 class CartDetails extends StatefulWidget {
   final Sale cart;
   final int deliveryCharge;
+  final int packingCharge;
   const CartDetails({
     super.key,
     required this.cart,
     required this.deliveryCharge,
+    required this.packingCharge,
   });
 
   @override
@@ -41,8 +43,9 @@ class _CartDetailsState extends State<CartDetails> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Total MRP",
-                        style: TextStyle(fontSize: 15, color: Colors.grey)),
+                    Text("Total MRP",
+                        style: TextStyle(
+                            fontSize: 15, color: Colors.grey.shade600)),
                     Text(
                       "₹${widget.cart.totalAmount}",
                       style: const TextStyle(
@@ -50,13 +53,29 @@ class _CartDetailsState extends State<CartDetails> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 6),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Delivery Charge",
-                        style: TextStyle(fontSize: 15, color: Colors.grey)),
+                    Text("Delivery Charge",
+                        style: TextStyle(
+                            fontSize: 15, color: Colors.grey.shade600)),
                     Text(
                       "₹${widget.deliveryCharge}",
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Packing Charge",
+                        style: TextStyle(
+                            fontSize: 15, color: Colors.grey.shade600)),
+                    Text(
+                      "₹${widget.packingCharge}",
                       style: const TextStyle(
                           fontSize: 15, fontWeight: FontWeight.bold),
                     ),

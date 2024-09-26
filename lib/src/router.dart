@@ -65,7 +65,7 @@ class AppRouter {
                 GoRoute(
                   path: 'name-reg',
                   builder: (context, state) {
-                    return NameReg();
+                    return const NameReg();
                   },
                 ),
                 GoRoute(
