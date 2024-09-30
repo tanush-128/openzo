@@ -131,7 +131,9 @@ class StoreDetails extends StatelessWidget {
                                               height: 20),
                                           const SizedBox(width: 5),
                                           Text(
-                                            '${store.openingTime} - ${store.closingTime}',
+                                            '${
+                                            //get only time from this
+                                            TimeOfDay.fromDateTime(store.openingTime).format(context)} - ${TimeOfDay.fromDateTime(store.closingTime).format(context)}',
                                             style: GoogleFonts.poppins(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w400,

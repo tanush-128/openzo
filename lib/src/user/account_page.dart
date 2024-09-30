@@ -176,6 +176,17 @@ class _AccountPageState extends State<AccountPage> {
                         "Log Out",
                         onTap: _handleLogout,
                       ),
+
+                      //privacy policy
+                      _buildInfoRow(
+                        const Icon(
+                          Icons.privacy_tip,
+                        ),
+                        "Privacy Policy",
+                        onTap: () {
+                          context.go('/privacy-policy');
+                        },
+                      ),
                     ],
                   ),
                 ),

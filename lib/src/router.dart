@@ -63,6 +63,13 @@ class AppRouter {
                   },
                 ),
                 GoRoute(
+                    path: 'privacy-policy',
+                    builder: (context, state) {
+                      return WebViewC(
+                        url: 'https://www.openzo.in/privacy-policy',
+                      );
+                    }),
+                GoRoute(
                   path: 'name-reg',
                   builder: (context, state) {
                     return const NameReg();

@@ -112,7 +112,7 @@ class _StorePageState extends State<StorePage>
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (store != null && store!.busy)
+          if (store != null && (store!.busy || store!.closed))
             const Row(
               children: [
                 Icon(

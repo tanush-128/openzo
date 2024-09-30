@@ -126,7 +126,7 @@ class _StoreCardState extends State<StoreCard> {
         children: [
           _buildTitleAndRating(),
           const SizedBox(height: 5),
-          if (widget.store.busy)
+          if (widget.store.closed)
             Container(
               padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 8),
               decoration: BoxDecoration(

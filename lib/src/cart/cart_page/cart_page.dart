@@ -197,20 +197,22 @@ class _CartPageState extends State<CartPage> {
                   ),
                 ),
               ),
-            if (store != null && store!.busy == true)
+            if (store != null && (store!.busy || store!.closed))
               Container(
                 margin: const EdgeInsets.all(8),
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                 decoration: kBoxDecoration,
-                child: const Center(
+                child: Center(
                   child: Row(
                     children: [
-                      Icon(Icons.error, color: Colors.red),
-                      SizedBox(width: 8),
+                      const Icon(Icons.error, color: Colors.red),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'This store is currently busy, please try again later',
-                          style: TextStyle(
+                          store!.busy
+                              ? 'This store is currently busy, please try again later'
+                              : 'This store is currently closed, please try again later',
+                          style: const TextStyle(
                             fontSize: 16,
                             color: Colors.red,
                           ),

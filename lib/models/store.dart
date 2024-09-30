@@ -55,8 +55,8 @@ class Store {
   final String phone;
   final String description;
   final String address;
-  final String openingTime;
-  final String closingTime;
+  final DateTime openingTime;
+  final DateTime closingTime;
 // String userId = "";
   bool detailsComplete = false;
 
@@ -112,6 +112,17 @@ class Store {
     this.deliveryCharge = 0,
     this.packingCharge = 0,
   });
+
+  // getter bool closed based on current time of dat and opening and closing time
+  bool get closed {
+    DateTime now = DateTime.now();
+    // comapare only time not date
+    DateTime opening = DateTime(
+        now.year, now.month, now.day, openingTime.hour, openingTime.minute);
+    DateTime closing = DateTime(
+        now.year, now.month, now.day, closingTime.hour, closingTime.minute);
+    return now.isBefore(opening) || now.isAfter(closing);
+  }
 
   // Static in-memory cache
   static final Map<String, Store> _storeCache = {};
@@ -221,10 +232,10 @@ class Store {
   }
 
   static Future<List<Store>> getStoresWithPincode(String pincode) async {
-    var response = await http.get(Uri.parse('$endpoint/pincode/${pincode}'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        });
+    var response = await http
+        .get(Uri.parse('$endpoint/pincode/$pincode'), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    });
 // 'Authorization': GlobalConsts.token,
     if (response.statusCode == 200) {
       List<Store> stores = [];
@@ -310,8 +321,9 @@ class Store {
       phone: json['phone'] ?? "",
       image: json['image'],
       location: json['location'],
-      openingTime: json['opening_time'],
-      closingTime: json['closing_time'],
+      openingTime: DateTime.tryParse(json['opening_time']) ?? DateTime.now(),
+      closingTime: DateTime.tryParse(json['closing_time']) ??
+          DateTime.now().add(Duration(hours: 1)),
       selfDeliveryService: json['self_delivery_service'],
       description: json['description'],
       detailsComplete: json['details_complete'] ?? false,

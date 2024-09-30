@@ -67,7 +67,7 @@ class _WebViewCState extends State<WebViewC> {
       ),
     );
     controller.loadRequest(
-      Uri.parse(widget.url ?? 'https://www.openzo.in'),
+      Uri.parse(widget.url ?? 'https://www.openzo.in/privacy-policy'),
     );
   }
 
