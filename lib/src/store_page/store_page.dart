@@ -12,6 +12,7 @@ import 'package:openzo_frontend/src/store_page/widgets/post/post_list.dart';
 import 'package:openzo_frontend/src/store_page/widgets/productsList.dart';
 import 'package:openzo_frontend/src/store_page/widgets/productsListSkeleton.dart';
 import 'package:openzo_frontend/src/store_page/widgets/storeDetails.dart';
+import 'package:openzo_frontend/src/webview/web_view.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -62,26 +63,30 @@ class _StorePageState extends State<StorePage>
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         bottomNavigationBar: _buildBottomBar(),
-        body: NestedScrollView(
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              _buildSliverAppBar(),
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: _SliverAppBarDelegate(
-                  TabBar(
-                    controller: _tabController,
-                    tabs: const [
-                      Tab(text: 'Products'),
-                      Tab(text: 'Reviews'),
-                      Tab(text: 'Posts'),
-                    ],
-                  ),
-                ),
-              ),
-            ];
-          },
-          body: _buildBody(),
+        // body: NestedScrollView(
+        //   headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+        //     return <Widget>[
+        //       _buildSliverAppBar(),
+        //       SliverPersistentHeader(
+        //         pinned: true,
+        //         delegate: _SliverAppBarDelegate(
+        //           TabBar(
+        //             controller: _tabController,
+        //             tabs: const [
+        //               Tab(text: 'Products'),
+        //               Tab(text: 'Reviews'),
+        //               Tab(text: 'Posts'),
+        //             ],
+        //           ),
+        //         ),
+        //       ),
+        //     ];
+        //   },
+        //   body: _buildBody(),
+        // ),
+        body: WebViewC(
+          url:
+              "https://fxscpgdl-3000.inc1.devtunnels.ms/store/${widget.storeId}",
         ),
       ),
     );

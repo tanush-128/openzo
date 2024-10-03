@@ -111,6 +111,17 @@ class SalesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> fetchSaleById(String id) async {
+    Sale _onlineOrder = await Sale.getSaleByID(id);
+    if (_onlineOrders.indexWhere((element) => element.id == id) == -1) {
+      _onlineOrders.add(_onlineOrder);
+    } else {
+      _onlineOrders[_onlineOrders.indexWhere((element) => element.id == id)] =
+          _onlineOrder;
+    }
+    notifyListeners();
+  }
+
   Future<void> updateSale(Sale onlineOrder) async {
     Sale _onlineOrder = await Sale.updateSale(onlineOrder);
     _onlineOrders[_onlineOrders

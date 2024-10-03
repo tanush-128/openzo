@@ -1,4 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:openzo_frontend/models/sale.dart';
+import 'package:openzo_frontend/providers/sales_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewC extends StatefulWidget {
@@ -52,7 +57,17 @@ class _WebViewCState extends State<WebViewC> {
           return NavigationDecision.navigate;
         },
       ))
-      ..setJavaScriptMode(JavaScriptMode.unrestricted);
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..addJavaScriptChannel('FlutterChannel',
+          onMessageReceived: (JavaScriptMessage message) {
+        // Handle the message sent from Next.js or any other site
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text('Received from web: ${message.message}')),
+        // );
+        log('Received from web: ${message.message}');
+        Provider.of<SalesProvider>(context, listen: false)
+            .fetchSaleById(message.message);
+      });
 
     _setCookiesAndLoadUrl();
   }

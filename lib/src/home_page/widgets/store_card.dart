@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/components/rating.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/store.dart';
+import 'package:openzo_frontend/src/webview/web_view.dart';
 
 class StoreCard extends StatefulWidget {
   final Store store;
@@ -34,6 +35,14 @@ class _StoreCardState extends State<StoreCard> {
       child: InkWell(
         onTap: () {
           context.go('/store/${widget.store.id}');
+          // Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //       builder: (context) => WebViewC(
+          //         url:
+          //             "https://fxscpgdl-3000.inc1.devtunnels.ms/store/${widget.store.id}",
+          //       ),
+          //     ));
         },
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 8.0),

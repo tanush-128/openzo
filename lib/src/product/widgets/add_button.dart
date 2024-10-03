@@ -120,8 +120,8 @@ class _AddButtonState extends State<AddButton> {
                       decoration: BoxDecoration(
                         border: Border.all(
                             color: GlobalStyle.primaryColor, width: 0.75),
-                        color:
-                            const Color.fromARGB(255, 255, 133, 160).withOpacity(0.1),
+                        color: const Color.fromRGBO(255, 133, 160, 1)
+                            .withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: quantity != 0
