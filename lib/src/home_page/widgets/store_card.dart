@@ -29,31 +29,24 @@ class _StoreCardState extends State<StoreCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 300,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: MediaQuery.of(context).size.width * 0.8,
+      // height: 200,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      // width: MediaQuery.of(context).size.width * 0.8,
+      width: 160,
       child: InkWell(
         onTap: () {
           context.go('/store/${widget.store.id}');
-          // Navigator.push(
-          //     context,
-          //     MaterialPageRoute(
-          //       builder: (context) => WebViewC(
-          //         url:
-          //             "https://fxscpgdl-3000.inc1.devtunnels.ms/store/${widget.store.id}",
-          //       ),
-          //     ));
         },
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 8.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16.0),
-            border: Border.all(
-              color: Colors.grey.shade200,
-              width: 1.5,
-            ),
-          ),
+          // decoration: BoxDecoration(
+          //   color: Colors.white,
+          //   borderRadius: BorderRadius.circular(16.0),
+          //   border: Border.all(
+          //     color: Colors.grey.shade200,
+          //     width: 1.5,
+          //   ),
+          // ),
           child: Column(
             children: [
               _buildImage(),
@@ -68,12 +61,16 @@ class _StoreCardState extends State<StoreCard> {
   Widget _buildImage() {
     return Container(
       width: double.infinity,
-      height: 200,
+      height: 160,
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade200,
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
         image: widget.store.image != ""
             ? DecorationImage(
                 image: NetworkImage(widget.store.image),
@@ -81,15 +78,6 @@ class _StoreCardState extends State<StoreCard> {
               )
             : null,
         color: Colors.grey.shade300,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSubCategoryLabel(),
-          ],
-        ),
       ),
     );
   }
@@ -135,30 +123,61 @@ class _StoreCardState extends State<StoreCard> {
         children: [
           _buildTitleAndRating(),
           const SizedBox(height: 5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              widget.store.reviewCount > 0
+                  ? Row(children: [
+                      const Icon(Icons.star, color: Colors.amber, size: 16),
+                      const SizedBox(width: 5),
+                      Text(
+                        widget.store.rating.toStringAsFixed(1),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          // color: Colors.grey,
+                        ),
+                      ),
+                    ])
+                  : Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 1, horizontal: 4),
+                      child: Text(
+                        "New",
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+              const SizedBox(width: 5),
+              if (storeType == StoreType.food) _buildVegIndicator(),
+            ],
+          ),
           if (widget.store.closed)
             Container(
               padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 8),
               decoration: BoxDecoration(
-                color: Colors.red.shade100,
+                color: Colors.red.shade400,
                 borderRadius: BorderRadius.circular(5.0),
               ),
               child: Text(
-                "Store is Currently Closed",
+                "currently closed",
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  // color: Colors.red,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
                 ),
               ),
             )
-          else if (storeType != StoreType.food &&
-              widget.store.description != "") ...[
-            _buildDescription(),
-            const SizedBox(height: 5),
-          ] else if (storeType == StoreType.food) ...[
-            _buildCuisineAndPrice(),
-            const SizedBox(height: 5),
-          ]
+          // else if (storeType != StoreType.food &&
+          //     widget.store.description != "") ...[
+          //   _buildDescription(),
+          //   const SizedBox(height: 5),
+          // ] else if (storeType == StoreType.food) ...[
+          //   _buildCuisineAndPrice(),
+          //   const SizedBox(height: 5),
+          // ]
         ],
       ),
     );
@@ -172,36 +191,13 @@ class _StoreCardState extends State<StoreCard> {
           child: Text(
             widget.store.name,
             overflow: TextOverflow.ellipsis,
+            maxLines: 2,
             style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
               color: Colors.black,
             ),
           ),
-        ),
-        Row(
-          children: [
-            widget.store.reviewCount > 0
-                ? Rating(rating: widget.store.rating)
-                : Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 1, horizontal: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.shade100,
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                    child: Text(
-                      "New",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
-            const SizedBox(width: 5),
-            if (storeType == StoreType.food) _buildVegIndicator(),
-          ],
         ),
       ],
     );

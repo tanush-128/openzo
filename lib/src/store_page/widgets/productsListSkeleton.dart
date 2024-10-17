@@ -1,12 +1,14 @@
 import 'package:accordion/accordion.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:openzo_frontend/components/skeleton.dart';
+
 class ProductListSkeleton extends StatelessWidget {
   const ProductListSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return  Center(
+    return Center(
       child: Container(
         decoration: BoxDecoration(color: Colors.blueGrey.shade50),
         child: Accordion(
@@ -28,9 +30,13 @@ class ProductListSkeleton extends StatelessWidget {
               .map(
                 (e) => AccordionSection(
                   isOpen: true,
-                  header: Skeleton(
-                    width: 100,
-                    height: 20,
+                  header: Shimmer.fromColors(
+                    baseColor: Colors.grey.shade300,
+                    highlightColor: Colors.grey.shade100,
+                    child: Skeleton(
+                      width: 100,
+                      height: 20,
+                    ),
                   ),
                   content: GridView.builder(
                     gridDelegate:
@@ -47,19 +53,32 @@ class ProductListSkeleton extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Skeleton(
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade100,
+                              child: Skeleton(
                                 height: 200,
                                 width: (MediaQuery.of(context).size.width * 0.5)
-                                    .toInt()),
-                            const SizedBox(height: 5),
-                            Skeleton(
-                              width: 100,
-                              height: 20,
+                                    .toInt(),
+                              ),
                             ),
                             const SizedBox(height: 5),
-                            Skeleton(
-                              width: 100,
-                              height: 20,
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade100,
+                              child: Skeleton(
+                                width: 100,
+                                height: 20,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade100,
+                              child: Skeleton(
+                                width: 100,
+                                height: 20,
+                              ),
                             ),
                           ],
                         ),

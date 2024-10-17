@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/models/sale.dart';
-import 'package:openzo_frontend/providers/sales_provider.dart';
-import 'package:openzo_frontend/src/cart/cart_list_tile.dart';
+import 'package:openzo_frontend/viewmodels/sales_provider.dart';
+import 'package:openzo_frontend/src/cart/carts/cart_list_tile.dart';
 import 'package:provider/provider.dart';
 
 class CartsPage extends StatelessWidget {
@@ -13,11 +13,11 @@ class CartsPage extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Carts'),
+          title: const Text('Activity'),
           bottom: const TabBar(
             tabs: [
-              Tab(text: 'pending'),
-              Tab(text: 'placed'),
+              Tab(text: 'carts'),
+              Tab(text: 'ongoing'),
               Tab(text: 'completed'),
             ],
           ),

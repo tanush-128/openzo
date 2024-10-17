@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/models/user.dart';
-import 'package:openzo_frontend/providers/user_provider.dart';
+import 'package:openzo_frontend/viewmodels/user_provider.dart';
 import 'package:openzo_frontend/src/user/all_orders.dart';
 import 'package:provider/provider.dart';
 

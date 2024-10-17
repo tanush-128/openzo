@@ -4,8 +4,8 @@ import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/store.dart';
-import 'package:openzo_frontend/providers/products_provider.dart';
-import 'package:openzo_frontend/providers/sales_provider.dart';
+import 'package:openzo_frontend/viewmodels/products_provider.dart';
+import 'package:openzo_frontend/viewmodels/sales_provider.dart';
 import 'package:openzo_frontend/src/store_page/widgets/Reviews.dart';
 import 'package:openzo_frontend/src/store_page/widgets/custom_search_delegate.dart';
 import 'package:openzo_frontend/src/store_page/widgets/post/post_list.dart';
@@ -85,8 +85,9 @@ class _StorePageState extends State<StorePage>
         //   body: _buildBody(),
         // ),
         body: WebViewC(
+          // url: "https://openzo-webview.vercel.app/store/${widget.storeId}",
           url:
-              "https://fxscpgdl-3000.inc1.devtunnels.ms/store/${widget.storeId}",
+              "https://5124-203-110-242-43.ngrok-free.app/store/${widget.storeId}",
         ),
       ),
     );

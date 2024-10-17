@@ -113,14 +113,18 @@ class Store {
     this.packingCharge = 0,
   });
 
-  // getter bool closed based on current time of dat and opening and closing time
   bool get closed {
     DateTime now = DateTime.now();
-    // comapare only time not date
     DateTime opening = DateTime(
         now.year, now.month, now.day, openingTime.hour, openingTime.minute);
     DateTime closing = DateTime(
         now.year, now.month, now.day, closingTime.hour, closingTime.minute);
+
+    // If the store closes after midnight (e.g., 1:30 AM), adjust the closing time
+    if (closingTime.hour < openingTime.hour) {
+      closing = closing.add(const Duration(days: 1));
+    }
+
     return now.isBefore(opening) || now.isAfter(closing);
   }
 

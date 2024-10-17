@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
-import 'package:openzo_frontend/providers/sales_provider.dart';
+import 'package:openzo_frontend/viewmodels/sales_provider.dart';
 import 'package:openzo_frontend/src/product/widgets/add_button.dart';
 import 'package:provider/provider.dart';
 

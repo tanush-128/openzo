@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/store.dart';
-import 'package:openzo_frontend/providers/products_provider.dart';
+import 'package:openzo_frontend/viewmodels/products_provider.dart';
 import 'package:openzo_frontend/src/product/widgets/filter_bar.dart';
 import 'package:openzo_frontend/src/product/widgets/product_card.dart';
 import 'package:openzo_frontend/src/product/widgets/product_card_2.dart';

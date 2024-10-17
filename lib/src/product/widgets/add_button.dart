@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
-import 'package:openzo_frontend/providers/sales_provider.dart';
-import 'package:openzo_frontend/providers/user_provider.dart';
-import 'package:openzo_frontend/src/cart/cart_item.dart';
+import 'package:openzo_frontend/viewmodels/sales_provider.dart';
+import 'package:openzo_frontend/viewmodels/user_provider.dart';
+import 'package:openzo_frontend/src/product/widgets/product_card.dart';
+
 import 'package:provider/provider.dart';
 
 class AddButton extends StatefulWidget {
@@ -28,21 +29,6 @@ class _AddButtonState extends State<AddButton> {
   ColorVariant? selectedColor;
   bool addable = false;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   late Sale cart;
-
-  //   cart = Provider.of<SalesProvider>(context, listen: false)
-  //       .getSaleByStoreId(widget.product.storeID);
-
-  //   quantity = cart.orderItems
-  //           .firstWhereOrNull((item) => item.productId == widget.product.id)
-  //           ?.quantity ??
-  //       0;
-  //   addable = cart.status == "not_placed";123456
-  // }
-
   void _updateQuantity(int newQuantity) {
     setState(() {
       quantity = newQuantity;
@@ -61,21 +47,6 @@ class _AddButtonState extends State<AddButton> {
     String pincode =
         Provider.of<UserProvider>(context, listen: false).user.pincode ??
             '123456';
-    // late Sale cart;
-    // if (widget.cart != null && widget.cart!.id.isNotEmpty) {
-    //   cart = Provider.of<SalesProvider>(context, listen: false)
-    //       .onlineOrders
-    //       .where((element) => element.id == widget.cart?.id)
-    //       .first;
-    // } else {
-    //   cart = Provider.of<SalesProvider>(context, listen: false)
-    //       .getSaleByStoreId(widget.product.storeID);
-    // }
-
-    // quantity = cart.orderItems
-    //         .firstWhereOrNull((item) => item.productId == widget.product.id)
-    //         ?.quantity ??
-    //     0;
 
     if (!widget.addableToCart) return const SizedBox();
     if (widget.product.outOfStock) {

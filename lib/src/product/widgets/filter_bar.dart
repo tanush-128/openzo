@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:openzo_frontend/providers/products_provider.dart';
+import 'package:openzo_frontend/viewmodels/products_provider.dart';
 import 'package:provider/provider.dart';
 
 class FilterBar extends StatefulWidget {

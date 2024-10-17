@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/main.dart';
-import 'package:openzo_frontend/providers/sales_provider.dart';
+import 'package:openzo_frontend/viewmodels/sales_provider.dart';
 import 'package:openzo_frontend/src/router.dart';
 import 'package:provider/provider.dart';
 

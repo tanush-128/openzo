@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/models/sale.dart';
-import 'package:openzo_frontend/providers/sales_provider.dart';
-import 'package:openzo_frontend/src/cart/cart_list_tile.dart';
+import 'package:openzo_frontend/viewmodels/sales_provider.dart';
+import 'package:openzo_frontend/src/cart/carts/cart_list_tile.dart';
 import 'package:provider/provider.dart';
 
 class AllOrdersPage extends StatelessWidget {

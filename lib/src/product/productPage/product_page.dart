@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/product.dart';
-import 'package:openzo_frontend/providers/sales_provider.dart';
+import 'package:openzo_frontend/viewmodels/sales_provider.dart';
 import 'package:openzo_frontend/src/product/productPage/widgets/carousel.dart';
 import 'package:openzo_frontend/src/product/productPage/widgets/more_by_same_selller.dart';
 import 'package:openzo_frontend/src/product/productPage/widgets/productPageSkeleton.dart';

@@ -3,9 +3,9 @@ import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/user.dart';
-import 'package:openzo_frontend/providers/sales_provider.dart';
-import 'package:openzo_frontend/providers/user_provider.dart';
-import 'package:openzo_frontend/utils/user_util.dart';
+import 'package:openzo_frontend/viewmodels/sales_provider.dart';
+import 'package:openzo_frontend/viewmodels/user_provider.dart';
+import 'package:openzo_frontend/src/utils/user_util.dart';
 import 'package:provider/provider.dart';
 
 class LoginModalBottomSheet extends StatefulWidget {

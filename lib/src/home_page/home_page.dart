@@ -4,7 +4,7 @@ import 'package:openzo_frontend/components/globalSearchBar.dart';
 import 'package:openzo_frontend/components/separator.dart';
 import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/models/user.dart';
-import 'package:openzo_frontend/providers/user_provider.dart';
+import 'package:openzo_frontend/viewmodels/user_provider.dart';
 import 'package:openzo_frontend/src/home_page/widgets/ad_carousel.dart';
 import 'package:openzo_frontend/src/home_page/widgets/main_categories.dart';
 import 'package:openzo_frontend/src/home_page/widgets/stores_list.dart';

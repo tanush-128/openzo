@@ -195,9 +195,7 @@ class Sale {
 
   static Future<Sale> updateSale(Sale sale) async {
     sale.orderTime = DateTime.now();
-    if (sale.bookingTime == null) {
-      sale.bookingTime = DateTime.now();
-    }
+    sale.bookingTime ??= DateTime.now();
     final response = await http.put(
       Uri.parse('$endpoint/'),
       headers: <String, String>{

@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   awesome_notifications
   awesome_notifications_core
   booking_and_publish_slots
+  connectivity_plus
   firebase_auth
   firebase_core
   geolocator_windows

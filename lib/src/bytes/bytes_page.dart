@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/models/product.dart';
-import 'package:openzo_frontend/providers/user_provider.dart';
+import 'package:openzo_frontend/viewmodels/user_provider.dart';
 import 'package:openzo_frontend/src/store_page/widgets/post/post_card.dart';
 import 'package:provider/provider.dart';
 

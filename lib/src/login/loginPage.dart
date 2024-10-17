@@ -4,10 +4,10 @@ import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/styles.dart';
 import 'package:openzo_frontend/models/user.dart';
-import 'package:openzo_frontend/providers/sales_provider.dart';
-import 'package:openzo_frontend/providers/user_provider.dart';
+import 'package:openzo_frontend/viewmodels/sales_provider.dart';
+import 'package:openzo_frontend/viewmodels/user_provider.dart';
 import 'package:openzo_frontend/src/login/loading_screen.dart';
-import 'package:openzo_frontend/utils/user_util.dart';
+import 'package:openzo_frontend/src/utils/user_util.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -133,6 +133,7 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
     } finally {
       setState(() {
         _isLoading = false;
+        context.go('/');
       });
     }
   }

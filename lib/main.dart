@@ -9,9 +9,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/constants/styles.dart';
-import 'package:openzo_frontend/providers/products_provider.dart';
-import 'package:openzo_frontend/providers/sales_provider.dart';
-import 'package:openzo_frontend/providers/user_provider.dart';
+import 'package:openzo_frontend/viewmodels/products_provider.dart';
+import 'package:openzo_frontend/viewmodels/sales_provider.dart';
+import 'package:openzo_frontend/viewmodels/user_provider.dart';
+import 'package:openzo_frontend/src/utils/phonepe.dart';
+import 'package:phonepe_payment_sdk/phonepe_payment_sdk.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -89,6 +91,11 @@ Future<void> main() async {
   if (kDebugMode) {
     print('Registration Token=$token');
   }
+
+  PhonePePaymentService().phonepeInit();
+  final appId = await PhonePePaymentSdk.getPackageSignatureForAndroid();
+
+  log('AppId: $appId');
 
   runApp(MultiProvider(
     providers: [

@@ -3,16 +3,19 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:openzo_frontend/constants/constants.dart';
-import 'package:openzo_frontend/providers/user_provider.dart';
+import 'package:openzo_frontend/viewmodels/user_provider.dart';
 import 'package:openzo_frontend/src/booking/bookingPage.dart';
 import 'package:openzo_frontend/src/bottom_navigation_bar.dart';
-import 'package:openzo_frontend/src/cart/cart_page/cart_page.dart';
+import 'package:openzo_frontend/src/cart/cart_page/cart_page_view.dart';
 import 'package:openzo_frontend/src/categories_page.dart';
 import 'package:openzo_frontend/src/coming_soon_page.dart';
 import 'package:openzo_frontend/src/login/loginPage.dart';
 import 'package:openzo_frontend/src/login/name_reg.dart';
+import 'package:openzo_frontend/src/no-internet.dart';
 import 'package:openzo_frontend/src/product/productPage/product_page.dart';
 import 'package:openzo_frontend/src/store_page/store_page.dart';
 import 'package:openzo_frontend/src/stores_of_category/stores_by_category.dart';
@@ -30,10 +33,15 @@ class AppRouter {
   AppRouter()
       : router = GoRouter(
           initialLocation: '/',
+
           observers: [
             FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance)
           ],
-          redirect: (context, state) {
+          redirect: (context, state) async {
+            bool result = await InternetConnection().hasInternetAccess;
+            if (!result) {
+              return '/no-internet';
+            }
             if (state.uri.pathSegments.isEmpty) {
               return '/';
             }
@@ -62,6 +70,10 @@ class AppRouter {
                     return loggedIn;
                   },
                 ),
+                // no internet
+                GoRoute(
+                    path: 'no-internet',
+                    builder: (context, state) => NoInternet()),
                 GoRoute(
                     path: 'privacy-policy',
                     builder: (context, state) {

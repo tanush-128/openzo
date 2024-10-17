@@ -4,8 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:openzo_frontend/models/review.dart';
 import 'package:openzo_frontend/models/store.dart';
-import 'package:openzo_frontend/providers/user_provider.dart';
-import 'package:openzo_frontend/utils/capitalize.dart';
+import 'package:openzo_frontend/viewmodels/user_provider.dart';
+import 'package:openzo_frontend/src/utils/capitalize.dart';
 import 'package:provider/provider.dart';
 
 class ReviewsList extends StatefulWidget {

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/constants/constants.dart';
@@ -6,15 +8,16 @@ import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/models/user.dart';
-import 'package:openzo_frontend/providers/sales_provider.dart';
-import 'package:openzo_frontend/providers/user_provider.dart';
-import 'package:openzo_frontend/src/cart/cart_item.dart';
-import 'package:openzo_frontend/src/cart/cart_page/AddressBottomSheet.dart';
-import 'package:openzo_frontend/src/cart/cart_page/CartDetails.dart';
-import 'package:openzo_frontend/src/cart/cart_page/OrderStatus.dart';
-import 'package:openzo_frontend/src/cart/cart_page/kSeparator.dart';
+import 'package:openzo_frontend/viewmodels/sales_provider.dart';
+import 'package:openzo_frontend/viewmodels/user_provider.dart';
+import 'package:openzo_frontend/src/cart/cart_page/components/cart_item/cart_item.dart';
+import 'package:openzo_frontend/src/cart/cart_page/components/AddressBottomSheet.dart';
+import 'package:openzo_frontend/src/cart/cart_page/components/order_status.dart';
+import 'package:openzo_frontend/src/cart/cart_page/components/address_details.dart';
+
+import 'package:openzo_frontend/src/cart/cart_page/components/grad_button.dart';
 import 'package:openzo_frontend/src/cart/cart_page/styles.dart';
-import 'package:openzo_frontend/src/cart/cart_page/succes_page.dart';
+import 'package:openzo_frontend/src/cart/cart_page/components/succes_page.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -45,7 +48,8 @@ class _CartPageState extends State<CartPage> {
     super.initState();
     final cart = Provider.of<SalesProvider>(context, listen: false)
         .onlineOrders
-        .firstWhere((element) => element.id == widget.id);
+        .where((element) => element.id == widget.id)
+        .first;
 
     noteController.text = cart.note ?? "";
 
@@ -103,8 +107,25 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     cart = Provider.of<SalesProvider>(context)
         .onlineOrders
-        .firstWhere((element) => element.id == widget.id);
-
+        .where((element) => element.id == widget.id)
+        .first;
+    if (cart == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Order Details'),
+        ),
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error, color: Colors.red),
+              SizedBox(height: 10),
+              Text('Order not found'),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.grey.shade50,
@@ -123,57 +144,28 @@ class _CartPageState extends State<CartPage> {
         child: Column(
           children: [
             const SizedBox(height: 10),
-            OrderStatus(cart: cart, storeType: storeType),
+            // OrderStatus(cart: cart, storeType: storeType),
             _buildPaymentReminder(cart),
-            _buildCanceledOrRejected(cart),
-            _buildStoreDetails(context),
-            if (cart.status == "placed" || cart.status == "accepted")
-              Container(
-                decoration: kBoxDecoration,
-                margin: const EdgeInsets.all(8),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
-                child: Row(
-                  children: [
-                    const Icon(Icons.timer, color: GlobalStyle.primaryColor),
-                    const SizedBox(width: 10),
-                    // CircularCountDownTimer(
-                    //   width: 60,
-                    //   height: 60,
-                    //   duration: 120 -
-                    //       cart.orderTime!.difference(DateTime.now()).inSeconds,
-                    //   fillColor: Colors.red.shade50,
-                    //   ringColor: GlobalStyle.primaryColor,
-                    //   isReverse: true,
-                    // ),
 
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Cancel Order in 2 minutes",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.red,
-                              )),
-                          Text(
-                            "If you want to cancel the order, please do it now",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey.shade600,
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
+            _buildStoreDetails(context),
+            _cancellationReminder(),
+
             _buildOrderItems(cart),
             const SizedBox(height: 10),
-            _buildAddressDetails(cart, context),
+            // _buildAddressDetails(cart, context),
+            // if (store != null)
+            //   AddressDetails(
+            //     cart: cart,
+            //     store: store!,
+            //     onAddressConfirmed: () {
+            //       setState(() {
+            //         addressConfirmed = true;
+            //         log("address confirmed");
+            //       });
+            //     },
+            //   ),
             _buildAddNote(context, cart),
+            // CancellationButton(),
             if (store != null && store!.selfDeliveryService == false)
               Container(
                 margin: const EdgeInsets.all(8),
@@ -227,6 +219,43 @@ class _CartPageState extends State<CartPage> {
         ),
       ),
     );
+  }
+
+  Widget _cancellationReminder() {
+    if (cart.status == "placed" || cart.status == "accepted") {
+      Container(
+        decoration: kBoxDecoration,
+        margin: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+        child: Row(
+          children: [
+            const Icon(Icons.timer, color: GlobalStyle.primaryColor),
+            const SizedBox(width: 10),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Cancel Order in 2 minutes",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.red,
+                      )),
+                  Text(
+                    "If you want to cancel the order, please do it now",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      );
+    }
+    return const SizedBox();
   }
 
   // Like pay at the delivery
@@ -330,9 +359,10 @@ class _CartPageState extends State<CartPage> {
                         onPressed: () {
                           Provider.of<SalesProvider>(context, listen: false)
                               .deleteSale(cart.id)
-                              .then((value) {});
-                          Navigator.pop(context);
-                          context.go("/");
+                              .then((value) {
+                            context.go("/");
+                          });
+                          // Navigator.pop(context);
                         },
                         child: const Text('Delete'),
                       ),
@@ -458,40 +488,46 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Container _buildCanceledOrRejected(Sale cart) {
-    if (cart.status != "rejected" && cart.status != "cancelled") {
-      return Container(
-          // child: Text(cart.status),
-          );
-    }
-    return Container(
-      margin: const EdgeInsets.all(8),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-      decoration: kBoxDecoration.copyWith(
-        color: Colors.red,
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.error, color: Colors.white),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              storeType != StoreType.service
-                  ? 'We are sorry , Store has cancelled the order'
-                  : 'We are sorry , Store has rejected the booking',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget? _buildBottomBar(
       BuildContext context, Sale cart, bool notPlaced, Store? store) {
+    if (cart.status == "placed") {
+      return Container(
+        height: 75,
+        color: Colors.white,
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                ImageIcon(
+                  const AssetImage('assets/icons/bill.png'),
+                  color: Colors.grey.shade500,
+                  size: 18,
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  "Total Bill   ",
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
+                ),
+                Text(
+                  "₹${cart.totalAmount + (store?.deliveryCharge ?? 0)}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 10),
+            CancellationButton(),
+          ],
+        ),
+      );
+    }
     if (cart.status != "not_placed") return null;
 
     askForConfirmation() {
@@ -640,176 +676,6 @@ class _CartPageState extends State<CartPage> {
                       ],
                     ),
                   ),
-        ],
-      ),
-    );
-  }
-
-  Container _buildAddressDetails(Sale cart, BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(8),
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
-      decoration: kBoxDecoration,
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (storeType != StoreType.service)
-            Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ImageIcon(
-                      const AssetImage('assets/icons/Home.png'),
-                      color: Colors.grey.shade700,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          editAddress(cart);
-                        },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Text(
-                                  "Delivery At :",
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 18,
-                                  color: Colors.grey,
-                                  fill: 1,
-                                )
-                              ],
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              address,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const kSeparator(),
-              ],
-            ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ImageIcon(
-                const AssetImage('assets/icons/phone.png'),
-                color: Colors.grey.shade700,
-                size: 18,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    editAddress(cart);
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "+91 $phone",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 15,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const Icon(
-                            Icons.arrow_forward_ios,
-                            size: 18,
-                            color: Colors.grey,
-                            fill: 1,
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const kSeparator(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ImageIcon(
-                const AssetImage('assets/icons/bill.png'),
-                color: Colors.grey.shade500,
-                size: 18,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    showModalBottomSheet(
-                        context: context,
-                        builder: (context) {
-                          return CartDetails(
-                            cart: cart,
-                            deliveryCharge: store?.deliveryCharge ?? 0,
-                            packingCharge: store?.packingCharge ?? 0,
-                          );
-                        });
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const Text(
-                              "Total Bill   ",
-                              style: TextStyle(
-                                color: Colors.grey,
-                              ),
-                            ),
-                            Text(
-                              "₹${cart.totalAmount + (store?.deliveryCharge ?? 0)}",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 15,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        size: 18,
-                        color: Colors.grey,
-                        fill: 1,
-                      )
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
         ],
       ),
     );

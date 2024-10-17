@@ -3,14 +3,15 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:openzo_frontend/main.dart';
 import 'package:openzo_frontend/models/user.dart';
-import 'package:openzo_frontend/providers/sales_provider.dart';
-import 'package:openzo_frontend/providers/user_provider.dart';
+import 'package:openzo_frontend/viewmodels/sales_provider.dart';
+import 'package:openzo_frontend/viewmodels/user_provider.dart';
 import 'package:openzo_frontend/src/router.dart';
-import 'package:openzo_frontend/utils/notification.dart';
-import 'package:openzo_frontend/utils/theme.dart';
-import 'package:openzo_frontend/utils/user_util.dart';
+import 'package:openzo_frontend/src/utils/notification.dart';
+import 'package:openzo_frontend/src/utils/theme.dart';
+import 'package:openzo_frontend/src/utils/user_util.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,69 +48,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     setUpAwesomeNotif(_appRouter);
 
     super.initState();
-    _checkExistingUser();
-  }
-
-  Future<void> _handleUserAuthentication() async {
-    setState(() {
-      _isLoading = true; // Show loading indicator
-    });
-
-    try {
-      await handleUserData(context);
-
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(content: Text('Welcome back!')),
-      // );
-
-      _fetchOrdersAndNavigate();
-
-      FirebaseAnalytics.instance.logLogin();
-      // FirebaseAnalytics.instance.setUserProperty(
-      //   name: 'phone_number',
-      //   // value: _phoneController.text,
-      // );
-    } catch (error) {
-      print('Error handling user authentication: $error');
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(content: Text('There was an error signing in')),
-      // );
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.remove('token');
-    } finally {
-      setState(() {
-        _isLoading = false; // Hide loading indicator
-      });
-    }
-  }
-
-  _fetchOrdersAndNavigate() {
-    try {
-      Provider.of<SalesProvider>(context, listen: false).getOrders();
-      User user = Provider.of<UserProvider>(context, listen: false).user;
-
-      if (user.id.isNotEmpty) {
-        if (user.name == null || user.name!.isEmpty) {
-          // context.go('/name-reg');
-          _appRouter.router.go('/name-reg');
-        }
-      }
-    } catch (error) {
-      print('Error fetching orders: $error');
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(content: Text('Failed to fetch orders')),
-      // );
-    }
-  }
-
-  Future<void> _checkExistingUser() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    if (token != null) {
-      await _handleUserAuthentication();
-    } else {
-      _appRouter.router.go('/login');
-    }
   }
 
   // Initialize the router

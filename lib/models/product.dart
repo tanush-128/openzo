@@ -87,26 +87,20 @@ class Post {
   });
 }
 
-// product.dart
-
 class Product {
   String id;
   String name;
   String description;
   int mrp;
   String quantityUnit;
-
-  int discountPrice = 0;
+  int discountPrice;
   List<ProductImage> images;
-  List<SizeVariant> sizeVariants = [];
-  List<ColorVariant> colorVariants = [];
+  List<SizeVariant> sizeVariants;
+  List<ColorVariant> colorVariants;
   String brand;
-
   String category;
   String storeID;
   String barcode;
-
-  //
   String? type;
   String? vegType;
   int? servers;
@@ -137,7 +131,6 @@ class Product {
   });
 
   static String endpoint = '${GlobalConsts.backend_url}/products';
-  // static String endpoint = 'https://lnn7jf70-8080.inc1.devtunnels.ms';
 
   // Static in-memory cache
   static final Map<String, Product> _productCache = {};
@@ -145,25 +138,24 @@ class Product {
   // Static map to keep track of ongoing fetch requests
   static final Map<String, Future<Product>> _productFutures = {};
 
-  //static in-memory cache for list of products with storeID as key
-
+  // Static in-memory cache for list of products with storeID as key
   static final Map<String, List<Product>> _productCacheByStore = {};
 
-  // Optional: Cache timestamps for invalidation
+  // Cache timestamps for invalidation
   static final Map<String, DateTime> _productCacheTimestamps = {};
 
   // Define cache duration
-  static final Duration cacheDuration =
-      const Duration(hours: 1); // Adjust as needed
+  static const Duration cacheDuration = Duration(hours: 1);
 
   /// Fetch a single product by its ID with caching
   static Future<Product> fetchOne(String productID) async {
+    
     // Check if the product is already in the cache and not expired
     if (_productCache.containsKey(productID)) {
       final cachedTime = _productCacheTimestamps[productID];
       if (cachedTime != null &&
           DateTime.now().difference(cachedTime) < cacheDuration) {
-        return Future.value(_productCache[productID]!);
+        return _productCache[productID]!;
       } else {
         // Cache expired, remove it
         _productCache.remove(productID);
@@ -207,7 +199,7 @@ class Product {
         Uri.parse('$endpoint/$productID'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': token, // Correctly include the token
+          'Authorization': '$token',
         },
       );
 
@@ -230,7 +222,7 @@ class Product {
     }
   }
 
-  /// Optional: Method to clear the cache (useful for testing or refreshing data)
+  /// Method to clear the cache (useful for testing or refreshing data)
   static void clearCache() {
     _productCache.clear();
     _productCacheTimestamps.clear();
@@ -239,17 +231,12 @@ class Product {
 
   /// Fetch multiple products by storeID with caching
   static Future<List<Product>> fetchMany(String storeID) async {
-    List<Product> products = [];
-
-    // Implement caching for fetchMany if needed
-    // For simplicity, assuming fetchMany fetches all products for a store and caching individual products
-
     // Check if the products for this store are already in the cache and not expired
     if (_productCacheByStore.containsKey(storeID)) {
       final cachedTime = _productCacheTimestamps[storeID];
       if (cachedTime != null &&
           DateTime.now().difference(cachedTime) < cacheDuration) {
-        return Future.value(_productCacheByStore[storeID]!);
+        return _productCacheByStore[storeID]!;
       } else {
         // Cache expired, remove it
         _productCacheByStore.remove(storeID);
@@ -265,26 +252,26 @@ class Product {
         throw Exception('Authentication token not found');
       }
 
-      http.Request req =
-          http.Request('GET', Uri.parse('$endpoint/store/$storeID'));
-      req.headers['Content-Type'] = 'application/json; charset=UTF-8';
-      req.headers['Authorization'] = token;
+      final response = await http.get(
+        Uri.parse('$endpoint/store/$storeID'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': '$token',
+        },
+      );
 
-      http.StreamedResponse res = await req.send();
+      if (response.statusCode == 200) {
+        List<dynamic> productsJson = json.decode(response.body);
+        List<Product> products = productsJson
+            .map((productJson) => Product.fromJson(productJson))
+            .toList();
 
-      String body = await res.stream.bytesToString();
-
-      if (res.statusCode == 200) {
-        var productsJson = json.decode(body);
-        for (var productJson in productsJson) {
-          Product product = Product.fromJson(productJson);
-          products.add(product);
-          // Cache individual products
-          if (!_productCache.containsKey(product.id)) {
-            _productCache[product.id] = product;
-            _productCacheTimestamps[product.id] = DateTime.now();
-          }
+        // Cache individual products
+        for (var product in products) {
+          _productCache[product.id] = product;
+          _productCacheTimestamps[product.id] = DateTime.now();
         }
+
         log('Fetched ${products.length} products for storeID "$storeID"');
 
         // Cache the list of products for this store
@@ -292,27 +279,21 @@ class Product {
         _productCacheTimestamps[storeID] = DateTime.now();
 
         return products;
-      } else if (res.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         throw Exception('Unauthorized: Invalid token');
       } else {
-        log('Failed to fetch products for storeID "$storeID": ${res.statusCode} ${res.reasonPhrase}');
+        log('Failed to fetch products for storeID "$storeID": ${response.statusCode} ${response.reasonPhrase}');
         throw Exception('Failed to load products');
       }
     } catch (e) {
       log('Error in fetchMany: $e');
-      throw e;
+      rethrow;
     }
   }
 
   /// Search products with caching
   static Future<List<Product>> searchProducts(
       String pincode, String nameContains) async {
-    List<Product> products = [];
-    final queryKey = '$pincode|$nameContains';
-
-    // Implement caching for search results if desired
-    // For simplicity, not caching search results as they can be highly variable
-
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
@@ -321,31 +302,33 @@ class Product {
         throw Exception('Authentication token not found');
       }
 
-      final res = await http.get(
+      final response = await http.get(
         Uri.parse(
             '${GlobalConsts.backend_url}/search/products/$pincode?term=$nameContains'),
         headers: <String, String>{
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
+          'Authorization': '$token',
         },
       );
-      log('Search Products Response: ${res.body}');
-      if (res.statusCode == 200) {
-        for (var productJson in jsonDecode(res.body)) {
-          products.add(Product.fromJson(productJson));
-          // Optionally cache individual products
-          if (!_productCache.containsKey(productJson['id'])) {
-            Product product = Product.fromJson(productJson);
-            _productCache[product.id] = product;
-            _productCacheTimestamps[product.id] = DateTime.now();
-          }
+      log('Search Products Response: ${response.body}');
+      if (response.statusCode == 200) {
+        List<dynamic> productsJson = jsonDecode(response.body);
+        List<Product> products = productsJson
+            .map((productJson) => Product.fromJson(productJson))
+            .toList();
+
+        // Optionally cache individual products
+        for (var product in products) {
+          _productCache[product.id] = product;
+          _productCacheTimestamps[product.id] = DateTime.now();
         }
+
         log('Found ${products.length} products matching "$nameContains" in pincode "$pincode"');
         return products;
-      } else if (res.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         throw Exception('Unauthorized: Invalid token');
       } else {
-        log('Failed to search products: ${res.statusCode} ${res.reasonPhrase}');
+        log('Failed to search products: ${response.statusCode} ${response.reasonPhrase}');
         return [];
       }
     } catch (e) {
@@ -354,36 +337,29 @@ class Product {
     }
   }
 
-  /// Fetch posts by pincode with caching for products and stores
+  /// Fetch posts by pincode with proper parsing
   static Future<List<Post>> fetchPostByPincode(String pincode) async {
-    final res = await http.get(
-      Uri.parse('$endpoint/post/pincode/$pincode'),
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('$endpoint/post/pincode/$pincode'),
+      );
 
-    if (res.statusCode == 200) {
-      List<Product> products = [];
-      List<StoreBasicDetails> stores = [];
-      for (var product in jsonDecode(res.body)) {
-        products.add(Product.fromJson(product));
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        List<Post> posts = data.map((item) {
+          Product product = Product.fromJson(item['product']);
+          StoreBasicDetails store = StoreBasicDetails.fromJson(item['store']);
+          return Post(post: product, store: store);
+        }).toList();
+
+        return posts;
+      } else {
+        log('Failed to fetch posts by pincode: ${response.statusCode} ${response.reasonPhrase}');
+        throw Exception('Failed to load posts');
       }
-
-      for (var store in jsonDecode(res.body)) {
-        // StoreBasicDetails store = await StoreBasicDetails.getStoreBasicDetailsByID(store.storeID);
-        stores.add(StoreBasicDetails.fromJson(store));
-      }
-
-      List<Post> posts = [];
-      for (int i = 0; i < products.length; i++) {
-        posts.add(Post(post: products[i], store: stores[i]));
-      }
-
-      return posts;
-
-      // log(stores.toString());
-      // return products;
-    } else {
-      print(res.body);
-      throw Exception('Failed to load products');
+    } catch (e) {
+      log('Error in fetchPostByPincode: $e');
+      rethrow;
     }
   }
 
@@ -404,16 +380,16 @@ class Product {
       category: json['category'],
       storeID: json['store_id'],
       brand: json['brand'],
-      sizeVariants: json['size_variants'] == null
-          ? []
-          : (json['size_variants'] as List)
+      sizeVariants: json['size_variants'] != null
+          ? (json['size_variants'] as List)
               .map((sizeVariant) => SizeVariant.fromJson(sizeVariant))
-              .toList(),
-      colorVariants: json['color_variants'] == null
-          ? []
-          : (json['color_variants'] as List)
+              .toList()
+          : [],
+      colorVariants: json['color_variants'] != null
+          ? (json['color_variants'] as List)
               .map((colorVariant) => ColorVariant.fromJson(colorVariant))
-              .toList(),
+              .toList()
+          : [],
       type: json['type'],
       vegType: json['veg_type'],
       servers: json['servers'],
