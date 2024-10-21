@@ -1,19 +1,13 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:openzo_frontend/main.dart';
-import 'package:openzo_frontend/models/user.dart';
-import 'package:openzo_frontend/viewmodels/sales_provider.dart';
-import 'package:openzo_frontend/viewmodels/user_provider.dart';
 import 'package:openzo_frontend/src/router.dart';
+import 'package:openzo_frontend/src/theme.dart';
 import 'package:openzo_frontend/src/utils/notification.dart';
-import 'package:openzo_frontend/src/utils/theme.dart';
-import 'package:openzo_frontend/src/utils/user_util.dart';
+import 'package:openzo_frontend/viewmodels/sales_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatefulWidget {
@@ -26,7 +20,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  bool _isLoading = false;
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);

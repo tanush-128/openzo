@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/models/product.dart';
+import 'package:openzo_frontend/repositories/product_repository.dart';
 
 class ProductsProvider extends ChangeNotifier {
   ProductsProvider();
@@ -37,7 +38,7 @@ class ProductsProvider extends ChangeNotifier {
   }
 
   Future<List<Product>> fetch(String storeId) async {
-    _products = await Product.fetchMany(storeId);
+    _products = await ProductRepository.fetchProductsByStore(storeId);
     _products.sort((a, b) => b.displayOrder.compareTo(a.displayOrder));
     _filteredProducts = List.from(_products);
     notifyListeners();

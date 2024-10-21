@@ -9,6 +9,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/constants/styles.dart';
+import 'package:openzo_frontend/services/location_service.dart';
+import 'package:openzo_frontend/services/user_service.dart';
 import 'package:openzo_frontend/viewmodels/products_provider.dart';
 import 'package:openzo_frontend/viewmodels/sales_provider.dart';
 import 'package:openzo_frontend/viewmodels/user_provider.dart';
@@ -85,7 +87,7 @@ Future<void> main() async {
   );
 
   String? token = await messaging.getToken();
-  log('Token: $token');
+  log('FCM Token: $token');
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString('fcmToken', token!);
   if (kDebugMode) {
@@ -97,11 +99,35 @@ Future<void> main() async {
 
   log('AppId: $appId');
 
+  // Initialize SharedPreferences
+  SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+  // Initialize Firebase Messaging
+  FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+
+  // Initialize other dependencies
+
+  LocationService locationService = LocationService();
+
+  // Initialize Providers
+  UserProvider userProvider = UserProvider();
+  SalesProvider salesProvider = SalesProvider(userProvider);
+
+  // Initialize UserService
+  UserService userService = UserService(
+    userProvider: userProvider,
+    salesProvider: salesProvider,
+    sharedPreferences: sharedPreferences,
+    firebaseMessaging: firebaseMessaging,
+    locationService: locationService,
+  );
+
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context) => UserProvider()),
-      ChangeNotifierProvider(create: (context) => SalesProvider()),
       ChangeNotifierProvider(create: (context) => ProductsProvider()),
+      ChangeNotifierProvider<UserProvider>.value(value: userProvider),
+      ChangeNotifierProvider<SalesProvider>.value(value: salesProvider),
+      Provider<UserService>.value(value: userService),
     ],
     child: const MyApp(),
   ));

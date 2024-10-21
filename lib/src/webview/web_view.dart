@@ -3,8 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/viewmodels/sales_provider.dart';
 import 'package:openzo_frontend/viewmodels/user_provider.dart';
-import 'package:openzo_frontend/src/store_page/widgets/productsListSkeleton.dart';
-import 'package:openzo_frontend/src/store_page/widgets/storeSetailsSkeleton.dart';
+import 'package:openzo_frontend/views/store/widgets/product_list_skeleton.dart';
+import 'package:openzo_frontend/views/store/widgets/store_details_skeleton.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -91,7 +91,7 @@ class _WebViewCState extends State<WebViewC> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    String userId = Provider.of<UserProvider>(context, listen: false).user.id;
+    String userId = Provider.of<UserProvider>(context, listen: false).user?.id ?? ''; 
 
     await _cookieManager.setCookie(
       WebViewCookie(

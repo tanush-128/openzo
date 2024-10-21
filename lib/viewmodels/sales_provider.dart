@@ -2,9 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/user.dart';
+import 'package:openzo_frontend/repositories/sale_repository.dart';
+import 'package:openzo_frontend/viewmodels/user_provider.dart';
 
 class SalesProvider extends ChangeNotifier {
-  SalesProvider();
+  UserProvider _userProvider;
+  SalesProvider(
+    this._userProvider,
+  ) {
+    _userProvider.addListener(() {
+      if (_userProvider.user != null) {
+        getOrders();
+      }
+    });
+  }
 
   User _user = User(
     id: "",
@@ -52,13 +63,13 @@ class SalesProvider extends ChangeNotifier {
   bool get fetching => _fetching;
 
   Future<void> getOrders() async {
-    final orders = await Sale.getSalesByUserID();
+    final orders = await SaleRepository.getSalesByUserID();
 
     final orderIds = _onlineOrders.map((order) => order.id).toSet();
 
     for (var element in orders) {
       if (element.orderItems.isEmpty || element.totalAmount <= 0) {
-        await Sale.deleteSale(element.id);
+        await SaleRepository.deleteSale(element.id);
       } else {
         if (!orderIds.contains(element.id)) {
           _onlineOrders.add(element);
@@ -105,14 +116,14 @@ class SalesProvider extends ChangeNotifier {
       address: _user.address ?? "",
     );
     onlineOrder.customer = _customer;
-    Sale _onlineOrder = await Sale.createSale(onlineOrder);
+    Sale _onlineOrder = await SaleRepository.createSale(onlineOrder);
     _onlineOrders.add(_onlineOrder);
 
     notifyListeners();
   }
 
   Future<void> fetchSaleById(String id) async {
-    Sale _onlineOrder = await Sale.getSaleByID(id);
+    Sale _onlineOrder = await SaleRepository.getSaleByID(id);
     if (_onlineOrders.indexWhere((element) => element.id == id) == -1) {
       _onlineOrders.add(_onlineOrder);
     } else {
@@ -123,14 +134,14 @@ class SalesProvider extends ChangeNotifier {
   }
 
   Future<void> updateSale(Sale onlineOrder) async {
-    Sale _onlineOrder = await Sale.updateSale(onlineOrder);
+    Sale _onlineOrder = await SaleRepository.updateSale(onlineOrder);
     _onlineOrders[_onlineOrders
         .indexWhere((element) => element.id == onlineOrder.id)] = _onlineOrder;
     notifyListeners();
   }
 
   Future<void> deleteSale(String id) async {
-    await Sale.deleteSale(id);
+    await SaleRepository.deleteSale(id);
     _onlineOrders.removeWhere((element) => element.id == id);
     notifyListeners();
   }

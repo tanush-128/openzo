@@ -7,19 +7,21 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:openzo_frontend/constants/constants.dart';
+import 'package:openzo_frontend/viewmodels/phone_auth_view_model.dart';
 import 'package:openzo_frontend/viewmodels/user_provider.dart';
-import 'package:openzo_frontend/src/booking/bookingPage.dart';
+import 'package:openzo_frontend/views/booking/bookingPage.dart';
 import 'package:openzo_frontend/src/bottom_navigation_bar.dart';
-import 'package:openzo_frontend/src/cart/cart_page/cart_page_view.dart';
-import 'package:openzo_frontend/src/categories_page.dart';
-import 'package:openzo_frontend/src/coming_soon_page.dart';
-import 'package:openzo_frontend/src/login/loginPage.dart';
-import 'package:openzo_frontend/src/login/name_reg.dart';
-import 'package:openzo_frontend/src/no-internet.dart';
-import 'package:openzo_frontend/src/product/productPage/product_page.dart';
-import 'package:openzo_frontend/src/store_page/store_page.dart';
-import 'package:openzo_frontend/src/stores_of_category/stores_by_category.dart';
-import 'package:openzo_frontend/src/user/account_page.dart';
+import 'package:openzo_frontend/views/cart/cart_page_view.dart';
+import 'package:openzo_frontend/views/categories_page_view.dart';
+import 'package:openzo_frontend/views/coming_soon_page_view.dart';
+import 'package:openzo_frontend/views/login/login_page_view.dart';
+import 'package:openzo_frontend/views/login/name_reg.dart';
+import 'package:openzo_frontend/views/no_internet_page.dart';
+import 'package:openzo_frontend/views/product/product_page_view.dart';
+
+import 'package:openzo_frontend/views/store/store_page_view.dart';
+import 'package:openzo_frontend/views/category_list/category_list_view.dart';
+import 'package:openzo_frontend/views/user/account_page_view.dart';
 import 'package:openzo_frontend/src/webview/web_view.dart';
 import 'package:provider/provider.dart';
 
@@ -64,10 +66,8 @@ class AppRouter {
                   path: 'login',
                   builder: (context, state) => const PhoneAuthPage(),
                   onExit: (context) {
-                    final user =
-                        Provider.of<UserProvider>(context, listen: false).user;
-                    final loggedIn = user.id.isNotEmpty;
-                    return loggedIn;
+                    return Provider.of<UserProvider>(context, listen: false)
+                        .isLoggedIn;
                   },
                 ),
                 // no internet
@@ -77,14 +77,15 @@ class AppRouter {
                 GoRoute(
                     path: 'privacy-policy',
                     builder: (context, state) {
-                      return WebViewC(
+                      return const WebViewC(
                         url: 'https://www.openzo.in/privacy-policy',
                       );
                     }),
                 GoRoute(
                   path: 'name-reg',
                   builder: (context, state) {
-                    return const NameReg();
+                    final viewModel = state.extra as PhoneAuthViewModel;
+                    return NameReg(viewModel: viewModel);
                   },
                 ),
                 GoRoute(
@@ -104,7 +105,7 @@ class AppRouter {
                 GoRoute(
                     path: 'food-delivery',
                     builder: (context, state) {
-                      return StoresByCategory(
+                      return CategoryList(
                         category: GlobalConsts.categories.firstWhere(
                             (element) => element.name == 'Food',
                             orElse: () => GlobalConsts.categories.first),
@@ -115,7 +116,7 @@ class AppRouter {
                 GoRoute(
                     path: 'grocery-delivery',
                     builder: (context, state) {
-                      return StoresByCategory(
+                      return CategoryList(
                         category: GlobalConsts.categories.firstWhere(
                             (element) => element.name == 'Stores',
                             orElse: () => GlobalConsts.categories.first),
@@ -132,7 +133,7 @@ class AppRouter {
                 GoRoute(
                     path: 'services',
                     builder: (context, state) {
-                      return StoresByCategory(
+                      return CategoryList(
                         category: GlobalConsts.categories.firstWhere(
                             (element) => element.name == 'Services',
                             orElse: () => GlobalConsts.categories.first),
@@ -141,7 +142,7 @@ class AppRouter {
                 GoRoute(
                     path: 'stores',
                     builder: (context, state) {
-                      return StoresByCategory(
+                      return CategoryList(
                         category: GlobalConsts.categories.firstWhere(
                             (element) => element.name == 'Stores',
                             orElse: () => GlobalConsts.categories.first),
@@ -150,7 +151,7 @@ class AppRouter {
                 GoRoute(
                     path: 'home-services',
                     builder: (context, state) {
-                      return StoresByCategory(
+                      return CategoryList(
                         category: GlobalConsts.categories.firstWhere(
                             (element) => element.name == 'Home Services',
                             orElse: () => GlobalConsts.categories.first),
@@ -159,7 +160,7 @@ class AppRouter {
                 GoRoute(
                     path: 'hotel-rooms',
                     builder: (context, state) {
-                      return StoresByCategory(
+                      return CategoryList(
                         category: GlobalConsts.categories.firstWhere(
                             (element) => element.name == 'Hotel',
                             orElse: () => GlobalConsts.categories.first),
@@ -169,7 +170,7 @@ class AppRouter {
                 GoRoute(
                     path: 'ride-hire',
                     builder: (context, state) {
-                      return StoresByCategory(
+                      return CategoryList(
                         category: GlobalConsts.categories.firstWhere(
                             (element) => element.name == 'Ride hire',
                             orElse: () => GlobalConsts.categories.first),
@@ -179,7 +180,7 @@ class AppRouter {
                 GoRoute(
                   path: 'campus-only',
                   builder: (context, state) {
-                    return StoresByCategory(
+                    return CategoryList(
                       category: GlobalConsts.categories.firstWhere(
                           (element) => element.name == 'Food',
                           orElse: () => GlobalConsts.categories.first),
@@ -208,7 +209,7 @@ class AppRouter {
                       final subCategory =
                           state.uri.queryParameters['subCategory'];
 
-                      return StoresByCategory(
+                      return CategoryList(
                         category: category,
                         subCategory: subCategory != null
                             ? category.subCategories.firstWhere(
