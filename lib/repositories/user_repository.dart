@@ -5,9 +5,11 @@ import 'package:http/http.dart' as http;
 import 'package:openzo_frontend/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../constants/constants.dart';
+
 class UserRepository {
-  // static String endpoint = '${GlobalConsts.backend_url}/users';
-  static String endpoint = 'https://fxscpgdl-8081.inc1.devtunnels.ms';
+  static String endpoint = '${GlobalConsts.backend_url}/users';
+  // static String endpoint = 'https://fxscpgdl-8081.inc1.devtunnels.ms';
 
   static Future<User> getUserWithJWT() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -100,6 +102,7 @@ class UserRepository {
   }
 
   static Future<String> generateOTP(String mobile) async {
+
     final response = await http.post(
       Uri.parse('$endpoint/otp'),
       headers: {
@@ -107,7 +110,6 @@ class UserRepository {
       },
       body: jsonEncode({'phone_no': mobile}),
     );
-
     if (response.statusCode == 200) {
       return jsonDecode(response.body)['verification_id'];
     } else {

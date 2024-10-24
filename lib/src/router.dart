@@ -65,10 +65,18 @@ class AppRouter {
                 GoRoute(
                   path: 'login',
                   builder: (context, state) => const PhoneAuthPage(),
-                  onExit: (context) {
-                    return Provider.of<UserProvider>(context, listen: false)
-                        .isLoggedIn;
+                  onExit: (context, state) async {
+                    bool isLoggedIn = Provider.of<UserProvider>(context, listen: false).isLoggedIn;
+
+                    // You can add logic to determine whether to allow the exit
+                    if (!isLoggedIn) {
+                      log("User is not logged in, preventing exit.");
+                      return false; // Prevents route exit
+                    }
+
+                    return true; // Allows route exit
                   },
+
                 ),
                 // no internet
                 GoRoute(

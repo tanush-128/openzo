@@ -33,8 +33,10 @@ class PhoneAuthViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
+      print("+91"+phoneController.text);
       String _verificationId =
           await UserRepository.generateOTP(phoneController.text);
+      print("hello");
       verificationId = _verificationId;
 
       ScaffoldMessenger.of(context).showSnackBar(

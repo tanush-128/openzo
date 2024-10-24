@@ -20,7 +20,7 @@ class _CartDetailsState extends State<CartDetails> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(8),
       color: Colors.white,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
