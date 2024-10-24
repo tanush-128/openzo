@@ -201,7 +201,7 @@ class _AddressDetailsState extends State<AddressDetails> {
           //     ),
           //   ],
           // ),
-          if (_isExpanded) // Show details if expanded
+
             CartDetails(
               cart: cart,
               deliveryCharge: store?.deliveryCharge ?? 0,
