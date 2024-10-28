@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/address.dart';
 
 class AddressRepository {
-  // static String endpoint = '${GlobalConsts.backend_url}/users';
-  static String endpoint = 'https://fxscpgdl-8081.inc1.devtunnels.ms';
+  static String endpoint = '${GlobalConsts.backend_url}/users';
+  // static String endpoint = 'https://fxscpgdl-8081.inc1.devtunnels.ms';
 
   static Future<List<Address>> getAddressesByUserId(String userId) async {
     final response = await http.get(

@@ -64,8 +64,7 @@ class Sale {
       'id': id,
       'order_items': orderItems.map((e) => e.toJson()).toList(),
       'customer': customer?.toJson(),
-      'order_time':
-          orderTime?.toIso8601String() ?? DateTime.now().toIso8601String(),
+      'order_time': orderTime?.toString() ?? DateTime.now().toString(),
       'total_amount': totalAmount,
       'undiscounted_amount': undiscountedTotalAmount,
       'amount_paid': amountPaid,

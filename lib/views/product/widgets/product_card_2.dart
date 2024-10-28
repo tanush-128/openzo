@@ -125,7 +125,6 @@ class _ProductCard2State extends State<ProductCard2> {
       ],
     );
   }
-
 }
 
 extension FirstWhereOrNullExtension<E> on Iterable<E> {

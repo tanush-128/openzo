@@ -2,12 +2,13 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserRepository {
-  // static String endpoint = '${GlobalConsts.backend_url}/users';
-  static String endpoint = 'https://fxscpgdl-8081.inc1.devtunnels.ms';
+  static String endpoint = '${GlobalConsts.backend_url}/users';
+  // static String endpoint = 'https://fxscpgdl-8081.inc1.devtunnels.ms';
 
   static Future<User> getUserWithJWT() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

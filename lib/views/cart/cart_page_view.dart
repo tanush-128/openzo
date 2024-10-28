@@ -78,8 +78,6 @@ class CartPage extends StatelessWidget {
                     },
                     child: const Text("Pay now"),
                   ),
-
-                  CancellationButton(),
                 ],
               ),
             ),
@@ -318,7 +316,9 @@ class CartPage extends StatelessWidget {
   }
 
   Widget? _buildBottomBar(BuildContext context, CartPageViewModel viewModel) {
-    if (viewModel.cart!.status != "not_placed") return null;
+    if (viewModel.cart!.status != "not_placed") {
+      return CancellationButton(viewModel: viewModel);
+    }
 
     askForOrderConfirmation() {
       showDialog(

@@ -6,6 +6,7 @@ import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/repositories/product_repository.dart';
 import 'package:openzo_frontend/repositories/store_repository.dart';
+import 'package:openzo_frontend/src/webview/web_view.dart';
 import 'package:openzo_frontend/viewmodels/products_provider.dart';
 import 'package:openzo_frontend/viewmodels/sales_provider.dart';
 import 'package:openzo_frontend/views/store/widgets/custom_search_delegate.dart';
@@ -64,32 +65,32 @@ class _StorePageState extends State<StorePage>
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         bottomNavigationBar: _buildBottomBar(),
-        body: NestedScrollView(
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              _buildSliverAppBar(),
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: _SliverAppBarDelegate(
-                  TabBar(
-                    controller: _tabController,
-                    tabs: const [
-                      Tab(text: 'Products'),
-                      Tab(text: 'Reviews'),
-                      Tab(text: 'Posts'),
-                    ],
-                  ),
-                ),
-              ),
-            ];
-          },
-          body: _buildBody(),
-        ),
-        // body: WebViewC(
-        //   // url: "https://openzo-webview.vercel.app/store/${widget.storeId}",
-        //   // url:
-        //   //     "https://5124-203-110-242-43.ngrok-free.app/store/${widget.storeId}",
+        // body: NestedScrollView(
+        //   headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+        //     return <Widget>[
+        //       _buildSliverAppBar(),
+        //       SliverPersistentHeader(
+        //         pinned: true,
+        //         delegate: _SliverAppBarDelegate(
+        //           TabBar(
+        //             controller: _tabController,
+        //             tabs: const [
+        //               Tab(text: 'Products'),
+        //               Tab(text: 'Reviews'),
+        //               Tab(text: 'Posts'),
+        //             ],
+        //           ),
+        //         ),
+        //       ),
+        //     ];
+        //   },
+        //   body: _buildBody(),
         // ),
+        body: WebViewC(
+          // url: "https://openzo-webview.vercel.app/store/${widget.storeId}",
+          url:
+              "https://fxscpgdl-3000.inc1.devtunnels.ms/store/${widget.storeId}",
+        ),
       ),
     );
   }
