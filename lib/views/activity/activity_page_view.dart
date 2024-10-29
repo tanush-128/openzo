@@ -16,9 +16,9 @@ class ActivityPage extends StatelessWidget {
           title: const Text('Activity'),
           bottom: const TabBar(
             tabs: [
-              Tab(text: 'carts'),
-              Tab(text: 'ongoing'),
-              Tab(text: 'completed'),
+              Tab(text: 'Carts'),
+              Tab(text: 'Ongoing'),
+              Tab(text: 'Completed'),
             ],
           ),
         ),

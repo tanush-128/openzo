@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/viewmodels/sales_provider.dart';
 import 'package:openzo_frontend/viewmodels/cart_page_view_model.dart';
-
 import 'package:openzo_frontend/views/cart/styles.dart';
-import 'package:openzo_frontend/views/cart/widgets/k_separator.dart';
 import 'package:provider/provider.dart';
 
 class OrderStatus extends StatefulWidget {
@@ -16,8 +15,7 @@ class OrderStatus extends StatefulWidget {
   State<OrderStatus> createState() => _OrderStatusState();
 }
 
-class _OrderStatusState extends State<OrderStatus> {
-  // Status Mapping for the UI display
+class _OrderStatusState extends State<OrderStatus> with TickerProviderStateMixin {
   final List<String> statusShortTexts = [
     "Confirmed",   // Order has been received by the store
     "On the way",  // Order has been accepted
@@ -25,6 +23,22 @@ class _OrderStatusState extends State<OrderStatus> {
   ];
 
   int currentStatusIndex = 0;
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat(); // Repeat the animation
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,11 +88,12 @@ class _OrderStatusState extends State<OrderStatus> {
           currentStatusIndex = 2; // On the way (Order has been accepted)
         } else if (cart.status == 'delivered' || cart.status == 'completed') {
           currentStatusIndex = 3; // Arrived (Order delivered/completed)
+          print("Status3");
         }
+        print(currentStatusIndex);
 
         return Container(
-          margin: const EdgeInsets.all(12),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 53, 16, 16),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [Colors.deepOrangeAccent, Colors.amber],
@@ -96,16 +111,18 @@ class _OrderStatusState extends State<OrderStatus> {
           ),
           child: Column(
             children: [
-              // Header: Order/Booking Status
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Order Status',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 30),
+                    child: Text(
+                      'Order Status',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -113,7 +130,6 @@ class _OrderStatusState extends State<OrderStatus> {
                 ],
               ),
               const Divider(height: 24, color: Colors.white),
-              // Order ID Section (without time)
               _buildOrderInfo(cart),
             ],
           ),
@@ -123,62 +139,75 @@ class _OrderStatusState extends State<OrderStatus> {
   }
 
   Widget _buildStatusRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
       children: [
-        for (int i = 0; i < statusShortTexts.length; i++) ...[
-          // Status Icon + Text
-          Column(
+        if(currentStatusIndex<3)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              // Status Icon (Smaller Loading for current, green filled for completed)
-              if (i == currentStatusIndex)
-                SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: const CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              Container(
+                margin: EdgeInsets.only(right: 30),
+                child: SizedBox(
+                  width: 30,
+                  height: 40,
+                  child: SpinKitPouringHourGlassRefined(
+                    color: Colors.white,
+                    size: 60.0,
+                    controller: _controller, // Use the AnimationController
                   ),
-                )
-              else
-                Icon(
-                  i < currentStatusIndex
-                      ? Icons.check_circle
-                      : Icons.circle_outlined,
-                  color: i < currentStatusIndex
-                      ? Colors.greenAccent
-                      : Colors.white70,
-                  size: 24,
-                ),
-              const SizedBox(height: 8),
-              // Status Text
-              Text(
-                statusShortTexts[i],
-                style: TextStyle(
-                  fontSize: 16,
-                  color: i <= currentStatusIndex
-                      ? Colors.white
-                      : Colors.white70,
-                  fontWeight: i <= currentStatusIndex
-                      ? FontWeight.bold
-                      : FontWeight.w500,
                 ),
               ),
             ],
           ),
-          // Add a dash between the items (except after the last one)
-          if (i < statusShortTexts.length - 1)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Divider(
-                  color: Colors.white,
-                  thickness: 2,
-                  height: 24,
-                ),
+        SizedBox(height: 10,),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+
+            for (int i = 0; i < statusShortTexts.length; i++) ...[
+              Row(
+                children: [
+                  Icon(
+                    Icons.circle,
+                    color:currentStatusIndex==3? Colors.greenAccent : i < currentStatusIndex-1
+                        ? Colors.greenAccent
+                        : i == currentStatusIndex-1
+                        ? Colors.white
+                        : Colors.white60,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    statusShortTexts[i],
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: currentStatusIndex==3? Colors.greenAccent : i < currentStatusIndex-1
+                          ? Colors.greenAccent
+                          : i == currentStatusIndex-1
+                          ? Colors.white
+                          : Colors.white70,
+                      fontWeight: i <= currentStatusIndex-1
+                          ? FontWeight.bold
+                          : FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
-            ),
-        ],
+
+            if (i < statusShortTexts.length - 1)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Divider(
+                      color: Colors.white,
+                      thickness: 2,
+                      height: 24,
+                    ),
+                  ),
+                ),
+            ],
+          ],
+        ),
       ],
     );
   }
@@ -217,8 +246,7 @@ class _OrderStatusState extends State<OrderStatus> {
               ),
             ),
             Text(
-              DateFormat('dd MMM, hh:mm a')
-                  .format(cart.orderTime!),
+              DateFormat('dd MMM, hh:mm a').format(cart.orderTime!),
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.white70,
