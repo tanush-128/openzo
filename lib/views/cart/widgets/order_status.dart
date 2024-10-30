@@ -178,7 +178,7 @@ class _OrderStatusState extends State<OrderStatus> with TickerProviderStateMixin
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    statusShortTexts[i],
+                    i==0 ?"Pending" : statusShortTexts[i],
                     style: TextStyle(
                       fontSize: 14,
                       color: currentStatusIndex==3? Colors.greenAccent : i < currentStatusIndex-1
@@ -199,7 +199,7 @@ class _OrderStatusState extends State<OrderStatus> with TickerProviderStateMixin
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Divider(
-                      color: Colors.white,
+                      color:i<=currentStatusIndex-2? Colors.greenAccent: Colors.white,
                       thickness: 2,
                       height: 24,
                     ),
