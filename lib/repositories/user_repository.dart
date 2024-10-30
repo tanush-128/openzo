@@ -27,10 +27,16 @@ class UserRepository {
 
     if (response.statusCode == 200) {
       return User.fromJson(jsonDecode(response.body));
-    } else {
+    } else if (response.statusCode == 500) {
+      // Only clear token for server errors (500)
       final prefs = await SharedPreferences.getInstance();
       prefs.remove('token');
-      throw Exception('Failed to load user');
+      throw Exception('Server error occurred');
+    } else {
+      // For other status codes, keep token but throw appropriate error
+      final errorMessage =
+          jsonDecode(response.body)['error'] ?? 'Failed to load user';
+      throw Exception(errorMessage);
     }
   }
 

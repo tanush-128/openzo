@@ -25,33 +25,124 @@ class UserService {
     required this.firebaseMessaging,
     required this.locationService,
   });
-  // Check if the user is authenticated
+
+  // Check if the user is authenticated and has valid token
   Future<bool> isUserAuthenticated() async {
     String? token = sharedPreferences.getString('token');
-    log('Token: $token');
-    return token != null;
+    if (token == null) {
+      log('No token found');
+      return false;
+    }
+    
+    try {
+      // Verify token validity by fetching user data
+      User user = await UserRepository.getUserWithJWT();
+      if (user.id.isEmpty) {
+        log('Invalid user data received');
+        return false;
+      }
+      
+      _setUserProviders(user);
+      userProvider.setLoggedIn(true);
+      return true;
+    } catch (e) {
+      log('Token validation failed: $e');
+      // Only clear auth data if it's a server error (500)
+      if (e.toString().contains('Server error occurred')) {
+        await _clearAuthData();
+      }
+      return false;
+    }
   }
 
-  // Handle user authentication and load user data
-  Future<void> handleUserAuthentication({
+  // Handle new user registration
+  Future<User> registerNewUser({
+    required String phone,
     required PermissionRequestCallback onPermissionDenied,
   }) async {
+    // Location is mandatory for new users
+    Position? position = await locationService.getCurrentLocation(
+      onPermissionDenied: onPermissionDenied,
+    );
+    if (position == null) {
+      throw Exception('Location permission is required for registration');
+    }
+
+    String fcmToken = await _getFCMToken();
+    
+    User newUser = User(
+      id: '',
+      phone: phone,
+      latitude: position.latitude.toString(),
+      longitude: position.longitude.toString(),
+      notificationToken: fcmToken,
+    );
+
+    // Register user and subscribe to notifications
+    newUser = await UserRepository.registerUser(newUser);
+    await _subscribeToNotifications(newUser);
+    _setUserProviders(newUser);
+    userProvider.setLoggedIn(true);
+    
+    return newUser;
+  }
+
+  // Handle existing user login
+  Future<User> loginExistingUser({
+    required String phone,
+  }) async {
     try {
-      await handleUserData(onPermissionDenied: onPermissionDenied);
-      // Notify that the user is authenticated
+      String fcmToken = await _getFCMToken();
+      User user = await UserRepository.getUserWithJWT();
+      
+      // Validate user data
+      if (user.id.isEmpty || user.phone != phone) {
+        throw Exception('Invalid user data received');
+      }
+      
+      // Update FCM token if needed
+      if (user.notificationToken != fcmToken) {
+        user = user.copyWith(notificationToken: fcmToken);
+        user = await UserRepository.updateUser(user);
+        await _subscribeToNotifications(user);
+      }
+
+      _setUserProviders(user);
       userProvider.setLoggedIn(true);
+      
+      return user;
     } catch (e) {
-      await handleAuthenticationError(e);
+      log('Error during login: $e');
+      // Only clear auth data if it's a server error (500)
+      if (e.toString().contains('Server error occurred')) {
+        await _clearAuthData();
+      }
+      rethrow;
+    }
+  }
+
+  // Helper method to get FCM token
+  Future<String> _getFCMToken() async {
+    String fcmToken = await firebaseMessaging.getToken() ?? '';
+    await sharedPreferences.setString('fcmToken', fcmToken);
+    return fcmToken;
+  }
+
+  // Helper method to subscribe to notifications
+  Future<void> _subscribeToNotifications(User user) async {
+    if (user.pincode != null) {
+      await firebaseMessaging.subscribeToTopic("pincode_${user.pincode}");
     }
   }
 
   // Handle authentication error
   Future<void> handleAuthenticationError(dynamic error) async {
     log('Error handling user authentication: $error');
-    await sharedPreferences.remove('token');
-    userProvider.clearUser();
+    // Only clear auth data if it's a server error (500)
+    if (error.toString().contains('Server error occurred')) {
+      await _clearAuthData();
+    }
     userProvider.setLoggedIn(false);
-    
   }
 
   /// Handles user data by checking if the user is new or existing.
@@ -148,5 +239,13 @@ class UserService {
     log('User set: ${user.id}');
     userProvider.setUser(user);
     salesProvider.setUser(user);
+  }
+
+  // Helper method to clear authentication data
+  Future<void> _clearAuthData() async {
+    await sharedPreferences.remove('token');
+    await sharedPreferences.remove('fcmToken');
+    userProvider.clearUser();
+    userProvider.setLoggedIn(false);
   }
 }

@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -49,27 +49,64 @@ class PhoneAuthViewModel extends ChangeNotifier {
   }
 
   Future<void> verifyOTP(BuildContext context, String otp) async {
+    if (isLoading) return; // Prevent multiple calls
+
     isLoading = true;
     error = '';
     notifyListeners();
+
     try {
-      await UserRepository.verifyOTP(
+      // Verify OTP with backend
+      final result = await UserRepository.verifyOTP(
           phoneController.text, verificationId!, otp, "");
-      try {
-        await userService.handleUserAuthentication(
-          onPermissionDenied: () => _showLocationPermissionDialog(context),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Successfully signed in!')),
-        );
-        // Navigate to home page
-        context.go('/');
-      } catch (e) {
-        // Handle error
+
+      if (!context.mounted) return;
+
+      // Small delay to ensure token is properly stored
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Check if user exists
+      bool isAuthenticated = await userService.isUserAuthenticated();
+
+      if (!context.mounted) return;
+
+      if (isAuthenticated) {
+        try {
+          // Existing user - just update FCM token if needed
+          await userService.loginExistingUser(phone: phoneController.text);
+          if (!context.mounted) return;
+          context.go('/');
+        } catch (e) {
+          log('Error during login: $e');
+          error = 'Login failed. Please try again.';
+          notifyListeners();
+        }
+      } else {
+        // New user - collect location and register
+        try {
+          await userService.registerNewUser(
+            phone: phoneController.text,
+            onPermissionDenied: () => _showLocationPermissionDialog(context),
+          );
+
+          if (!context.mounted) return;
+
+          // Check if name is required
+          if (nameController.text.isEmpty) {
+            context.go('/name-reg', extra: this);
+          } else {
+            context.go('/');
+          }
+        } catch (e) {
+          log('Registration error: $e');
+          error =
+              'Registration failed: Please check your connection and try again';
+          notifyListeners();
+        }
       }
-      // await _handleUserAuthentication();
     } catch (err) {
-      error = 'Error verifying OTP: $err';
+      log('OTP verification error: $err');
+      error = 'Invalid OTP. Please try again.';
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error verifying OTP')),
       );

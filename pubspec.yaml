@@ -48,6 +48,9 @@ dependencies:
   internet_connection_checker_plus: ^2.5.2
   phonepe_payment_sdk: ^2.0.3
   crypto: ^3.0.3
+  pin_code_fields: ^8.0.1
+  permission_handler: ^11.3.0
+  sms_autofill: ^2.3.0
 
    
 

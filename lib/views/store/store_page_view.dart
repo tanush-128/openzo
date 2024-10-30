@@ -87,9 +87,9 @@ class _StorePageState extends State<StorePage>
         //   body: _buildBody(),
         // ),
         body: WebViewC(
-          // url: "https://openzo-webview.vercel.app/store/${widget.storeId}",
-          url:
-              "https://fxscpgdl-3000.inc1.devtunnels.ms/store/${widget.storeId}",
+          url: "https://openzo-webview.vercel.app/store/${widget.storeId}",
+          // url:
+          //     "https://fxscpgdl-3000.inc1.devtunnels.ms/store/${widget.storeId}",
         ),
       ),
     );

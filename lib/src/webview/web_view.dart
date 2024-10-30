@@ -91,7 +91,8 @@ class _WebViewCState extends State<WebViewC> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    String userId = Provider.of<UserProvider>(context, listen: false).user?.id ?? ''; 
+    String userId =
+        Provider.of<UserProvider>(context, listen: false).user?.id ?? '';
 
     await _cookieManager.setCookie(
       WebViewCookie(
@@ -131,26 +132,28 @@ class _WebViewCState extends State<WebViewC> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onWillPop,
-      child: Scaffold(
-        body: Stack(
-          children: [
-            if (_webViewInitialized)
-              WebViewWidget(
-                controller: _controller,
-              ),
-            if (_isLoading || !_webViewInitialized)
-              const Align(
-                alignment: Alignment.center,
-                child: Column(
-                  children: [
-                    Center(
-                      child: StoreDetailsSkeleton(),
-                    ),
-                    ProductListSkeleton(),
-                  ],
+      child: SafeArea(
+        child: Scaffold(
+          body: Stack(
+            children: [
+              if (_webViewInitialized)
+                WebViewWidget(
+                  controller: _controller,
                 ),
-              ),
-          ],
+              if (_isLoading || !_webViewInitialized)
+                const Align(
+                  alignment: Alignment.center,
+                  child: Column(
+                    children: [
+                      Center(
+                        child: StoreDetailsSkeleton(),
+                      ),
+                      ProductListSkeleton(),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
