@@ -22,6 +22,7 @@ class CartPageViewModel extends ChangeNotifier {
   int deliveryCharge = 0;
   bool addressConfirmed = false;
   TextEditingController noteController = TextEditingController();
+
   BuildContext context;
 
   // Add a reference to the listener
@@ -127,6 +128,8 @@ class CartPageViewModel extends ChangeNotifier {
     cart?.status = status;
 
     if (cart?.status == "placed") {
+      // orderTime = cart?.orderTime;
+      cart?.orderTime = DateTime.now();
       Provider.of<SalesProvider>(context, listen: false).updateSale(cart!);
     }
     notifyListeners();

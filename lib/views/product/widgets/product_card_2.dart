@@ -8,10 +8,10 @@ class ProductCard2 extends StatefulWidget {
   final bool addableToCart;
 
   const ProductCard2({
-    Key? key,
+    super.key,
     required this.product,
     this.addableToCart = true,
-  }) : super(key: key);
+  });
 
   @override
   State<ProductCard2> createState() => _ProductCard2State();
@@ -125,7 +125,6 @@ class _ProductCard2State extends State<ProductCard2> {
       ],
     );
   }
-
 }
 
 extension FirstWhereOrNullExtension<E> on Iterable<E> {

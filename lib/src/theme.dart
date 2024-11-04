@@ -17,10 +17,10 @@ ThemeData appTheme(BuildContext context) {
     dividerColor: Colors.grey.shade300,
     iconButtonTheme: IconButtonThemeData(
       style: ButtonStyle(
-        iconSize: MaterialStateProperty.all(24),
-        foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+        iconSize: WidgetStateProperty.all(24),
+        foregroundColor: WidgetStateProperty.resolveWith<Color?>(
           (states) {
-            if (states.contains(MaterialState.pressed)) {
+            if (states.contains(WidgetState.pressed)) {
               return GlobalStyle.primaryColor.withOpacity(0.8);
             }
             return Colors.black87;
@@ -149,16 +149,16 @@ ThemeData appTheme(BuildContext context) {
     ),
     checkboxTheme: CheckboxThemeData(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      fillColor: MaterialStateProperty.all(GlobalStyle.primaryColor),
-      checkColor: MaterialStateProperty.all(Colors.white),
+      fillColor: WidgetStateProperty.all(GlobalStyle.primaryColor),
+      checkColor: WidgetStateProperty.all(Colors.white),
     ),
     radioTheme: RadioThemeData(
-      fillColor: MaterialStateProperty.all(GlobalStyle.primaryColor),
+      fillColor: WidgetStateProperty.all(GlobalStyle.primaryColor),
     ),
     switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.all(GlobalStyle.primaryColor),
+      thumbColor: WidgetStateProperty.all(GlobalStyle.primaryColor),
       trackColor:
-          MaterialStateProperty.all(GlobalStyle.primaryColor.withOpacity(0.5)),
+          WidgetStateProperty.all(GlobalStyle.primaryColor.withOpacity(0.5)),
     ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: GlobalStyle.primaryColor,

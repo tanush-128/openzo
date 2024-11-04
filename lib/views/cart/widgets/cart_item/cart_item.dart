@@ -12,11 +12,11 @@ class CartItem extends StatelessWidget {
   bool? addable = true;
 
   CartItem({
-    Key? key,
+    super.key,
     required this.product,
     this.cart,
     this.addable = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -217,8 +217,7 @@ class CartItem extends StatelessWidget {
 class FoodProductDetails extends StatelessWidget {
   final CartItemViewModel viewModel;
 
-  const FoodProductDetails({Key? key, required this.viewModel})
-      : super(key: key);
+  const FoodProductDetails({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context) {
@@ -245,7 +244,7 @@ class FoodProductDetails extends StatelessWidget {
 class ProductImageWidget extends StatelessWidget {
   final Product product;
 
-  const ProductImageWidget({Key? key, required this.product}) : super(key: key);
+  const ProductImageWidget({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {

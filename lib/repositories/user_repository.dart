@@ -2,10 +2,9 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../constants/constants.dart';
 
 class UserRepository {
   static String endpoint = '${GlobalConsts.backend_url}/users';
@@ -28,10 +27,16 @@ class UserRepository {
 
     if (response.statusCode == 200) {
       return User.fromJson(jsonDecode(response.body));
-    } else {
+    } else if (response.statusCode == 500) {
+      // Only clear token for server errors (500)
       final prefs = await SharedPreferences.getInstance();
       prefs.remove('token');
-      throw Exception('Failed to load user');
+      throw Exception('Server error occurred');
+    } else {
+      // For other status codes, keep token but throw appropriate error
+      final errorMessage =
+          jsonDecode(response.body)['error'] ?? 'Failed to load user';
+      throw Exception(errorMessage);
     }
   }
 
@@ -102,7 +107,6 @@ class UserRepository {
   }
 
   static Future<String> generateOTP(String mobile) async {
-
     final response = await http.post(
       Uri.parse('$endpoint/otp'),
       headers: {

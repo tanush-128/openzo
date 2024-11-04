@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/sale.dart';
 import 'package:openzo_frontend/models/store.dart';
 import 'package:openzo_frontend/views/cart/widgets/cart_details.dart';
@@ -49,7 +48,6 @@ class _AddressDetailsState extends State<AddressDetails> {
               // Phone Section
               _buildPhoneSection(phone, context),
               // Total Bill Section as an ExpansionTile
-
             ],
           ),
         ),
@@ -129,8 +127,7 @@ class _AddressDetailsState extends State<AddressDetails> {
         const SizedBox(width: 12),
         Expanded(
           child: InkWell(
-            onTap: () {
-            },
+            onTap: () {},
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -202,11 +199,11 @@ class _AddressDetailsState extends State<AddressDetails> {
           //   ],
           // ),
 
-            CartDetails(
-              cart: cart,
-              deliveryCharge: store?.deliveryCharge ?? 0,
-              packingCharge: store?.packingCharge ?? 0,
-            ),
+          CartDetails(
+            cart: cart,
+            deliveryCharge: store?.deliveryCharge ?? 0,
+            packingCharge: store?.packingCharge ?? 0,
+          ),
           const SizedBox(height: 10), // Add some spacing after the section
         ],
       ),

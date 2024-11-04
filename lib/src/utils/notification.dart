@@ -65,13 +65,13 @@ void showNotification(RemoteMessage message) {
 }
 
 void setUpAwesomeNotif(
-  AppRouter _appRouter,
+  AppRouter appRouter,
 ) {
   AwesomeNotifications().setListeners(
       onActionReceivedMethod: (receivedAction) async {
         String? orderId = receivedAction.payload?["order_id"];
         log("Order Id :$orderId");
-        _appRouter.router.go("/cart/$orderId");
+        appRouter.router.go("/cart/$orderId");
       },
       onNotificationCreatedMethod:
           NotificationController.onNotificationCreatedMethod,

@@ -6,7 +6,7 @@ import 'package:openzo_frontend/repositories/sale_repository.dart';
 import 'package:openzo_frontend/viewmodels/user_provider.dart';
 
 class SalesProvider extends ChangeNotifier {
-  UserProvider _userProvider;
+  final UserProvider _userProvider;
   SalesProvider(
     this._userProvider,
   ) {
@@ -22,13 +22,13 @@ class SalesProvider extends ChangeNotifier {
     phone: "",
   );
 
-  List<Sale> _onlineOrders = [];
+  final List<Sale> _onlineOrders = [];
   List<Sale> get onlineOrders => _onlineOrders;
 
   List<Sale> get placedOrders => _getPlacedOrders(_onlineOrders);
 
   List<Sale> _getPlacedOrders(List<Sale> orders) {
-    List<Sale> _placedOrders = [];
+    List<Sale> placedOrders = [];
 
     for (var order in orders) {
       if (order.status != "not_placed" &&
@@ -36,16 +36,16 @@ class SalesProvider extends ChangeNotifier {
           order.status != "rejected" &&
           order.status != "cancelled" &&
           order.status != "completed") {
-        _placedOrders.add(order);
+        placedOrders.add(order);
       }
 
       if ((order.status == "rejected" || order.status == "cancelled") &&
           order.orderTime!
               .isAfter(DateTime.now().subtract(const Duration(minutes: 30)))) {
-        _placedOrders.add(order);
+        placedOrders.add(order);
       }
     }
-    return _placedOrders;
+    return placedOrders;
   }
 
   List<Sale> get unplacedOrders =>
@@ -109,34 +109,34 @@ class SalesProvider extends ChangeNotifier {
   }
 
   Future<void> addSale(Sale onlineOrder) async {
-    Customer _customer = Customer(
+    Customer customer = Customer(
       id: 0,
       phone: _user.phone,
       userDataId: _user.id,
       address: _user.address ?? "",
     );
-    onlineOrder.customer = _customer;
-    Sale _onlineOrder = await SaleRepository.createSale(onlineOrder);
-    _onlineOrders.add(_onlineOrder);
+    onlineOrder.customer = customer;
+    Sale onlineOrder0 = await SaleRepository.createSale(onlineOrder);
+    _onlineOrders.add(onlineOrder0);
 
     notifyListeners();
   }
 
   Future<void> fetchSaleById(String id) async {
-    Sale _onlineOrder = await SaleRepository.getSaleByID(id);
+    Sale onlineOrder = await SaleRepository.getSaleByID(id);
     if (_onlineOrders.indexWhere((element) => element.id == id) == -1) {
-      _onlineOrders.add(_onlineOrder);
+      _onlineOrders.add(onlineOrder);
     } else {
       _onlineOrders[_onlineOrders.indexWhere((element) => element.id == id)] =
-          _onlineOrder;
+          onlineOrder;
     }
     notifyListeners();
   }
 
   Future<void> updateSale(Sale onlineOrder) async {
-    Sale _onlineOrder = await SaleRepository.updateSale(onlineOrder);
+    Sale onlineOrder0 = await SaleRepository.updateSale(onlineOrder);
     _onlineOrders[_onlineOrders
-        .indexWhere((element) => element.id == onlineOrder.id)] = _onlineOrder;
+        .indexWhere((element) => element.id == onlineOrder.id)] = onlineOrder0;
     notifyListeners();
   }
 
@@ -176,35 +176,35 @@ class SalesProvider extends ChangeNotifier {
       return;
     }
 
-    Sale _onlineOrder = _onlineOrders
+    Sale onlineOrder = _onlineOrders
         .where((element) => element.status == "not_placed")
         .firstWhere((element) => element.storeId == product.storeID);
 
-    int prevQuantity = _onlineOrder.orderItems
+    int prevQuantity = onlineOrder.orderItems
             .where((element) => element.productId == product.id)
             .firstOrNull
             ?.quantity ??
         0;
 
-    if (_onlineOrder.orderItems
+    if (onlineOrder.orderItems
         .any((element) => element.productId == product.id)) {
       if (quantity == 0) {
-        _onlineOrder.orderItems
+        onlineOrder.orderItems
             .removeWhere((element) => element.productId == product.id);
       } else {
-        _onlineOrder
-            .orderItems[_onlineOrder.orderItems
+        onlineOrder
+            .orderItems[onlineOrder.orderItems
                 .indexWhere((element) => element.productId == product.id)]
             .quantity = quantity;
       }
     } else {
-      _onlineOrder.orderItems
+      onlineOrder.orderItems
           .add(OrderItem(productId: product.id, quantity: quantity));
     }
-    _onlineOrder.totalAmount +=
+    onlineOrder.totalAmount +=
         product.discountPrice * (quantity - prevQuantity) * 1.0;
 
-    await updateSale(_onlineOrder);
+    await updateSale(onlineOrder);
     notifyListeners();
   }
 

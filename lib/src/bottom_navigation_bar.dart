@@ -25,6 +25,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
   late List<Widget> _pages;
   bool _internet = true; // Assume true initially
+  bool _isLoading = true;
   final ConnectivityService _connectivityService = ConnectivityService();
   late UserService _userService;
 
@@ -44,12 +45,25 @@ class _BottomNavBarState extends State<BottomNavBar> {
   }
 
   Future<void> _initialize() async {
-    await _checkInternetConnection();
-    if (_internet) {
-      await _checkAuthentication();
-    } else {
+    setState(() => _isLoading = true);
+    
+    try {
+      await _checkInternetConnection();
+      if (_internet) {
+        await _checkAuthentication();
+      } else {
+        if (mounted) {
+          context.go('/no-internet');
+        }
+      }
+    } catch (e) {
+      log('Initialization error: $e');
       if (mounted) {
-        context.go('/no-internet');
+        context.go('/login');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -60,15 +74,23 @@ class _BottomNavBarState extends State<BottomNavBar> {
   }
 
   Future<void> _checkAuthentication() async {
-    bool isAuthenticated = await _userService.isUserAuthenticated();
-    if (isAuthenticated) {
-      log("Checking authentication");
+    try {
+      bool isAuthenticated = await _userService.isUserAuthenticated();
+      
+      if (!isAuthenticated) {
+        if (mounted) {
+          context.go('/login');
+        }
+        return;
+      }
 
-      await _userService.handleUserAuthentication(
-        onPermissionDenied: () => _showLocationPermissionDialog(context),
+      // For existing users, try to update FCM token if needed
+      await _userService.loginExistingUser(
+        phone: Provider.of<UserProvider>(context, listen: false).user?.phone ?? '',
       );
-      // Fetch orders if necessary
-    } else {
+      
+    } catch (e) {
+      log('Authentication error: $e');
       if (mounted) {
         context.go('/login');
       }
@@ -100,12 +122,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
-        if (!_internet) {
+        if (_isLoading || !_internet) {
           return const LoadingScreen();
         }
 
         if (!userProvider.isLoggedIn) {
-          // User is not logged in
           return const LoadingScreen();
         }
 
@@ -136,8 +157,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
                 label: 'Carts',
               ),
               BottomNavigationBarItem(
-                icon:
-                    ImageIcon(AssetImage('assets/icons/Local marketplace.png')),
+                icon: ImageIcon(AssetImage('assets/icons/Local marketplace.png')),
                 label: 'Profile',
               ),
             ],

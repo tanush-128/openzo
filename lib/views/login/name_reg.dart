@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 class NameReg extends StatelessWidget {
   final PhoneAuthViewModel viewModel;
-  const NameReg({Key? key, required this.viewModel}) : super(key: key);
+  const NameReg({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context) {

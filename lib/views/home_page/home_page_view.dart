@@ -312,7 +312,7 @@ class _ChangePincodeState extends State<ChangePincode> {
                   Navigator.pop(context);
                 },
                 child: loading
-                    ? Container(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: const CircularProgressIndicator(

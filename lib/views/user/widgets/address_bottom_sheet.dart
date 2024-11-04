@@ -23,7 +23,7 @@ Future<dynamic> editSheet(BuildContext context, Address? address) {
 }
 
 class ModalSheet extends StatefulWidget {
-  const ModalSheet({Key? key}) : super(key: key);
+  const ModalSheet({super.key});
 
   @override
   State<ModalSheet> createState() => _ModalSheetState();

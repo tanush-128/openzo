@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:openzo_frontend/views/widgets/rating.dart';
 import 'package:openzo_frontend/constants/constants.dart';
 import 'package:openzo_frontend/models/store.dart';
-import 'package:openzo_frontend/src/webview/web_view.dart';
 
 class StoreCard extends StatefulWidget {
   final Store store;

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/models/product.dart';
 import 'package:openzo_frontend/models/sale.dart';
-import 'package:openzo_frontend/viewmodels/sales_provider.dart';
-import 'package:provider/provider.dart';
 
 class CartItemViewModel with ChangeNotifier {
   final Product product;

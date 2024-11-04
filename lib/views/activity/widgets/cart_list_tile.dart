@@ -7,7 +7,7 @@ import 'package:openzo_frontend/repositories/store_repository.dart';
 
 class CartListTile extends StatefulWidget {
   final Sale cart;
-  CartListTile({super.key, required this.cart});
+  const CartListTile({super.key, required this.cart});
 
   @override
   State<CartListTile> createState() => _CartListTileState();
@@ -38,7 +38,8 @@ class _CartListTileState extends State<CartListTile> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 16.0, horizontal: 16.0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -47,17 +48,18 @@ class _CartListTileState extends State<CartListTile> {
                       borderRadius: BorderRadius.circular(8),
                       child: store.image.isNotEmpty
                           ? Image.network(
-                        store.image,
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
-                      )
+                              store.image,
+                              width: 60,
+                              height: 60,
+                              fit: BoxFit.cover,
+                            )
                           : Container(
-                        width: 60,
-                        height: 60,
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.storefront, color: Colors.grey),
-                      ),
+                              width: 60,
+                              height: 60,
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.storefront,
+                                  color: Colors.grey),
+                            ),
                     ),
                     const SizedBox(width: 16),
                     // Store Info
@@ -84,7 +86,8 @@ class _CartListTileState extends State<CartListTile> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            DateFormat('hh:mm a · dd MMMM').format(widget.cart.orderTime ?? DateTime.now()),
+                            DateFormat('hh:mm a · dd MMMM').format(
+                                widget.cart.orderTime ?? DateTime.now()),
                             style: const TextStyle(
                               fontSize: 12,
                               color: Colors.grey,
@@ -100,7 +103,8 @@ class _CartListTileState extends State<CartListTile> {
                         OrderStatusBadge(status: widget.cart.status),
                         const SizedBox(height: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: Colors.blue.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
@@ -129,7 +133,7 @@ class _CartListTileState extends State<CartListTile> {
 }
 
 class OrderStatusBadge extends StatelessWidget {
-  const OrderStatusBadge({Key? key, required this.status}) : super(key: key);
+  const OrderStatusBadge({super.key, required this.status});
 
   final String status;
 
