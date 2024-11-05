@@ -9,10 +9,10 @@ class ProductCard extends StatefulWidget {
   final bool addableToCart;
 
   const ProductCard({
-    Key? key,
+    super.key,
     required this.product,
     this.addableToCart = true,
-  }) : super(key: key);
+  });
 
   @override
   State<ProductCard> createState() => _ProductCardState();

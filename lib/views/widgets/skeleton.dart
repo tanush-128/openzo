@@ -2,10 +2,10 @@ import "package:flutter/material.dart";
 
 class Skeleton extends StatelessWidget {
   Skeleton({
-    Key? key,
+    super.key,
     this.width = 100,
     this.height = 80,
-  }) : super(key: key);
+  });
   int width = 100;
   int height = 80;
   @override

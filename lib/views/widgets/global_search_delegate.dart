@@ -137,7 +137,7 @@ class GlobalSearchDelegate extends SearchDelegate {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text('Products',
-                      style: Theme.of(context).textTheme.headline6),
+                      style: Theme.of(context).textTheme.headlineMedium),
                 ),
                 ...products.map((product) => Padding(
                       padding: const EdgeInsets.symmetric(
@@ -149,7 +149,7 @@ class GlobalSearchDelegate extends SearchDelegate {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text('Stores',
-                      style: Theme.of(context).textTheme.headline6),
+                      style: Theme.of(context).textTheme.headlineMedium),
                 ),
                 ...stores.map((store) => Padding(
                       padding: const EdgeInsets.symmetric(

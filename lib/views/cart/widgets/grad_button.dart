@@ -7,7 +7,7 @@ import 'package:openzo_frontend/viewmodels/cart_page_view_model.dart';
 class CancellationButton extends StatefulWidget {
   final CartPageViewModel viewModel;
 
-  CancellationButton({required this.viewModel});
+  const CancellationButton({super.key, required this.viewModel});
 
   @override
   _CancellationButtonState createState() => _CancellationButtonState();
@@ -90,7 +90,7 @@ class _CancellationButtonState extends State<CancellationButton> {
 
     double percentage = (timerDuration - remainingTime) / timerDuration;
 
-    return Container(
+    return SizedBox(
       height: 56,
       child: Center(
         child: GestureDetector(

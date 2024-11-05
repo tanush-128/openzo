@@ -12,9 +12,9 @@ import 'package:webview_flutter/webview_flutter.dart';
 class WebViewC extends StatefulWidget {
   final String? url;
   const WebViewC({
-    Key? key,
+    super.key,
     this.url,
-  }) : super(key: key);
+  });
 
   @override
   State<WebViewC> createState() => _WebViewCState();

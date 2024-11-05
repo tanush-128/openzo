@@ -18,7 +18,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 final RegExp otpPattern = RegExp(r'(\d{4}) is your OTP');
 
 class PhoneAuthPage extends StatefulWidget {
-  const PhoneAuthPage({Key? key}) : super(key: key);
+  const PhoneAuthPage({super.key});
 
   @override
   State<PhoneAuthPage> createState() => _PhoneAuthPageState();

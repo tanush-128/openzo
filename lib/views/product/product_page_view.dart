@@ -15,7 +15,7 @@ import 'package:openzo_frontend/viewmodels/sales_provider.dart';
 class ProductPage extends StatefulWidget {
   final String productId;
 
-  const ProductPage({Key? key, required this.productId}) : super(key: key);
+  const ProductPage({super.key, required this.productId});
 
   @override
   State<ProductPage> createState() => _ProductPageState();

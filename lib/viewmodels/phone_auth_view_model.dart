@@ -33,15 +33,17 @@ class PhoneAuthViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      String _verificationId =
-          await UserRepository.generateOTP(phoneController.text);
-      verificationId = _verificationId;
+      print("+91${phoneController.text}");
+      verificationId = await UserRepository.generateOTP(phoneController.text);
+
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('OTP sent to ${phoneController.text}')),
       );
     } catch (e) {
       error = 'Failed to send OTP: $e';
+      notifyListeners();
+
     } finally {
       isLoading = false;
       notifyListeners();

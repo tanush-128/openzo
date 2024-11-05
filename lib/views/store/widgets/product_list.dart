@@ -314,7 +314,7 @@ class _CategoryMenuState extends State<CategoryMenu> {
                   ),
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

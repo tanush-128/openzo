@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:openzo_frontend/src/utils/phonepe.dart';
-import 'package:phonepe_payment_sdk/phonepe_payment_sdk.dart';
 
 class PayOnline extends StatefulWidget {
   const PayOnline({super.key});

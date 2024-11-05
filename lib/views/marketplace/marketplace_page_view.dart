@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MarketplacePage extends StatelessWidget {
+  const MarketplacePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,11 +48,11 @@ class MarketplaceCard extends StatelessWidget {
   final ImageProvider image;
 
   const MarketplaceCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
     required this.image,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

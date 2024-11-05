@@ -36,7 +36,7 @@ class ProductRepository {
       Uri.parse('$endpoint/$productID'),
       headers: <String, String>{
         'Content-Type': 'application/json',
-        'Authorization': '$token',
+        'Authorization': token,
       },
     );
 
@@ -62,7 +62,7 @@ class ProductRepository {
       Uri.parse('$endpoint/store/$storeID'),
       headers: <String, String>{
         'Content-Type': 'application/json',
-        'Authorization': '$token',
+        'Authorization': token,
       },
     );
 
@@ -87,7 +87,7 @@ class ProductRepository {
           '${GlobalConsts.backend_url}/search/products/$pincode?term=$query'),
       headers: <String, String>{
         'Content-Type': 'application/json',
-        'Authorization': '$token',
+        'Authorization': token,
       },
     );
 

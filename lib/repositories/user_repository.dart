@@ -114,7 +114,6 @@ class UserRepository {
       },
       body: jsonEncode({'phone_no': mobile}),
     );
-
     if (response.statusCode == 200) {
       return jsonDecode(response.body)['verification_id'];
     } else {

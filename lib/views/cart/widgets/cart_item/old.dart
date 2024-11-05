@@ -13,12 +13,12 @@ class CartItem extends StatefulWidget {
   final bool addableToCart;
 
   const CartItem({
-    Key? key,
+    super.key,
     required this.product,
     this.cart,
     this.addable = true,
     this.addableToCart = true,
-  }) : super(key: key);
+  });
 
   @override
   State<CartItem> createState() => _CartItemState();

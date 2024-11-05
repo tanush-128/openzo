@@ -14,10 +14,10 @@ class SearchResultsPage extends StatefulWidget {
   final List<Product> products;
 
   const SearchResultsPage({
-    Key? key,
+    super.key,
     required this.stores,
     required this.products,
-  }) : super(key: key);
+  });
 
   @override
   _SearchResultsPageState createState() => _SearchResultsPageState();

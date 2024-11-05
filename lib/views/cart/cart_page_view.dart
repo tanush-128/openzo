@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openzo_frontend/models/sale.dart';
@@ -14,22 +15,50 @@ import 'package:openzo_frontend/views/cart/widgets/order_status.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
   final String id;
 
   const CartPage({super.key, required this.id});
 
   @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  final ScrollController _scrollController = ScrollController();
+  bool isAppBarCollapsed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    final bool shouldCollapse =
+        _scrollController.offset > (250 - kToolbarHeight);
+    if (shouldCollapse != isAppBarCollapsed) {
+      setState(() {
+        isAppBarCollapsed = shouldCollapse;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => CartPageViewModel(context, id),
+      create: (_) => CartPageViewModel(context, widget.id),
       child: Consumer<CartPageViewModel>(
         builder: (context, viewModel, child) {
           if (viewModel.cart == null) {
             return Scaffold(
-              appBar: AppBar(
-                title: const Text('Order Details'),
-              ),
+              appBar: AppBar(title: const Text('Order Details')),
               body: const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -43,178 +72,203 @@ class CartPage extends StatelessWidget {
             );
           }
 
-          return Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: Colors.grey.shade50,
-            appBar: AppBar(
-              title: Text(viewModel.store?.name ?? ""),
-              centerTitle: false,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ),
-            bottomNavigationBar: _buildBottomBar(context, viewModel),
-            body: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  const OrderStatus(),
-                  _buildPaymentReminder(viewModel.cart!),
-                  _buildStoreDetails(viewModel),
-                  _buildOrderItems(viewModel),
-                  AddressDetails(viewModel: viewModel),
-                  _buildAddNote(context, viewModel),
-                  _buildDeleteButton(context, viewModel),
-                  // PayOnline(),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await PhonePePaymentService().startTransaction(
-                          context: context,
-                          mobileNumber: "+919679689833",
-                          amount: 20.0);
-                    },
-                    child: const Text("Pay now"),
-                  ),
-                ],
-              ),
-            ),
-          );
+          return _buildbody(viewModel);
         },
       ),
     );
   }
 
-  Widget _buildPaymentReminder(Sale cart) {
-    if (cart.status == "not_placed" ||
-        cart.status == "delivered" ||
-        cart.status == "cancelled" ||
-        cart.status == "rejected") {
-      return const SizedBox();
+  Widget _buildbody(CartPageViewModel viewModel) {
+    if (["not_placed", "cancelled", "rejected"]
+        .contains(viewModel.cart?.status)) {
+      return Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: Colors.grey.shade50,
+        appBar: AppBar(title: const Text('Order Details')),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              buildPaymentReminder(viewModel.cart!),
+              buildStoreDetails(viewModel),
+              buildOrderItems(viewModel),
+              AddressDetails(viewModel: viewModel),
+              buildAddNoteSection(viewModel),
+              _buildDeleteButton(viewModel),
+              _buildPaymentButton(),
+              CancellationButton(
+                viewModel: viewModel,
+              ),
+              _buildBottomBar(viewModel),
+            ],
+          ),
+        ),
+      );
     }
-    return Container(
-      margin: const EdgeInsets.all(8),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: const Row(
-        children: [
-          Icon(Icons.payment),
-          SizedBox(width: 8),
-          Expanded(
-              child: Text(
-            "Pay at delivery through Cash/UPI",
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-          ))
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      backgroundColor: Colors.grey.shade50,
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 250.0,
+            flexibleSpace: FlexibleSpaceBar(
+              background: const OrderStatus(),
+              title: SilverAppBarTitle(controller: _scrollController),
+            ),
+            pinned: true,
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.black, size: 20),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+          ),
+          _buildSliverContent(viewModel),
         ],
       ),
     );
   }
 
-  Widget _buildStoreDetails(CartPageViewModel viewModel) {
+  Widget _buildSliverContent(CartPageViewModel viewModel) {
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        buildPaymentReminder(viewModel.cart!),
+        buildStoreDetails(viewModel),
+        buildOrderItems(viewModel),
+        AddressDetails(viewModel: viewModel),
+        buildAddNoteSection(viewModel),
+        _buildDeleteButton(viewModel),
+        _buildPaymentButton(),
+        CancellationButton(viewModel: viewModel),
+        _buildBottomBar(viewModel),
+      ]),
+    );
+  }
+
+  Widget buildPaymentReminder(Sale cart) {
+    if (["not_placed", "delivered", "cancelled", "rejected"]
+        .contains(cart.status)) {
+      return const SizedBox();
+    }
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.lightBlueAccent.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.lightBlueAccent.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.payment, color: Colors.lightBlueAccent, size: 24),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: Text(
+              "Pay at delivery through Cash/UPI",
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.lightBlueAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildStoreDetails(CartPageViewModel viewModel) {
     if (viewModel.store == null) return const SizedBox();
     Store store = viewModel.store!;
     const Color phoneColor = Color.fromARGB(255, 33, 89, 243);
     return Container(
-      decoration: kBoxDecoration,
-      margin: const EdgeInsets.all(8),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(store.name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  )),
-            ],
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 8,
+            offset: Offset(0, 4),
           ),
-          if (store.phone != "")
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            store.name,
+            style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87),
+          ),
+          const SizedBox(height: 8),
+          if (store.phone.isNotEmpty)
+            Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 0),
-                  child: Row(
-                    children: [
-                      const ImageIcon(
-                        AssetImage('assets/icons/phone.png'),
-                        color: phoneColor,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 12),
-                      InkWell(
-                        onTap: () {
-                          launchUrl(
-                              Uri(scheme: 'tel', path: "+91 ${store.phone}"));
-                        },
-                        child: Text(
-                          "+91 ${store.phone}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: phoneColor,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 8,
-                      ),
-                      const Icon(
-                        Icons.arrow_forward,
-                        size: 18,
-                        color: phoneColor,
-                      )
-                    ],
+                const Icon(Icons.phone, color: phoneColor, size: 20),
+                const SizedBox(width: 12),
+                InkWell(
+                  onTap: () =>
+                      launchUrl(Uri(scheme: 'tel', path: "+91 ${store.phone}")),
+                  child: Text(
+                    "+91 ${store.phone}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                      color: phoneColor,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
-                // if (cart.status != "not_placed")
-                //   Text("To Modify (or) Cancel Order contact the store",
-                //       style: TextStyle(
-                //         fontWeight: FontWeight.w500,
-                //         fontSize: 14,
-                //         color: Colors.grey.shade500,
-                //       )),
               ],
-            )
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildOrderItems(CartPageViewModel viewModel) {
+  Widget buildOrderItems(CartPageViewModel viewModel) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            blurRadius: 5,
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 8,
+            offset: Offset(0, 4),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Text(
+            "Order Items",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
           ListView.builder(
             itemCount: viewModel.products.length,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
-              return CartItem(
-                product: viewModel.products[index],
-                cart: viewModel.cart!,
-                addable: viewModel.notPlaced,
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: CartItem(
+                  product: viewModel.products[index],
+                  cart: viewModel.cart!,
+                  addable: viewModel.notPlaced,
+                ),
               );
             },
           ),
@@ -223,132 +277,121 @@ class CartPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDeleteButton(BuildContext context, CartPageViewModel viewModel) {
-    if (viewModel.cart == null) {
-      return Container();
-    }
-    Sale cart = viewModel.cart!;
-
-    if (cart.status != "not_placed") {
-      return Container();
-    }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        TextButton.icon(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text("Delete Cart"),
-                    content: const Text(
-                        "Are you sure you want to delete this cart?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Provider.of<SalesProvider>(context, listen: false)
-                              .deleteSale(cart.id)
-                              .then((value) {});
-                          context.go("/");
-                          // Navigator.pop(context);
-                        },
-                        child: const Text('Delete'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            icon: const Icon(Icons.delete),
-            label: const Text("Delete Cart")),
-      ],
-    );
-  }
-
-  Widget _buildAddNote(BuildContext context, CartPageViewModel viewModel) {
-    if (viewModel.cart!.status == "delivered" ||
-        viewModel.cart!.status == "cancelled" ||
-        viewModel.cart!.status == "rejected") {
+  Widget buildAddNoteSection(CartPageViewModel viewModel) {
+    if (["delivered", "cancelled", "rejected"]
+        .contains(viewModel.cart!.status)) {
       return const SizedBox();
     }
     return Container(
-      margin: const EdgeInsets.all(8),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-      decoration: kBoxDecoration,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'Add Note',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
+          const SizedBox(height: 8),
           TextField(
             minLines: 3,
-            controller: viewModel.noteController,
             maxLines: 5,
-            decoration: const InputDecoration(
+            controller: viewModel.noteController,
+            decoration: InputDecoration(
               hintText: 'Add a note to your order',
+              hintStyle: TextStyle(color: Colors.grey[400]),
+              filled: true,
+              fillColor: Colors.grey[100],
               border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide.none,
               ),
             ),
           ),
-          const SizedBox(height: 10),
           TextButton(
-            onPressed: () {
-              viewModel.updateNote(viewModel.noteController.text);
-            },
-            child: const Text("Save"),
-          )
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () =>
+                viewModel.updateNote(viewModel.noteController.text),
+            child: const Text(
+              "Save Note",
+              style: TextStyle(
+                  fontSize: 16, fontWeight: FontWeight.w500, color: Colors.red),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget? _buildBottomBar(BuildContext context, CartPageViewModel viewModel) {
-    if (viewModel.cart!.status != "not_placed") {
-      return CancellationButton(viewModel: viewModel);
-    }
+  Widget _buildDeleteButton(CartPageViewModel viewModel) {
+    if (viewModel.cart?.status != "not_placed") return const SizedBox();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        TextButton.icon(
+          onPressed: () => _confirmDelete(viewModel),
+          icon: const Icon(Icons.delete),
+          label: const Text("Delete Cart"),
+        ),
+      ],
+    );
+  }
 
-    askForOrderConfirmation() {
-      showDialog(
-        context: context,
-        builder: (context2) {
-          return AlertDialog(
-            title: const Text('Order Confirmation'),
-            content: const Text('Are you sure you want to place this order?'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context2);
-                },
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  viewModel.updateCartStatus('placed');
-                  Navigator.pop(context2);
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return SuccessPage();
-                  }));
-                },
-                child: const Text('Confirm'),
-              ),
-            ],
-          );
-        },
-      );
-    }
+  void _confirmDelete(CartPageViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Delete Cart"),
+        content: const Text("Are you sure you want to delete this cart?"),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              Provider.of<SalesProvider>(context, listen: false)
+                  .deleteSale(viewModel.cart!.id);
+              context.go("/");
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentButton() {
+    return ElevatedButton(
+      onPressed: () async {
+        await PhonePePaymentService().startTransaction(
+          context: context,
+          mobileNumber: "+919679689833",
+          amount: 20.0,
+        );
+      },
+      child: const Text("Pay now"),
+    );
+  }
+
+  Widget _buildBottomBar(CartPageViewModel viewModel) {
+    if (viewModel.cart?.status != "not_placed") return const SizedBox();
 
     return Container(
       color: Colors.white,
@@ -365,50 +408,99 @@ class CartPage extends StatelessWidget {
                   "₹${viewModel.cart!.totalAmount + (viewModel.store?.deliveryCharge ?? 0)}"),
             ],
           ),
-          viewModel.addressConfirmed
-              ? ElevatedButton(
-                  onPressed: () {
-                    if (viewModel.phone.isEmpty || viewModel.address.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'Please enter your phone number and address'),
-                        ),
-                      );
-                      return;
-                    }
-                    askForOrderConfirmation();
-                  },
-                  child: const Row(
-                    children: [
-                      Text('Place Order'),
-                      SizedBox(width: 10),
-                      Icon(Icons.arrow_forward),
-                    ],
-                  ),
-                )
-              : ElevatedButton(
-                  onPressed: () {
-                    if (viewModel.phone.isEmpty || viewModel.address.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'Please enter your phone number and address'),
-                        ),
-                      );
-                      return;
-                    }
-
-                    viewModel.editAddress(context,
-                        setAddressConfirmation: true);
-                  },
-                  child: const Row(
-                    children: [
-                      Text('Confirm Address'),
-                    ],
-                  ),
-                ),
+          ElevatedButton(
+            onPressed: () {
+              if (viewModel.phone.isEmpty || viewModel.address.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content:
+                          Text('Please enter your phone number and address')),
+                );
+                return;
+              }
+              _askForOrderConfirmation(viewModel);
+            },
+            child: const Row(
+              children: [
+                Text('Place Order'),
+                SizedBox(width: 10),
+                Icon(Icons.arrow_forward)
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  void _askForOrderConfirmation(CartPageViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (context2) => AlertDialog(
+        title: const Text('Order Confirmation'),
+        content: const Text('Are you sure you want to place this order?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context2),
+              child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              viewModel.updateCartStatus('placed');
+              Navigator.pop(context2);
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => SuccessPage()));
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SilverAppBarTitle extends StatefulWidget {
+  final ScrollController controller;
+
+  const SilverAppBarTitle({super.key, required this.controller});
+
+  @override
+  State<SilverAppBarTitle> createState() => _SilverAppBarTitleState();
+}
+
+class _SilverAppBarTitleState extends State<SilverAppBarTitle> {
+  bool isCollapsed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_scrollListener);
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    final bool shouldCollapse =
+        widget.controller.offset > (250 - kToolbarHeight);
+    if (shouldCollapse != isCollapsed) {
+      setState(() {
+        isCollapsed = shouldCollapse;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedOpacity(
+      opacity: isCollapsed ? 1.0 : 0.0,
+      duration: const Duration(milliseconds: 100),
+      child: const Text(
+        "Order Details",
+        style: TextStyle(
+            color: Colors.black, fontSize: 20.0, fontWeight: FontWeight.bold),
       ),
     );
   }

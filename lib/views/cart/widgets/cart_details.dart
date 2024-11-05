@@ -5,6 +5,7 @@ class CartDetails extends StatefulWidget {
   final Sale cart;
   final int deliveryCharge;
   final int packingCharge;
+
   const CartDetails({
     super.key,
     required this.cart,
@@ -19,99 +20,83 @@ class CartDetails extends StatefulWidget {
 class _CartDetailsState extends State<CartDetails> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      color: Colors.white,
-      child: Row(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ImageIcon(
-            const AssetImage('assets/icons/bill.png'),
-            color: Colors.grey.shade700,
-            size: 18,
+          Row(
+            children: [
+              Icon(
+                Icons.receipt_long,
+                color: Colors.deepOrange,
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                "Price Details",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Price Details",
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+          const SizedBox(height: 12),
+          Divider(color: Colors.grey.shade300, thickness: 1),
+          const SizedBox(height: 12),
+          _buildDetailRow("MRP", widget.cart.totalAmount),
+          const SizedBox(height: 10),
+          _buildDetailRow("Delivery Charge", widget.deliveryCharge ),
+          const SizedBox(height: 10),
+          _buildDetailRow("Packing Charge", widget.packingCharge),
+          const SizedBox(height: 12),
+          Divider(color: Colors.grey.shade300, thickness: 1),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Total Amount",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Total MRP",
-                        style: TextStyle(
-                            fontSize: 15, color: Colors.grey.shade600)),
-                    Text(
-                      "₹${widget.cart.totalAmount}",
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                  ],
+              ),
+              Text(
+                "₹${widget.cart.totalAmount + widget.deliveryCharge + widget.packingCharge}",
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepOrange,
                 ),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Delivery Charge",
-                        style: TextStyle(
-                            fontSize: 15, color: Colors.grey.shade600)),
-                    Text(
-                      "₹${widget.deliveryCharge}",
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Packing Charge",
-                        style: TextStyle(
-                            fontSize: 15, color: Colors.grey.shade600)),
-                    Text(
-                      "₹${widget.packingCharge}",
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                const Divider(
-                  color: Colors.grey,
-                  thickness: 1.5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("Total Amount",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold)),
-                      Text(
-                        "₹${widget.cart.totalAmount + widget.deliveryCharge}",
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(
-                  color: Colors.grey,
-                  thickness: 1.5,
-                ),
-                const SizedBox(height: 10),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, amount) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+        ),
+        Text(
+          "₹$amount",
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 }

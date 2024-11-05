@@ -5,7 +5,7 @@ import 'package:openzo_frontend/views/activity/widgets/cart_list_tile.dart';
 import 'package:provider/provider.dart';
 
 class AllOrdersPage extends StatelessWidget {
-  const AllOrdersPage({Key? key}) : super(key: key);
+  const AllOrdersPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,7 @@ class AllOrdersPage extends StatelessWidget {
 class CartList extends StatefulWidget {
   final String status;
 
-  const CartList({Key? key, required this.status}) : super(key: key);
+  const CartList({super.key, required this.status});
 
   @override
   State<CartList> createState() => _CartListState();
